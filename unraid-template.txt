@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>DockerTemplateManager</Name>
+  <Repository>yourusername/docker-template-manager:latest</Repository>
+  <Registry>https://hub.docker.com/r/yourusername/docker-template-manager/</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/yourusername/docker-template-manager/issues</Support>
+  <Project>https://github.com/yourusername/docker-template-manager</Project>
+  <Overview>
+    Docker Template Manager provides a modern web interface for managing Unraid Docker templates.
+    
+    Features:
+    - Clean up unused templates with visual matching
+    - Backup all containers and their configurations
+    - View template-to-container relationships
+    - Manage backups with one click
+    - Smart template matching (handles my-, wp- prefixes)
+    - Safe operations with automatic backups before deletion
+    
+    Perfect for keeping your Unraid Docker templates organized and preparing for vdisk to folder migration.
+  </Overview>
+  <Category>Tools:Utilities</Category>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/yourusername/docker-template-manager/master/unraid-template.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/yourusername/docker-template-manager/master/icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled></DateInstalled>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="8080" Default="8080" Mode="tcp" Description="Web interface port - Access the manager at http://[IP]:8080" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  
+  <Config Name="Docker Socket" Target="/var/run/docker.sock" Default="/var/run/docker.sock" Mode="ro" Description="Docker socket for container information (read-only for security)" Type="Path" Display="always" Required="true" Mask="false">/var/run/docker.sock</Config>
+  
+  <Config Name="Templates Directory" Target="/templates" Default="/boot/config/plugins/dockerMan/templates-user" Mode="rw" Description="Unraid Docker templates directory - DO NOT CHANGE unless you know what you're doing" Type="Path" Display="always" Required="true" Mask="false">/boot/config/plugins/dockerMan/templates-user</Config>
+  
+  <Config Name="Backups Directory" Target="/backups" Default="/mnt/user/appdata/docker-template-manager/backups" Mode="rw" Description="Where backups will be stored" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/docker-template-manager/backups</Config>
+  
+  <Config Name="Config Directory" Target="/config" Default="/mnt/user/appdata/docker-template-manager/config" Mode="rw" Description="Application configuration storage" Type="Path" Display="advanced" Required="true" Mask="false">/mnt/user/appdata/docker-template-manager/config</Config>
+  
+  <Config Name="Timezone" Target="TZ" Default="Europe/Amsterdam" Mode="" Description="Timezone for timestamps" Type="Variable" Display="advanced" Required="false" Mask="false">Europe/Amsterdam</Config>
+  
+  <Config Name="Backup Retention Days" Target="BACKUP_RETENTION_DAYS" Default="30" Mode="" Description="Number of days to keep old backups (not yet implemented)" Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
+  
+  <Config Name="Auto Cleanup Enabled" Target="AUTO_CLEANUP_ENABLED" Default="false" Mode="" Description="Enable automatic template cleanup (not yet implemented)" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+</Container>

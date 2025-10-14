@@ -1,0 +1,461 @@
+#!/usr/bin/env python3
+"""
+Docker Template Manager - Backend API
+Flask application for managing Unraid Docker templates
+"""
+
+from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
+import docker
+import os
+import json
+import shutil
+from datetime import datetime
+from pathlib import Path
+import re
+
+app = Flask(__name__)
+CORS(app)
+
+# Configuration
+TEMPLATE_DIR = os.getenv('TEMPLATE_DIR', '/templates')
+BACKUP_DIR = os.getenv('BACKUP_DIR', '/backups')
+CONFIG_DIR = os.getenv('CONFIG_DIR', '/config')
+
+# Ensure directories exist
+os.makedirs(BACKUP_DIR, exist_ok=True)
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
+# Initialize Docker client
+try:
+    docker_client = docker.from_env()
+except Exception as e:
+    print(f"Warning: Could not connect to Docker: {e}")
+    docker_client = None
+
+
+class TemplateManager:
+    """Manages Docker template operations"""
+    
+    @staticmethod
+    def get_all_templates():
+        """Get all template files"""
+        templates = []
+        if not os.path.exists(TEMPLATE_DIR):
+            return templates
+            
+        for filename in os.listdir(TEMPLATE_DIR):
+            if filename.endswith('.xml'):
+                filepath = os.path.join(TEMPLATE_DIR, filename)
+                template_name = filename[:-4]  # Remove .xml
+                
+                templates.append({
+                    'filename': filename,
+                    'name': template_name,
+                    'path': filepath,
+                    'size': os.path.getsize(filepath),
+                    'modified': datetime.fromtimestamp(os.path.getmtime(filepath)).isoformat(),
+                })
+        
+        return sorted(templates, key=lambda x: x['name'].lower())
+    
+    @staticmethod
+    def find_matching_container(template_name, containers):
+        """Find container matching template using multiple strategies"""
+        # Strategy 1: Exact match
+        for container in containers:
+            if container['name'] == template_name:
+                return container
+        
+        # Strategy 2: Remove common prefixes
+        stripped_name = re.sub(r'^(my-|wp-)', '', template_name)
+        for container in containers:
+            if container['name'] == stripped_name:
+                return container
+        
+        # Strategy 3: Case-insensitive match
+        template_lower = template_name.lower()
+        stripped_lower = stripped_name.lower()
+        for container in containers:
+            container_lower = container['name'].lower()
+            if container_lower == template_lower or container_lower == stripped_lower:
+                return container
+        
+        return None
+    
+    @staticmethod
+    def get_template_content(filename):
+        """Read template XML content"""
+        filepath = os.path.join(TEMPLATE_DIR, filename)
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            return None
+
+
+class ContainerManager:
+    """Manages Docker container operations"""
+    
+    @staticmethod
+    def get_all_containers():
+        """Get all containers (running and stopped)"""
+        if not docker_client:
+            return []
+        
+        containers = []
+        try:
+            for container in docker_client.containers.list(all=True):
+                containers.append({
+                    'id': container.id[:12],
+                    'name': container.name,
+                    'image': container.image.tags[0] if container.image.tags else container.image.id[:12],
+                    'status': container.status,
+                    'state': container.attrs['State']['Status'],
+                    'created': container.attrs['Created'],
+                })
+        except Exception as e:
+            print(f"Error getting containers: {e}")
+        
+        return sorted(containers, key=lambda x: x['name'].lower())
+    
+    @staticmethod
+    def get_container_inspect(container_name):
+        """Get detailed container information"""
+        if not docker_client:
+            return None
+        
+        try:
+            container = docker_client.containers.get(container_name)
+            return container.attrs
+        except Exception as e:
+            print(f"Error inspecting container {container_name}: {e}")
+            return None
+
+
+class BackupManager:
+    """Manages backup operations"""
+    
+    @staticmethod
+    def create_backup(backup_name=None):
+        """Create backup of all containers and templates"""
+        if backup_name is None:
+            backup_name = f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        
+        backup_path = os.path.join(BACKUP_DIR, backup_name)
+        os.makedirs(backup_path, exist_ok=True)
+        
+        # Backup templates
+        templates_backup = os.path.join(backup_path, 'templates')
+        if os.path.exists(TEMPLATE_DIR):
+            shutil.copytree(TEMPLATE_DIR, templates_backup, dirs_exist_ok=True)
+        
+        # Backup container configurations
+        containers_backup = os.path.join(backup_path, 'containers')
+        os.makedirs(containers_backup, exist_ok=True)
+        
+        containers = ContainerManager.get_all_containers()
+        for container in containers:
+            inspect_data = ContainerManager.get_container_inspect(container['name'])
+            if inspect_data:
+                inspect_file = os.path.join(containers_backup, f"{container['name']}.json")
+                with open(inspect_file, 'w') as f:
+                    json.dump(inspect_data, f, indent=2)
+        
+        # Create mapping file
+        mapping_file = os.path.join(backup_path, 'container-template-mapping.json')
+        mapping = BackupManager._create_mapping(containers)
+        with open(mapping_file, 'w') as f:
+            json.dump(mapping, f, indent=2)
+        
+        # Create metadata
+        metadata = {
+            'created': datetime.now().isoformat(),
+            'container_count': len(containers),
+            'template_count': len(TemplateManager.get_all_templates()),
+            'name': backup_name
+        }
+        metadata_file = os.path.join(backup_path, 'metadata.json')
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        
+        return backup_name
+    
+    @staticmethod
+    def _create_mapping(containers):
+        """Create container to template mapping"""
+        templates = TemplateManager.get_all_templates()
+        mapping = []
+        
+        for container in containers:
+            matched_template = TemplateManager.find_matching_container(
+                container['name'], 
+                [{'name': t['name']} for t in templates]
+            )
+            
+            mapping.append({
+                'container': container['name'],
+                'template': matched_template['name'] if matched_template else None,
+                'has_template': matched_template is not None
+            })
+        
+        return mapping
+    
+    @staticmethod
+    def list_backups():
+        """List all available backups"""
+        backups = []
+        
+        if not os.path.exists(BACKUP_DIR):
+            return backups
+        
+        for backup_name in os.listdir(BACKUP_DIR):
+            backup_path = os.path.join(BACKUP_DIR, backup_name)
+            if os.path.isdir(backup_path):
+                metadata_file = os.path.join(backup_path, 'metadata.json')
+                
+                if os.path.exists(metadata_file):
+                    with open(metadata_file, 'r') as f:
+                        metadata = json.load(f)
+                else:
+                    metadata = {
+                        'created': datetime.fromtimestamp(os.path.getctime(backup_path)).isoformat(),
+                        'name': backup_name
+                    }
+                
+                # Calculate size
+                total_size = sum(
+                    os.path.getsize(os.path.join(dirpath, filename))
+                    for dirpath, _, filenames in os.walk(backup_path)
+                    for filename in filenames
+                )
+                
+                metadata['size'] = total_size
+                metadata['path'] = backup_path
+                backups.append(metadata)
+        
+        return sorted(backups, key=lambda x: x['created'], reverse=True)
+
+
+# API Routes
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint"""
+    docker_status = 'connected' if docker_client else 'disconnected'
+    template_dir_exists = os.path.exists(TEMPLATE_DIR)
+    
+    return jsonify({
+        'status': 'healthy',
+        'docker': docker_status,
+        'template_dir': template_dir_exists,
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    """Get dashboard statistics"""
+    templates = TemplateManager.get_all_templates()
+    containers = ContainerManager.get_all_containers()
+    backups = BackupManager.list_backups()
+    
+    # Count matched and unmatched templates
+    matched = 0
+    unmatched = 0
+    
+    for template in templates:
+        if TemplateManager.find_matching_container(template['name'], containers):
+            matched += 1
+        else:
+            unmatched += 1
+    
+    return jsonify({
+        'total_templates': len(templates),
+        'total_containers': len(containers),
+        'matched_templates': matched,
+        'unmatched_templates': unmatched,
+        'total_backups': len(backups),
+        'running_containers': len([c for c in containers if c['status'] == 'running']),
+    })
+
+
+@app.route('/api/templates', methods=['GET'])
+def list_templates():
+    """List all templates with matching status"""
+    templates = TemplateManager.get_all_templates()
+    containers = ContainerManager.get_all_containers()
+    
+    # Add matching information
+    for template in templates:
+        matched_container = TemplateManager.find_matching_container(
+            template['name'], 
+            containers
+        )
+        template['matched'] = matched_container is not None
+        template['container'] = matched_container
+    
+    return jsonify(templates)
+
+
+@app.route('/api/templates/<filename>', methods=['GET'])
+def get_template(filename):
+    """Get specific template details"""
+    content = TemplateManager.get_template_content(filename)
+    if content is None:
+        return jsonify({'error': 'Template not found'}), 404
+    
+    return jsonify({
+        'filename': filename,
+        'content': content
+    })
+
+
+@app.route('/api/templates/<filename>', methods=['DELETE'])
+def delete_template(filename):
+    """Delete a template file"""
+    filepath = os.path.join(TEMPLATE_DIR, filename)
+    
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'Template not found'}), 404
+    
+    try:
+        # Backup before delete
+        backup_path = os.path.join(BACKUP_DIR, 'deleted-templates')
+        os.makedirs(backup_path, exist_ok=True)
+        
+        timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+        backup_file = os.path.join(backup_path, f"{timestamp}-{filename}")
+        shutil.copy2(filepath, backup_file)
+        
+        # Delete original
+        os.remove(filepath)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Template {filename} deleted',
+            'backup': backup_file
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/templates/cleanup', methods=['POST'])
+def cleanup_templates():
+    """Clean up unused templates"""
+    data = request.json or {}
+    dry_run = data.get('dry_run', True)
+    
+    templates = TemplateManager.get_all_templates()
+    containers = ContainerManager.get_all_containers()
+    
+    unused = []
+    for template in templates:
+        if not TemplateManager.find_matching_container(template['name'], containers):
+            unused.append(template)
+    
+    if not dry_run:
+        deleted = []
+        for template in unused:
+            try:
+                filepath = os.path.join(TEMPLATE_DIR, template['filename'])
+                
+                # Backup before delete
+                backup_path = os.path.join(BACKUP_DIR, 'auto-cleanup', 
+                                         datetime.now().strftime('%Y%m%d-%H%M%S'))
+                os.makedirs(backup_path, exist_ok=True)
+                shutil.copy2(filepath, os.path.join(backup_path, template['filename']))
+                
+                # Delete
+                os.remove(filepath)
+                deleted.append(template['filename'])
+            except Exception as e:
+                print(f"Error deleting {template['filename']}: {e}")
+        
+        return jsonify({
+            'success': True,
+            'deleted': deleted,
+            'count': len(deleted)
+        })
+    else:
+        return jsonify({
+            'dry_run': True,
+            'unused_templates': unused,
+            'count': len(unused)
+        })
+
+
+@app.route('/api/containers', methods=['GET'])
+def list_containers():
+    """List all containers"""
+    containers = ContainerManager.get_all_containers()
+    templates = TemplateManager.get_all_templates()
+    
+    # Add template matching info
+    for container in containers:
+        matched_template = None
+        for template in templates:
+            if TemplateManager.find_matching_container(template['name'], [container]):
+                matched_template = template
+                break
+        
+        container['has_template'] = matched_template is not None
+        container['template'] = matched_template
+    
+    return jsonify(containers)
+
+
+@app.route('/api/containers/<container_name>', methods=['GET'])
+def get_container(container_name):
+    """Get specific container details"""
+    inspect_data = ContainerManager.get_container_inspect(container_name)
+    if inspect_data is None:
+        return jsonify({'error': 'Container not found'}), 404
+    
+    return jsonify(inspect_data)
+
+
+@app.route('/api/backups', methods=['GET'])
+def list_backups():
+    """List all backups"""
+    backups = BackupManager.list_backups()
+    return jsonify(backups)
+
+
+@app.route('/api/backups', methods=['POST'])
+def create_backup():
+    """Create a new backup"""
+    data = request.json or {}
+    backup_name = data.get('name')
+    
+    try:
+        backup_name = BackupManager.create_backup(backup_name)
+        return jsonify({
+            'success': True,
+            'backup_name': backup_name,
+            'message': f'Backup created: {backup_name}'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/backups/<backup_name>', methods=['DELETE'])
+def delete_backup(backup_name):
+    """Delete a backup"""
+    backup_path = os.path.join(BACKUP_DIR, backup_name)
+    
+    if not os.path.exists(backup_path):
+        return jsonify({'error': 'Backup not found'}), 404
+    
+    try:
+        shutil.rmtree(backup_path)
+        return jsonify({
+            'success': True,
+            'message': f'Backup {backup_name} deleted'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)

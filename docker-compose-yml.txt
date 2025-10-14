@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  docker-template-manager:
+    build: .
+    container_name: docker-template-manager
+    ports:
+      - "8080:8080"
+    volumes:
+      # Docker socket for container access (read-only)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
+      # Unraid template directory (read-write)
+      - /boot/config/plugins/dockerMan/templates-user:/templates:rw
+      
+      # Backup storage
+      - /mnt/user/appdata/docker-template-manager/backups:/backups:rw
+      
+      # Application config
+      - /mnt/user/appdata/docker-template-manager/config:/config:rw
+    
+    environment:
+      - TZ=Europe/Amsterdam
+      - TEMPLATE_DIR=/templates
+      - BACKUP_DIR=/backups
+      - CONFIG_DIR=/config
+      - BACKUP_RETENTION_DAYS=30
+      - AUTO_CLEANUP_ENABLED=false
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8080/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
