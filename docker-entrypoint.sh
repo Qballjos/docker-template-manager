@@ -16,5 +16,11 @@ mkdir -p "$TEMPLATE_DIR"
 mkdir -p "$BACKUP_DIR"
 mkdir -p "$CONFIG_DIR"
 
-# Start Flask app
-exec python app.py
+# If command is provided, execute it (for tests)
+# Otherwise start Flask app
+if [ $# -gt 0 ]; then
+    exec "$@"
+else
+    # Start Flask app
+    exec python app.py
+fi
