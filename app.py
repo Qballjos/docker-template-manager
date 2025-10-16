@@ -460,15 +460,13 @@ def delete_backup(backup_name):
 @app.route('/')
 @app.route('/index.html')
 def index():
-    """Serve the React app"""
+    """Serve the React app index page"""
     return send_from_directory('static', 'index.html')
 
-@app.route('/<path:path>')
-def serve_static(path):
+@app.route('/static/<path:filename>')
+def serve_static(filename):
     """Serve static files (CSS, JS, etc)"""
-    if path.startswith('static/'):
-        return send_from_directory('.', path)
-    return send_from_directory('static', path)
+    return send_from_directory('static', filename)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
