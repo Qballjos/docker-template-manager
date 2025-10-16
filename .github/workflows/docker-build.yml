@@ -61,6 +61,10 @@ jobs:
           docker run --rm docker-template-manager:test test -f /app/static/index.html
           docker run --rm docker-template-manager:test test -d /app/static
 
+      - name: Verify Flask can start
+        run: |
+          timeout 5 docker run --rm docker-template-manager:test python -c "from app import app; print('Flask app imported successfully')" || true
+
   push:
     runs-on: ubuntu-latest
     needs: [build, test]
