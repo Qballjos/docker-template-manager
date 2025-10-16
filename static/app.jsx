@@ -496,4 +496,7 @@ function App() {
   );
 }
 
+// Export for global access
+window.App = App;
+
 export default App;
