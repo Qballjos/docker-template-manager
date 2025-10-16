@@ -1,552 +1,380 @@
-# 🐳 Docker Template Manager for Unraid
+# Docker Template Manager for Unraid
 
-A modern web application for managing Docker templates on Unraid servers. Clean up unused templates, create backups, and prepare for vdisk-to-folder Docker migration with ease.
+A modern web application for managing Docker templates on Unraid servers. Clean up unused templates, create backups, monitor containers, and prepare for vdisk-to-folder Docker migration with ease.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)
-![Unraid](https://img.shields.io/badge/unraid-compatible-orange.svg)
+![Docker](https://img.shields.io/badge/Docker-Ready-brightgreen.svg)
+![Unraid](https://img.shields.io/badge/Unraid-Compatible-orange.svg)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
 
-## 🌟 Features
+## Features
 
-- **📊 Dashboard Overview**: See all your templates, containers, and backups at a glance
-- **🔍 Smart Template Matching**: Automatically matches templates to containers (handles `my-`, `wp-` prefixes)
-- **🧹 Clean Up Unused Templates**: Safely remove templates that don't have matching containers
-- **💾 One-Click Backups**: Backup all containers and templates with a single click
-- **📦 Container Management**: View all containers and their template relationships
-- **🎨 Modern Web UI**: Beautiful, responsive interface that works on desktop and mobile
-- **🔒 Safe Operations**: Automatic backups before any deletions
-- **📝 Detailed Logging**: Track all operations with container-template mappings
+- **Dashboard Overview**: Real-time statistics on templates, containers, and backups
+- **Smart Template Matching**: Automatically matches templates to containers (handles `my-`, `wp-` prefixes and case differences)
+- **Template Cleanup**: Safely identify and remove unused templates with preview mode
+- **One-Click Backups**: Complete backup of all containers, templates, and configurations
+- **Container Monitoring**: View all containers with template associations and status
+- **Backup Management**: Create, view, and delete backups with detailed metadata
+- **Modern Web UI**: Beautiful, responsive interface optimized for desktop and mobile
+- **Safe Operations**: Automatic backups before deletions ensure data safety
+- **RESTful API**: Full API for programmatic access and automation
 
-## 📸 Screenshots
+## Quick Start
+
+### Installation Options
+
+Choose the installation method that works best for you:
+
+1. **Community Applications (Easiest)** - One-click install from Unraid Apps
+2. **Manual Installation** - Via Docker UI with template URL
+3. **Docker Compose** - For advanced users
+
+For detailed instructions, see [Installation Guide](docs/installation.md).
+
+### Prerequisites
+
+- Unraid 6.8 or later
+- Docker installed and running
+- 512 MB RAM minimum (1-2 GB recommended)
+- 200 MB disk space for application
+
+### Quick Setup
+
+```bash
+# Using docker-compose
+docker-compose up -d
+
+# Access the web interface
+# http://localhost:8080
+```
+
+Once installed, access the application at `http://[YOUR-UNRAID-IP]:8080`.
+
+## Documentation
+
+- **[Installation Guide](docs/installation.md)** - Detailed setup instructions for all installation methods
+- **[API Documentation](docs/api.md)** - Complete REST API reference with examples
+- **[Usage Guide](#usage-guide)** - How to use the application features
+
+## Usage Guide
 
 ### Dashboard
-![Dashboard](docs/dashboard.png)
 
-### Template Management
-![Templates](docs/templates.png)
+The dashboard provides a quick overview of your Docker setup:
 
-### Backup Manager
-![Backups](docs/backups.png)
+- **Total Templates**: Number of template files in your templates directory
+- **Matched Templates**: Templates that have corresponding Docker containers
+- **Unused Templates**: Templates without matching containers (candidates for deletion)
+- **Total Containers**: All Docker containers (running and stopped)
+- **Running Containers**: Count of currently running containers
+- **Backups**: Total number of backups created
 
-## 🚀 Quick Start
+### Templates Tab
 
-### Option 1: Install from Unraid Community Applications (Recommended)
+Manage your Docker templates:
 
-1. Open Unraid web interface
-2. Go to **Apps** tab
-3. Search for "Docker Template Manager"
-4. Click **Install**
-5. Access at `http://[YOUR-SERVER-IP]:8080`
+1. **View Templates**: See all templates with their status (matched or unused)
+2. **Clean Up**: Remove all unused templates at once
+3. **Delete Individual**: Remove specific templates
+4. **Preview**: See which templates will be removed before executing cleanup
+5. **Automatic Backup**: Templates are automatically backed up before deletion
 
-### Option 2: Manual Installation via Template URL
+Color coding:
+- **Green ✓**: Template has a matching container
+- **Red ✗**: Template has no matching container (unused)
 
-1. Go to **Docker** tab in Unraid
-2. Click **Add Container**
-3. Set **Template repositories** to:
-   ```
-   https://raw.githubusercontent.com/yourusername/docker-template-manager/master/unraid-template.xml
-   ```
-4. Select "Docker Template Manager" from the dropdown
-5. Click **Apply**
+### Containers Tab
 
-### Option 3: Docker Compose (Advanced)
+Monitor your Docker containers:
 
-```bash
-cd /mnt/user/appdata/docker-template-manager
-wget https://raw.githubusercontent.com/yourusername/docker-template-manager/master/docker-compose.yml
-docker-compose up -d
-```
+1. **View Status**: See all containers (running and stopped)
+2. **Check Templates**: See which containers have templates
+3. **Identify Gaps**: Spot containers without templates (e.g., Docker Compose created)
+4. **Container Details**: View image names, IDs, and status
 
-## 📋 Configuration
+### Backups Tab
 
-### Default Paths
+Manage your backups:
 
-| Volume | Host Path | Container Path | Description |
-|--------|-----------|----------------|-------------|
-| Templates | `/boot/config/plugins/dockerMan/templates-user` | `/templates` | Unraid template directory |
-| Backups | `/mnt/user/appdata/docker-template-manager/backups` | `/backups` | Backup storage |
-| Config | `/mnt/user/appdata/docker-template-manager/config` | `/config` | App configuration |
-| Docker Socket | `/var/run/docker.sock` | `/var/run/docker.sock` | Docker access (read-only) |
+1. **Create Backup**: One-click backup of all containers and templates
+2. **View Backups**: See all available backups with creation date and size
+3. **Backup Contents**: Each backup includes:
+   - All template files
+   - Complete container configurations (docker inspect output)
+   - Container-to-template mapping
+   - Backup metadata and timestamps
+4. **Delete Old Backups**: Remove backups you no longer need
 
-### Environment Variables
+## Common Workflows
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TZ` | `Europe/Amsterdam` | Timezone for timestamps |
-| `BACKUP_RETENTION_DAYS` | `30` | Days to keep old backups |
-| `AUTO_CLEANUP_ENABLED` | `false` | Enable automatic cleanup |
+### Cleaning Up Unused Templates
 
-## 🎯 Use Cases
+1. Go to **Templates** tab
+2. Click **Clean Up Unused** button
+3. Review the list of templates to be removed
+4. Confirm the action
+5. Unused templates are moved to backup storage
+6. Check Dashboard for updated statistics
 
-### 1. Template Cleanup
+### Pre-Migration Backup (vdisk to Folder)
 
-**Problem**: You have 124 templates but only 48 containers running.
+1. Go to **Backups** tab
+2. Click **Create New Backup**
+3. Name it something like "pre-migration-backup"
+4. Backup completes (typically 10-30 seconds)
+5. Go to Unraid Settings → Docker
+6. Disable Docker
+7. Change Docker vDisk location to folder-based path
+8. Enable Docker
+9. Verify all containers started correctly
+10. Create post-migration backup for verification
 
-**Solution**:
-1. Open Docker Template Manager
-2. Go to **Templates** tab
-3. See which templates are unused (marked with ✗)
-4. Click "Clean Up Unused" to remove them all at once
-5. Templates are automatically backed up before deletion
+### Monitoring Container Health
 
-### 2. Pre-Migration Backup
-
-**Problem**: You need to migrate from vdisk to folder-based Docker storage.
-
-**Solution**:
-1. Open Docker Template Manager
-2. Go to **Backups** tab
-3. Click "Create New Backup"
-4. All containers and templates are saved with their relationships
-5. Proceed with migration knowing you can restore if needed
-
-### 3. Container-Template Audit
-
-**Problem**: Some containers don't have matching templates.
-
-**Solution**:
 1. Go to **Containers** tab
-2. See which containers have templates and which don't
-3. Containers without templates (e.g., Docker Compose) are clearly marked
-4. Make informed decisions about which containers need manual backup
+2. Look for containers marked with ⚠️ "No template"
+3. These are typically Docker Compose containers or manually created
+4. Document which containers need manual management
+5. Ensure they're included in your backup strategy
 
-## 🔧 API Documentation
+## API Reference
 
-### Endpoints
+Docker Template Manager provides a comprehensive REST API for programmatic access.
 
-#### Dashboard & Stats
-```bash
-GET /api/health          # Health check
-GET /api/stats           # Dashboard statistics
+### Base URL
+```
+http://localhost:8080/api
 ```
 
-#### Templates
-```bash
-GET /api/templates                    # List all templates
-GET /api/templates/<filename>         # Get template content
-DELETE /api/templates/<filename>      # Delete template
-POST /api/templates/cleanup           # Clean up unused templates
-  Body: { "dry_run": true/false }
-```
+### Main Endpoints
 
-#### Containers
-```bash
-GET /api/containers                   # List all containers
-GET /api/containers/<name>            # Get container details
-```
+- `GET /health` - Health check and Docker connection status
+- `GET /stats` - Dashboard statistics
+- `GET /templates` - List all templates with matching status
+- `POST /templates/cleanup` - Find or delete unused templates
+- `DELETE /templates/:filename` - Delete specific template
+- `GET /containers` - List all containers
+- `GET /backups` - List all backups
+- `POST /backups` - Create new backup
+- `DELETE /backups/:name` - Delete backup
 
-#### Backups
-```bash
-GET /api/backups                      # List all backups
-POST /api/backups                     # Create new backup
-  Body: { "name": "optional-name" }
-DELETE /api/backups/<name>            # Delete backup
-```
-
-### Example: Clean Up Templates via API
+### Example: Clean Up Unused Templates
 
 ```bash
-# Dry run to see what would be deleted
+# Preview unused templates
 curl -X POST http://localhost:8080/api/templates/cleanup \
   -H "Content-Type: application/json" \
   -d '{"dry_run": true}'
 
-# Actually delete unused templates
+# Execute cleanup
 curl -X POST http://localhost:8080/api/templates/cleanup \
   -H "Content-Type: application/json" \
   -d '{"dry_run": false}'
 ```
 
-## 🛠️ Development
+For complete API documentation with all endpoints and examples, see [API Documentation](docs/api.md).
 
-### Build from Source
+## Features in Detail
 
-```bash
-# Clone repository
-git clone https://github.com/yourusername/docker-template-manager.git
-cd docker-template-manager
+### Smart Template Matching
 
-# Build Docker image
-docker build -t docker-template-manager .
+The application uses intelligent matching to find the relationship between templates and containers:
 
-# Run container
-docker-compose up -d
+- **Exact Match**: Direct name comparison (e.g., `my-plex.xml` → `my-plex`)
+- **Prefix Removal**: Strips common prefixes like `my-` and `wp-`
+- **Case Insensitive**: Handles containers with different casing than templates
+
+Example:
+- Template: `my-plex.xml` matches Container: `plex`
+- Template: `my-jellyfin.xml` matches Container: `jellyfin`
+- Template: `my-Ghost.xml` matches Container: `Ghost`
+
+### Backup Storage
+
+Backups are organized in `/mnt/user/appdata/docker-template-manager/backups/`:
+
+```
+backups/
+├── backup-20241014-120000/
+│   ├── metadata.json              # Backup info
+│   ├── container-template-mapping.json  # Relationships
+│   ├── templates/                 # All template files
+│   │   ├── my-plex.xml
+│   │   ├── my-jellyfin.xml
+│   │   └── ...
+│   └── containers/                # Container configs
+│       ├── plex.json
+│       ├── jellyfin.json
+│       └── ...
+└── backup-20241013-080000/
+    └── [same structure]
 ```
 
-### Project Structure
+### Safe Deletion
+
+All deletions are protected:
+
+1. **Automatic Backup**: Template is backed up before deletion
+2. **Deleted Templates Directory**: Moved to `/backups/deleted-templates/` with timestamp
+3. **Preview Mode**: See exactly what will be deleted before confirming
+4. **Confirmation Required**: Actions require explicit confirmation
+
+## Troubleshooting
+
+### Common Issues
+
+**Web interface won't load**
+- Check container is running: `docker ps | grep docker-template-manager`
+- View logs: `docker logs docker-template-manager`
+- Verify port 8080 is accessible
+
+**Docker socket error**
+- Ensure `/var/run/docker.sock` is properly mounted
+- Check Docker is running: `docker ps`
+- Restart container: `docker restart docker-template-manager`
+
+**Templates not showing**
+- Verify template directory: `ls /boot/config/plugins/dockerMan/templates-user`
+- Check file permissions: `chmod -R 755 /boot/config/plugins/dockerMan/templates-user`
+- Restart container and refresh browser
+
+For more troubleshooting help, see [Installation Guide - Troubleshooting](docs/installation.md#troubleshooting).
+
+## System Requirements
+
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| Unraid | 6.8+ | Latest stable |
+| Docker | Latest | Latest stable |
+| RAM | 512 MB | 1-2 GB |
+| Disk | 200 MB | 500 MB |
+| CPU | 1 core | 2+ cores |
+
+## Configuration
+
+### Environment Variables
+
+Configure via Unraid Docker UI or docker-compose:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TEMPLATE_DIR` | `/templates` | Template directory mount point |
+| `BACKUP_DIR` | `/backups` | Backup storage location |
+| `CONFIG_DIR` | `/config` | Application config directory |
+| `TZ` | `Europe/Amsterdam` | Timezone for timestamps |
+
+### Volume Mounts
+
+| Host Path | Container Path | Description |
+|-----------|----------------|-------------|
+| `/var/run/docker.sock` | `/var/run/docker.sock:ro` | Docker socket (read-only) |
+| `/boot/config/plugins/dockerMan/templates-user` | `/templates:rw` | Unraid template directory |
+| `/mnt/user/appdata/docker-template-manager/backups` | `/backups:rw` | Backup storage |
+| `/mnt/user/appdata/docker-template-manager/config` | `/config:rw` | Application config |
+
+## Technology Stack
+
+- **Backend**: Python 3.11, Flask 3.0
+- **Frontend**: React 18, Babel (browser-based JSX)
+- **Docker SDK**: Python Docker SDK
+- **Styling**: Modern CSS with responsive design
+- **Container**: Docker with Alpine-based Python image
+
+## File Structure
 
 ```
 docker-template-manager/
-├── app.py                    # Flask backend
+├── app.py                    # Flask backend with API
 ├── requirements.txt          # Python dependencies
-├── Dockerfile               # Container definition
-├── docker-compose.yml       # Compose configuration
-├── static/                  # Frontend assets
-│   ├── index.html
-│   ├── App.jsx
-│   └── App.css
-├── unraid-template.xml      # Unraid template
-└── README.md
+├── Dockerfile                # Container definition
+├── docker-compose.yml        # Compose configuration
+├── docker-entrypoint.sh      # Container startup script
+├── unraid-template.xml       # Unraid template
+├── static/
+│   ├── index.html            # HTML entry point
+│   ├── app.jsx               # React component
+│   └── app.css               # Styling
+├── docs/
+│   ├── api.md                # API documentation
+│   └── installation.md       # Installation guide
+├── README.md                 # This file
+└── LICENSE                   # MIT license
 ```
 
-### Tech Stack
+## Performance
 
-- **Backend**: Python 3.11 + Flask
-- **Frontend**: React 18
-- **Docker SDK**: Python Docker SDK
-- **Styling**: Modern CSS with gradients and animations
+- **Light weight**: ~50 MB Docker image
+- **Fast startup**: Starts in 5-10 seconds
+- **Low memory**: Uses 50-150 MB RAM during operation
+- **CPU efficient**: Minimal CPU impact except during backup
+- **Storage**: Backups typically 2-10 MB per backup
 
-## 🤝 Contributing
+## Security
+
+- **Docker Socket**: Read-only mount prevents container modification
+- **No Authentication**: Currently open access (can be added in future)
+- **Safe Operations**: All deletions backed up automatically
+- **File Isolation**: Each backup is independent and can be restored manually
+
+## Roadmap
+
+### Planned Features
+- Backup restoration from UI
+- Scheduled automatic backups
+- Email notifications
+- Template editing in UI
+- API authentication
+- Web UI improvements
+
+### Future Enhancements
+- Multiple template repository support
+- Advanced filtering and search
+- Container dependency detection
+- Automated migration wizard
+- Multi-user support
+- Advanced analytics
+
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## Changelog
 
-## 📝 Changelog
-
-### v1.0.0 (2024-10-14)
+### v1.0.0 (Current)
 - Initial release
-- Template cleanup functionality
-- Backup and restore capabilities
-- Container-template relationship mapping
-- Modern web UI
-- Safe deletion with automatic backups
+- Template cleanup and management
+- Container monitoring
+- Backup functionality
+- Modern web interface
+- Complete REST API
+- Production-ready Docker setup
 
-## 🐛 Known Issues
+## License
 
-- Backup restoration not yet implemented (coming in v1.1)
-- Automatic cleanup scheduling not yet available
-- Template editing in UI not yet supported
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
-## 📄 License
+## Support
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **Documentation**: See [Installation Guide](docs/installation.md) and [API Documentation](docs/api.md)
+- **Issues**: Report bugs on [GitHub Issues](https://github.com/Qballjos/docker-template-manager/issues)
+- **Questions**: Ask in [GitHub Discussions](https://github.com/Qballjos/docker-template-manager/discussions)
+- **Unraid Forums**: Discuss in Unraid community forums
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- Unraid community for inspiration
-- Docker for their excellent Python SDK
-- Flask and React teams for amazing frameworks
+- Unraid community for inspiration and feedback
+- Docker for excellent Python SDK
+- Flask and React teams for fantastic frameworks
+- All contributors and users
 
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/docker-template-manager/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/docker-template-manager/discussions)
-- **Unraid Forums**: [Link to forum thread]
-
-## ⚠️ Disclaimer
+## Disclaimer
 
 This tool modifies Docker templates on your Unraid server. While it creates automatic backups before any deletions, always ensure you have a complete system backup before performing major operations. Use at your own risk.
 
-## 🎓 Tutorial
-
-### First Time Setup
-
-1. **Install the container** via Community Applications or manual template
-2. **Access the web interface** at `http://[YOUR-SERVER-IP]:8080`
-3. **Review the dashboard** to see your current template/container status
-4. **Create your first backup** before making any changes
-
-### Cleaning Up Templates
-
-**Step-by-step guide:**
-
-1. Go to **Templates** tab
-2. Review the list - unused templates are marked with a red ✗
-3. You can either:
-   - **Bulk cleanup**: Click "Clean Up Unused" to remove all unused templates at once
-   - **Selective cleanup**: Check individual templates and click "Delete Selected"
-   - **Manual cleanup**: Click "Delete" on individual templates
-4. All deletions are automatically backed up to `/backups/deleted-templates/`
-
-**What happens during cleanup:**
-```
-1. Template is copied to backup directory with timestamp
-2. Original template is deleted from templates-user directory
-3. You can restore from backup if needed (manual process for now)
-```
-
-### Creating and Managing Backups
-
-**When to create backups:**
-- Before Docker vdisk to folder migration
-- Before major container updates
-- Weekly as a routine maintenance task
-- Before cleaning up many templates
-
-**What's included in a backup:**
-- All template XML files
-- Complete container configurations (docker inspect output)
-- Container-to-template mapping file
-- Metadata (timestamps, counts, etc.)
-
-**Backup structure:**
-```
-/backups/backup-20241014-120000/
-├── metadata.json                          # Backup information
-├── container-template-mapping.json        # Relationship map
-├── templates/                             # All template files
-│   ├── my-plex.xml
-│   ├── my-jellyfin.xml
-│   └── ...
-└── containers/                            # Container configs
-    ├── plex.json
-    ├── jellyfin.json
-    └── ...
-```
-
-### Understanding the Dashboard
-
-**Stats Cards:**
-- **Templates**: Total templates and how many are matched/unused
-- **Containers**: Total containers and how many are running
-- **Backups**: Total number of backups available
-
-**Quick Actions:**
-- **Create Backup**: Instant backup of current state
-- **Refresh Stats**: Update all statistics
-
-**Alerts:**
-- Yellow warning when unused templates are detected
-- Click to run cleanup wizard
-
-## 🔍 Troubleshooting
-
-### Container won't start
-
-**Issue**: Container fails to start with permission errors
-
-**Solution**:
-```bash
-# Check permissions on mounted directories
-ls -la /boot/config/plugins/dockerMan/templates-user
-ls -la /mnt/user/appdata/docker-template-manager
-
-# Fix permissions if needed
-chmod -R 755 /mnt/user/appdata/docker-template-manager
-```
-
-### Can't see templates
-
-**Issue**: Template list is empty
-
-**Solution**:
-1. Verify template directory path is correct: `/boot/config/plugins/dockerMan/templates-user`
-2. Check container logs: `docker logs docker-template-manager`
-3. Ensure templates directory exists: `ls /boot/config/plugins/dockerMan/templates-user`
-
-### Templates not matching containers
-
-**Issue**: All templates show as "unused" even though containers exist
-
-**Solution**:
-1. Check if Docker socket is mounted correctly
-2. Verify containers are visible: `docker ps -a`
-3. Review container logs for connection errors
-4. This tool uses smart matching (handles `my-`, `wp-` prefixes and case differences)
-
-### Backup failed
-
-**Issue**: Backup creation fails
-
-**Solution**:
-```bash
-# Check available disk space
-df -h /mnt/user/appdata
-
-# Check backup directory permissions
-ls -la /mnt/user/appdata/docker-template-manager/backups
-
-# Check container logs
-docker logs docker-template-manager
-```
-
-### Can't access web UI
-
-**Issue**: Web interface won't load
-
-**Solution**:
-1. Check container is running: `docker ps | grep docker-template-manager`
-2. Check logs: `docker logs docker-template-manager`
-3. Verify port 8080 isn't used by another service
-4. Try accessing via server IP: `http://[SERVER-IP]:8080`
-5. Check firewall settings
-
-## 🔐 Security Considerations
-
-### Docker Socket Access
-
-The container requires **read-only** access to the Docker socket to list containers. This is a common pattern for Docker management tools.
-
-**What it can do:**
-- ✅ List containers and their details
-- ✅ Read container configurations
-
-**What it cannot do:**
-- ❌ Start or stop containers
-- ❌ Delete containers
-- ❌ Modify container settings
-- ❌ Access container data
-
-### Template Directory Access
-
-The container needs **read-write** access to the template directory to delete unused templates.
-
-**Best practices:**
-- Always create a backup before bulk operations
-- Review the unused template list before deletion
-- Use dry-run mode first
-- Keep regular Unraid backups
-
-### Network Security
-
-**Recommendations:**
-- Use Unraid's built-in authentication (nginx proxy)
-- Don't expose port 8080 to the internet
-- Use a VPN for remote access
-- Consider adding basic auth if needed
-
-## 📊 Migration Workflow
-
-### Preparing for vdisk → folder migration
-
-**Complete workflow:**
-
-1. **Create baseline backup**
-   ```
-   - Open Docker Template Manager
-   - Go to Backups tab
-   - Click "Create New Backup"
-   - Note the backup name
-   ```
-
-2. **Clean up unused templates**
-   ```
-   - Go to Templates tab
-   - Review unused templates
-   - Click "Clean Up Unused"
-   - Verify cleanup completed
-   ```
-
-3. **Verify current state**
-   ```
-   - Check all containers are running
-   - Verify all needed templates exist
-   - Document any special configurations
-   ```
-
-4. **Perform Unraid migration**
-   ```
-   - Stop Docker service
-   - Change Docker vDisk location to folder
-   - Start Docker service
-   ```
-
-5. **Verify after migration**
-   ```
-   - Check all containers started correctly
-   - Verify template-container relationships
-   - Create post-migration backup
-   ```
-
-6. **Cleanup**
-   ```
-   - Old backups can be deleted after verification
-   - Keep at least one pre-migration backup
-   ```
-
-## 🎨 Customization
-
-### Changing the Port
-
-**Via Docker Compose:**
-```yaml
-ports:
-  - "9090:8080"  # Change 9090 to your desired port
-```
-
-**Via Unraid Template:**
-1. Edit container
-2. Change "WebUI Port" from 8080 to your desired port
-3. Apply changes
-
-### Changing Backup Location
-
-**Via Docker Compose:**
-```yaml
-volumes:
-  - /mnt/user/my-custom-backup-location:/backups:rw
-```
-
-**Via Unraid Template:**
-1. Edit container
-2. Change "Backups Directory" path
-3. Apply changes
-
-### Custom Environment Variables
-
-Add to docker-compose.yml or Unraid template:
-```yaml
-environment:
-  - BACKUP_RETENTION_DAYS=60  # Keep backups for 60 days
-  - TZ=America/New_York       # Your timezone
-```
-
-## 📈 Roadmap
-
-### v1.1 (Planned)
-- [ ] Backup restoration functionality
-- [ ] Template editing in UI
-- [ ] Search and filter improvements
-- [ ] Export templates to file
-- [ ] Import templates from file
-
-### v1.2 (Planned)
-- [ ] Scheduled automatic backups
-- [ ] Email notifications
-- [ ] Template validation
-- [ ] Dependency detection
-- [ ] Docker Compose file import
-
-### v2.0 (Future)
-- [ ] Multi-server support
-- [ ] Template marketplace
-- [ ] Advanced analytics
-- [ ] Container recreation wizard
-- [ ] API key authentication
-
-## 🤔 FAQ
-
-**Q: Will this delete my containers?**  
-A: No! This tool only manages template XML files. It never touches actual containers.
-
-**Q: What if I accidentally delete a template I need?**  
-A: All deletions are backed up to `/backups/deleted-templates/` with timestamps. You can manually restore them.
-
-**Q: Can I use this on non-Unraid systems?**  
-A: Technically yes, but it's designed specifically for Unraid's template structure. You'd need to adapt the paths.
-
-**Q: Does this work with Docker Compose containers?**  
-A: It will show them in the container list, but they won't have matching templates (as they're defined in compose files, not XML templates).
-
-**Q: Is it safe to run this on a production server?**  
-A: Yes, with caution. Always create a backup first, and review changes before applying them. The tool creates automatic backups before deletions.
-
-**Q: How much disk space do backups use?**  
-A: Templates are small (usually <10KB each). A full backup typically uses 1-5MB depending on your container count.
-
-**Q: Can I schedule automatic cleanups?**  
-A: Not yet, but it's planned for v1.2. For now, you can use Unraid's User Scripts plugin to call the API on a schedule.
-
-**Q: Does this work with the new Unraid Docker backend?**  
-A: Yes! It works with both the legacy and new Docker implementations in Unraid 6.12+.
-
 ---
 
-**Made with ❤️ for the Unraid community**
+Made with ❤️ for the Unraid Community
 
-If this tool helped you, consider starring the repo on GitHub! ⭐
+If this tool helps you, consider starring the repository on GitHub! ⭐
+
+**Repository**: https://github.com/Qballjos/docker-template-manager
