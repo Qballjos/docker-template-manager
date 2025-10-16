@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
+const { useState, useEffect } = React;
 
 const API_URL = window.location.origin;
 
@@ -495,8 +494,5 @@ function App() {
     </div>
   );
 }
-
-// Export for global access
-window.App = App;
 
 export default App;
