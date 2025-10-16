@@ -4,6 +4,7 @@ Docker Template Manager - Backend API
 Flask application for managing Unraid Docker templates
 """
 
+from flask import send_from_directory
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import docker
@@ -456,6 +457,19 @@ def delete_backup(backup_name):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/')
+@app.route('/index.html')
+def index():
+    """Serve the React app"""
+    return send_from_directory('static', 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    """Serve static files (CSS, JS, etc)"""
+    if path.startswith('static/'):
+        return send_from_directory('.', path)
+    return send_from_directory('static', path)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
+    
