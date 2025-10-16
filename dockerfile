@@ -10,14 +10,12 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application
+# Copy application files and create directories
 COPY app.py .
 COPY static/ ./static/
 COPY docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
-
-# Create directories for volumes
-RUN mkdir -p /templates /backups /config
+RUN chmod +x /app/docker-entrypoint.sh && \
+    mkdir -p /templates /backups /config
 
 # Expose port
 EXPOSE 8080
