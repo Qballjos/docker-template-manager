@@ -1,0 +1,91 @@
+name: Docker Build Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          tags: docker-template-manager:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Dockerfile lint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: dockerfile
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build test image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          load: true
+          tags: docker-template-manager:test
+
+      - name: Test Docker image
+        run: |
+          docker run --rm docker-template-manager:test python -m py_compile app.py
+          docker run --rm docker-template-manager:test pip list
+
+      - name: Check required files
+        run: |
+          docker run --rm docker-template-manager:test test -f /app/app.py
+          docker run --rm docker-template-manager:test test -f /app/static/index.html
+          docker run --rm docker-template-manager:test test -d /app/static
+
+  push:
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/docker-template-manager:latest
+            ${{ secrets.DOCKER_USERNAME }}/docker-template-manager:v1.0.0
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
