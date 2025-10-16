@@ -1,17 +1,15 @@
-const { useState, useEffect } = React;
-
 const API_URL = window.location.origin;
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [stats, setStats] = useState(null);
-  const [templates, setTemplates] = useState([]);
-  const [containers, setContainers] = useState([]);
-  const [backups, setBackups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedTemplates, setSelectedTemplates] = useState([]);
+  const [activeTab, setActiveTab] = React.useState('dashboard');
+  const [stats, setStats] = React.useState(null);
+  const [templates, setTemplates] = React.useState([]);
+  const [containers, setContainers] = React.useState([]);
+  const [backups, setBackups] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [selectedTemplates, setSelectedTemplates] = React.useState([]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchStats();
     fetchTemplates();
     fetchContainers();
@@ -201,298 +199,228 @@ function App() {
     alert(`Deleted ${selectedTemplates.length} templates`);
   };
 
-  return (
-    <div className="app">
-      <header className="header">
-        <h1>🐳 Docker Template Manager</h1>
-        <p>Manage Unraid Docker Templates</p>
-      </header>
-
-      <nav className="tabs">
-        <button 
-          className={activeTab === 'dashboard' ? 'active' : ''} 
-          onClick={() => setActiveTab('dashboard')}
-        >
-          📊 Dashboard
-        </button>
-        <button 
-          className={activeTab === 'templates' ? 'active' : ''} 
-          onClick={() => setActiveTab('templates')}
-        >
-          📄 Templates
-        </button>
-        <button 
-          className={activeTab === 'containers' ? 'active' : ''} 
-          onClick={() => setActiveTab('containers')}
-        >
-          📦 Containers
-        </button>
-        <button 
-          className={activeTab === 'backups' ? 'active' : ''} 
-          onClick={() => setActiveTab('backups')}
-        >
-          💾 Backups
-        </button>
-      </nav>
-
-      <main className="content">
-        {activeTab === 'dashboard' && stats && (
-          <div className="dashboard">
-            <h2>Dashboard</h2>
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h3>Templates</h3>
-                <div className="stat-value">{stats.total_templates}</div>
-                <div className="stat-detail">
-                  {stats.matched_templates} matched, {stats.unmatched_templates} unused
-                </div>
-              </div>
-              <div className="stat-card">
-                <h3>Containers</h3>
-                <div className="stat-value">{stats.total_containers}</div>
-                <div className="stat-detail">
-                  {stats.running_containers} running
-                </div>
-              </div>
-              <div className="stat-card">
-                <h3>Backups</h3>
-                <div className="stat-value">{stats.total_backups}</div>
-              </div>
-            </div>
-
-            {stats.unmatched_templates > 0 && (
-              <div className="alert alert-warning">
-                <strong>⚠️ {stats.unmatched_templates} unused templates detected</strong>
-                <button onClick={() => handleCleanupTemplates(true)} disabled={loading}>
-                  Clean Up Unused Templates
-                </button>
-              </div>
-            )}
-
-            <div className="quick-actions">
-              <h3>Quick Actions</h3>
-              <button onClick={() => handleCreateBackup()} disabled={loading}>
-                💾 Create Backup
-              </button>
-              <button onClick={() => fetchStats()}>
-                🔄 Refresh Stats
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'templates' && (
-          <div className="templates">
-            <div className="section-header">
-              <h2>Templates ({templates.length})</h2>
-              <div className="actions">
-                {selectedTemplates.length > 0 && (
-                  <>
-                    <span>{selectedTemplates.length} selected</span>
-                    <button onClick={handleDeleteSelected} disabled={loading}>
-                      🗑️ Delete Selected
-                    </button>
-                  </>
-                )}
-                <button onClick={() => handleCleanupTemplates(true)} disabled={loading}>
-                  🧹 Clean Up Unused
-                </button>
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="loading">Loading...</div>
-            ) : (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>
-                        <input 
-                          type="checkbox" 
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTemplates(templates.map(t => t.filename));
-                            } else {
-                              setSelectedTemplates([]);
-                            }
-                          }}
-                          checked={selectedTemplates.length === templates.length && templates.length > 0}
-                        />
-                      </th>
-                      <th>Status</th>
-                      <th>Template</th>
-                      <th>Container</th>
-                      <th>Size</th>
-                      <th>Modified</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {templates.map(template => (
-                      <tr key={template.filename} className={template.matched ? '' : 'unused'}>
-                        <td>
-                          <input 
-                            type="checkbox"
-                            checked={selectedTemplates.includes(template.filename)}
-                            onChange={() => toggleTemplateSelection(template.filename)}
-                          />
-                        </td>
-                        <td>
-                          {template.matched ? (
-                            <span className="status-badge status-matched">✓ Matched</span>
-                          ) : (
-                            <span className="status-badge status-unused">✗ Unused</span>
-                          )}
-                        </td>
-                        <td>
-                          <strong>{template.filename}</strong>
-                        </td>
-                        <td>
-                          {template.container ? (
-                            <span className="container-name">{template.container.name}</span>
-                          ) : (
-                            <span className="text-muted">-</span>
-                          )}
-                        </td>
-                        <td>{formatBytes(template.size)}</td>
-                        <td>{formatDate(template.modified)}</td>
-                        <td>
-                          <button 
-                            className="btn-small btn-danger"
-                            onClick={() => handleDeleteTemplate(template.filename)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'containers' && (
-          <div className="containers">
-            <div className="section-header">
-              <h2>Containers ({containers.length})</h2>
-              <button onClick={fetchContainers}>🔄 Refresh</button>
-            </div>
-
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Name</th>
-                    <th>Image</th>
-                    <th>State</th>
-                    <th>Template</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {containers.map(container => (
-                    <tr key={container.id}>
-                      <td>
-                        <span className={`status-indicator status-${container.state}`}>
-                          {container.state === 'running' ? '🟢' : '🔴'}
-                        </span>
-                      </td>
-                      <td>
-                        <strong>{container.name}</strong>
-                        <div className="text-small text-muted">{container.id}</div>
-                      </td>
-                      <td className="text-small">{container.image}</td>
-                      <td>
-                        <span className={`badge badge-${container.state}`}>
-                          {container.status}
-                        </span>
-                      </td>
-                      <td>
-                        {container.has_template ? (
-                          <span className="status-badge status-matched">
-                            ✓ {container.template.filename}
-                          </span>
-                        ) : (
-                          <span className="status-badge status-warning">
-                            ⚠️ No template
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'backups' && (
-          <div className="backups">
-            <div className="section-header">
-              <h2>Backups ({backups.length})</h2>
-              <button onClick={handleCreateBackup} disabled={loading}>
-                💾 Create New Backup
-              </button>
-            </div>
-
-            {backups.length === 0 ? (
-              <div className="empty-state">
-                <p>No backups yet. Create your first backup to get started.</p>
-                <button onClick={handleCreateBackup} disabled={loading}>
-                  Create Backup
-                </button>
-              </div>
-            ) : (
-              <div className="backup-list">
-                {backups.map(backup => (
-                  <div key={backup.name} className="backup-card">
-                    <div className="backup-header">
-                      <h3>{backup.name}</h3>
-                      <button 
-                        className="btn-danger"
-                        onClick={() => handleDeleteBackup(backup.name)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                    <div className="backup-details">
-                      <div className="backup-detail">
-                        <span className="label">Created:</span>
-                        <span>{formatDate(backup.created)}</span>
-                      </div>
-                      <div className="backup-detail">
-                        <span className="label">Size:</span>
-                        <span>{formatBytes(backup.size)}</span>
-                      </div>
-                      {backup.container_count && (
-                        <div className="backup-detail">
-                          <span className="label">Containers:</span>
-                          <span>{backup.container_count}</span>
-                        </div>
-                      )}
-                      {backup.template_count && (
-                        <div className="backup-detail">
-                          <span className="label">Templates:</span>
-                          <span>{backup.template_count}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      <footer className="footer">
-        <p>Docker Template Manager v1.0 | Made for Unraid</p>
-      </footer>
-    </div>
+  return React.createElement('div', { className: 'app' },
+    React.createElement('header', { className: 'header' },
+      React.createElement('h1', null, '🐳 Docker Template Manager'),
+      React.createElement('p', null, 'Manage Unraid Docker Templates')
+    ),
+    React.createElement('nav', { className: 'tabs' },
+      React.createElement('button', { 
+        className: activeTab === 'dashboard' ? 'active' : '', 
+        onClick: () => setActiveTab('dashboard')
+      }, '📊 Dashboard'),
+      React.createElement('button', { 
+        className: activeTab === 'templates' ? 'active' : '', 
+        onClick: () => setActiveTab('templates')
+      }, '📄 Templates'),
+      React.createElement('button', { 
+        className: activeTab === 'containers' ? 'active' : '', 
+        onClick: () => setActiveTab('containers')
+      }, '📦 Containers'),
+      React.createElement('button', { 
+        className: activeTab === 'backups' ? 'active' : '', 
+        onClick: () => setActiveTab('backups')
+      }, '💾 Backups')
+    ),
+    React.createElement('main', { className: 'content' },
+      activeTab === 'dashboard' && stats ? React.createElement('div', { className: 'dashboard' },
+        React.createElement('h2', null, 'Dashboard'),
+        React.createElement('div', { className: 'stats-grid' },
+          React.createElement('div', { className: 'stat-card' },
+            React.createElement('h3', null, 'Templates'),
+            React.createElement('div', { className: 'stat-value' }, stats.total_templates),
+            React.createElement('div', { className: 'stat-detail' }, 
+              `${stats.matched_templates} matched, ${stats.unmatched_templates} unused`)
+          ),
+          React.createElement('div', { className: 'stat-card' },
+            React.createElement('h3', null, 'Containers'),
+            React.createElement('div', { className: 'stat-value' }, stats.total_containers),
+            React.createElement('div', { className: 'stat-detail' }, 
+              `${stats.running_containers} running`)
+          ),
+          React.createElement('div', { className: 'stat-card' },
+            React.createElement('h3', null, 'Backups'),
+            React.createElement('div', { className: 'stat-value' }, stats.total_backups)
+          )
+        ),
+        stats.unmatched_templates > 0 && React.createElement('div', { className: 'alert alert-warning' },
+          React.createElement('strong', null, `⚠️ ${stats.unmatched_templates} unused templates detected`),
+          React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
+            'Clean Up Unused Templates')
+        ),
+        React.createElement('div', { className: 'quick-actions' },
+          React.createElement('h3', null, 'Quick Actions'),
+          React.createElement('button', { onClick: () => handleCreateBackup(), disabled: loading }, 
+            '💾 Create Backup'),
+          React.createElement('button', { onClick: () => fetchStats() }, 
+            '🔄 Refresh Stats')
+        )
+      ) : null,
+      activeTab === 'templates' ? React.createElement('div', { className: 'templates' },
+        React.createElement('div', { className: 'section-header' },
+          React.createElement('h2', null, `Templates (${templates.length})`),
+          React.createElement('div', { className: 'actions' },
+            selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
+              React.createElement('span', null, `${selectedTemplates.length} selected`),
+              React.createElement('button', { onClick: handleDeleteSelected, disabled: loading }, 
+                '🗑️ Delete Selected')
+            ),
+            React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
+              '🧹 Clean Up Unused')
+          )
+        ),
+        loading ? React.createElement('div', { className: 'loading' }, 'Loading...') : 
+        React.createElement('div', { className: 'table-container' },
+          React.createElement('table', null,
+            React.createElement('thead', null,
+              React.createElement('tr', null,
+                React.createElement('th', null, 
+                  React.createElement('input', { 
+                    type: 'checkbox',
+                    onChange: (e) => {
+                      if (e.target.checked) {
+                        setSelectedTemplates(templates.map(t => t.filename));
+                      } else {
+                        setSelectedTemplates([]);
+                      }
+                    },
+                    checked: selectedTemplates.length === templates.length && templates.length > 0
+                  })
+                ),
+                React.createElement('th', null, 'Status'),
+                React.createElement('th', null, 'Template'),
+                React.createElement('th', null, 'Container'),
+                React.createElement('th', null, 'Size'),
+                React.createElement('th', null, 'Modified'),
+                React.createElement('th', null, 'Actions')
+              )
+            ),
+            React.createElement('tbody', null,
+              templates.map(template => React.createElement('tr', { 
+                key: template.filename, 
+                className: template.matched ? '' : 'unused' 
+              },
+                React.createElement('td', null,
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: selectedTemplates.includes(template.filename),
+                    onChange: () => toggleTemplateSelection(template.filename)
+                  })
+                ),
+                React.createElement('td', null,
+                  template.matched ? 
+                    React.createElement('span', { className: 'status-badge status-matched' }, '✓ Matched') :
+                    React.createElement('span', { className: 'status-badge status-unused' }, '✗ Unused')
+                ),
+                React.createElement('td', null, React.createElement('strong', null, template.filename)),
+                React.createElement('td', null,
+                  template.container ? 
+                    React.createElement('span', { className: 'container-name' }, template.container.name) :
+                    React.createElement('span', { className: 'text-muted' }, '-')
+                ),
+                React.createElement('td', null, formatBytes(template.size)),
+                React.createElement('td', null, formatDate(template.modified)),
+                React.createElement('td', null,
+                  React.createElement('button', {
+                    className: 'btn-small btn-danger',
+                    onClick: () => handleDeleteTemplate(template.filename)
+                  }, 'Delete')
+                )
+              ))
+            )
+          )
+        )
+      ) : null,
+      activeTab === 'containers' ? React.createElement('div', { className: 'containers' },
+        React.createElement('div', { className: 'section-header' },
+          React.createElement('h2', null, `Containers (${containers.length})`),
+          React.createElement('button', { onClick: fetchContainers }, '🔄 Refresh')
+        ),
+        React.createElement('div', { className: 'table-container' },
+          React.createElement('table', null,
+            React.createElement('thead', null,
+              React.createElement('tr', null,
+                React.createElement('th', null, 'Status'),
+                React.createElement('th', null, 'Name'),
+                React.createElement('th', null, 'Image'),
+                React.createElement('th', null, 'State'),
+                React.createElement('th', null, 'Template')
+              )
+            ),
+            React.createElement('tbody', null,
+              containers.map(container => React.createElement('tr', { key: container.id },
+                React.createElement('td', null,
+                  React.createElement('span', { className: `status-indicator status-${container.state}` },
+                    container.state === 'running' ? '🟢' : '🔴')
+                ),
+                React.createElement('td', null,
+                  React.createElement('strong', null, container.name),
+                  React.createElement('div', { className: 'text-small text-muted' }, container.id)
+                ),
+                React.createElement('td', { className: 'text-small' }, container.image),
+                React.createElement('td', null,
+                  React.createElement('span', { className: `badge badge-${container.state}` }, container.status)
+                ),
+                React.createElement('td', null,
+                  container.has_template ? 
+                    React.createElement('span', { className: 'status-badge status-matched' }, 
+                      `✓ ${container.template.filename}`) :
+                    React.createElement('span', { className: 'status-badge status-warning' }, 
+                      '⚠️ No template')
+                )
+              ))
+            )
+          )
+        )
+      ) : null,
+      activeTab === 'backups' ? React.createElement('div', { className: 'backups' },
+        React.createElement('div', { className: 'section-header' },
+          React.createElement('h2', null, `Backups (${backups.length})`),
+          React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
+            '💾 Create New Backup')
+        ),
+        backups.length === 0 ? 
+          React.createElement('div', { className: 'empty-state' },
+            React.createElement('p', null, 'No backups yet. Create your first backup to get started.'),
+            React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
+              'Create Backup')
+          ) :
+          React.createElement('div', { className: 'backup-list' },
+            backups.map(backup => React.createElement('div', { key: backup.name, className: 'backup-card' },
+              React.createElement('div', { className: 'backup-header' },
+                React.createElement('h3', null, backup.name),
+                React.createElement('button', { 
+                  className: 'btn-danger',
+                  onClick: () => handleDeleteBackup(backup.name)
+                }, 'Delete')
+              ),
+              React.createElement('div', { className: 'backup-details' },
+                React.createElement('div', { className: 'backup-detail' },
+                  React.createElement('span', { className: 'label' }, 'Created:'),
+                  React.createElement('span', null, formatDate(backup.created))
+                ),
+                React.createElement('div', { className: 'backup-detail' },
+                  React.createElement('span', { className: 'label' }, 'Size:'),
+                  React.createElement('span', null, formatBytes(backup.size))
+                ),
+                backup.container_count && React.createElement('div', { className: 'backup-detail' },
+                  React.createElement('span', { className: 'label' }, 'Containers:'),
+                  React.createElement('span', null, backup.container_count)
+                ),
+                backup.template_count && React.createElement('div', { className: 'backup-detail' },
+                  React.createElement('span', { className: 'label' }, 'Templates:'),
+                  React.createElement('span', null, backup.template_count)
+                )
+              )
+            ))
+          )
+      ) : null
+    ),
+    React.createElement('footer', { className: 'footer' },
+      React.createElement('p', null, 'Docker Template Manager v1.0 | Made for Unraid')
+    )
   );
 }
 
-export default App;
+// Export for global access
+window.App = App;

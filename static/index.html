@@ -16,17 +16,14 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel standalone for JSX transformation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Your App Component -->
-    <script type="text/babel" src="/static/app.jsx"></script>
+    <!-- Your App Component (plain JavaScript, no JSX) -->
+    <script src="/static/app.jsx"></script>
     
     <!-- Mount React App -->
-    <script type="text/babel">
+    <script>
       const { createRoot } = ReactDOM;
       const root = createRoot(document.getElementById('root'));
-      root.render(<App />);
+      root.render(React.createElement(window.App));
     </script>
   </body>
 </html>
