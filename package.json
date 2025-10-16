@@ -1,0 +1,21 @@
+{
+  "name": "docker-template-manager",
+  "version": "1.0.0",
+  "description": "Docker Template Manager for Unraid",
+  "main": "app.py",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": ["unraid", "docker", "templates"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^4.4.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
