@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 LABEL maintainer="your-email@example.com"
 LABEL description="Docker Template Manager for Unraid"
