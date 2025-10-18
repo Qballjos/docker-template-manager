@@ -457,6 +457,38 @@ def delete_backup(backup_name):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/backups/<backup_name>/restore', methods=['POST'])
+def restore_backup(backup_name):
+    """Restore templates from a backup"""
+    backup_path = os.path.join(BACKUP_DIR, backup_name)
+    templates_backup_path = os.path.join(backup_path, 'templates')
+    
+    if not os.path.exists(backup_path):
+        return jsonify({'error': 'Backup not found'}), 404
+    
+    if not os.path.exists(templates_backup_path):
+        return jsonify({'error': 'Templates not found in backup'}), 404
+    
+    try:
+        # Count templates to restore
+        template_files = [f for f in os.listdir(templates_backup_path) if f.endswith('.xml')]
+        
+        # Copy templates back to templates directory
+        restored_count = 0
+        for template_file in template_files:
+            src = os.path.join(templates_backup_path, template_file)
+            dst = os.path.join(TEMPLATE_DIR, template_file)
+            shutil.copy2(src, dst)
+            restored_count += 1
+        
+        return jsonify({
+            'success': True,
+            'message': f'Restored {restored_count} templates from backup {backup_name}',
+            'restored_count': restored_count
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/')
 @app.route('/index.html')
 def index():

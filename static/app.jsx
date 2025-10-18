@@ -154,6 +154,33 @@ function App() {
     }
   };
 
+  const handleRestoreBackup = async (backupName) => {
+    if (!window.confirm(`Restore templates from backup ${backupName}? This will copy all templates from the backup to your templates directory. Existing templates with the same name will be overwritten.`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/backups/${backupName}/restore`, {
+        method: 'POST'
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(data.message || 'Backup restored successfully');
+        fetchTemplates();
+        fetchStats();
+      } else {
+        alert(data.error || 'Error restoring backup');
+      }
+    } catch (error) {
+      console.error('Error restoring backup:', error);
+      alert('Error restoring backup');
+    }
+    setLoading(false);
+  };
+
   const formatBytes = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -388,11 +415,7 @@ function App() {
           React.createElement('div', { className: 'backup-list' },
             backups.map(backup => React.createElement('div', { key: backup.name, className: 'backup-card' },
               React.createElement('div', { className: 'backup-header' },
-                React.createElement('h3', null, backup.name),
-                React.createElement('button', { 
-                  className: 'btn-danger',
-                  onClick: () => handleDeleteBackup(backup.name)
-                }, 'Delete')
+                React.createElement('h3', null, backup.name)
               ),
               React.createElement('div', { className: 'backup-details' },
                 React.createElement('div', { className: 'backup-detail' },
@@ -411,6 +434,19 @@ function App() {
                   React.createElement('span', { className: 'label' }, 'Templates:'),
                   React.createElement('span', null, backup.template_count)
                 )
+              ),
+              React.createElement('div', { className: 'backup-actions' },
+                React.createElement('button', { 
+                  className: 'btn-primary',
+                  onClick: () => handleRestoreBackup(backup.name),
+                  disabled: loading
+                }, '🔄 Restore'),
+                React.createElement('button', { 
+                  className: 'btn-danger',
+                  onClick: () => handleDeleteBackup(backup.name),
+                  disabled: loading
+                }, '🗑️ Delete')
+              )
               )
             ))
           )
