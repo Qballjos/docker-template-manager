@@ -498,7 +498,20 @@ def index():
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files (CSS, JS, etc)"""
-    return send_from_directory('static', filename)
+    response = send_from_directory('static', filename)
+    
+    # Set correct MIME type for JavaScript files
+    if filename.endswith('.jsx') or filename.endswith('.js'):
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+    elif filename.endswith('.css'):
+        response.headers['Content-Type'] = 'text/css; charset=utf-8'
+    
+    return response
+
+@app.route('/favicon.ico')
+def favicon():
+    """Serve favicon or return 204 No Content"""
+    return '', 204
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
