@@ -447,7 +447,6 @@ function App() {
                   disabled: loading
                 }, '🗑️ Delete')
               )
-              )
             ))
           )
       ) : null
