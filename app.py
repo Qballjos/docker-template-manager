@@ -14,6 +14,11 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 import re
+import mimetypes
+
+# Configure MIME types for .jsx files
+mimetypes.add_type('application/javascript', '.jsx')
+mimetypes.add_type('application/javascript', '.js')
 
 app = Flask(__name__)
 CORS(app)
