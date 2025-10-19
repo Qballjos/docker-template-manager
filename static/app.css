@@ -410,9 +410,9 @@ tr.unused {
 /* Buttons */
 button {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, var(--unraid-orange) 0%, var(--unraid-orange-dark) 100%);
-  color: white;
-  border: none;
+  background: var(--unraid-bg-tertiary);
+  color: var(--unraid-text-primary);
+  border: 1px solid var(--unraid-border);
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.95rem;
@@ -425,7 +425,8 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--unraid-orange-hover) 0%, var(--unraid-orange) 100%);
+  background: var(--unraid-bg-hover);
+  border-color: var(--unraid-border-light);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -446,28 +447,50 @@ button:disabled {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--unraid-orange) 0%, var(--unraid-orange-dark) 100%);
+  color: white;
+  border-color: var(--unraid-orange);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--unraid-orange-hover) 0%, var(--unraid-orange) 100%);
+  border-color: var(--unraid-orange-hover);
   box-shadow: var(--shadow-md);
 }
 
+.btn-secondary {
+  background: var(--unraid-bg-tertiary);
+  color: var(--unraid-text-primary);
+  border: 1px solid var(--unraid-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--unraid-bg-hover);
+  border-color: var(--unraid-border-light);
+}
+
 .btn-danger {
-  background: linear-gradient(135deg, var(--unraid-danger) 0%, var(--unraid-danger-dark) 100%);
+  background: var(--unraid-bg-tertiary);
+  color: var(--unraid-danger);
+  border: 1px solid var(--unraid-danger);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e35d5a 0%, var(--unraid-danger) 100%);
+  background: var(--unraid-danger);
+  color: white;
+  border-color: var(--unraid-danger);
   box-shadow: var(--shadow-md);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, var(--unraid-success) 0%, var(--unraid-success-dark) 100%);
+  background: var(--unraid-bg-tertiary);
+  color: var(--unraid-success);
+  border: 1px solid var(--unraid-success);
 }
 
 .btn-success:hover:not(:disabled) {
-  background: linear-gradient(135deg, #6ec76e 0%, var(--unraid-success) 100%);
+  background: var(--unraid-success);
+  color: white;
+  border-color: var(--unraid-success);
   box-shadow: var(--shadow-md);
 }
 
