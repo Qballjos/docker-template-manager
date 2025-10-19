@@ -15,13 +15,84 @@ from datetime import datetime
 from pathlib import Path
 import re
 import mimetypes
+from functools import wraps
+from werkzeug.security import safe_join
+import secrets
 
 # Configure MIME types for .jsx files
 mimetypes.add_type('application/javascript', '.jsx')
 mimetypes.add_type('application/javascript', '.js')
 
 app = Flask(__name__)
-CORS(app)
+
+# Security: Configure CORS properly - restrict to specific origins
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8080,http://localhost:5173').split(',')
+CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
+
+# Security: API Key authentication
+API_KEY = os.getenv('API_KEY', secrets.token_urlsafe(32))
+if not os.getenv('API_KEY'):
+    print(f"WARNING: No API_KEY set. Generated temporary key: {API_KEY}")
+    print("Set API_KEY environment variable for production use!")
+
+# Security: Configure security headers
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    return response
+
+# Security: Authentication decorator
+def require_api_key(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check API key in header or query parameter
+        key = request.headers.get('X-API-Key') or request.args.get('api_key')
+        if not key or key != API_KEY:
+            return jsonify({'error': 'Unauthorized - Invalid or missing API key'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Security: Input validation helpers
+def validate_filename(filename):
+    """Validate filename to prevent path traversal"""
+    if not filename:
+        return False
+    # Allow only alphanumeric, dots, hyphens, underscores
+    if not re.match(r'^[a-zA-Z0-9._-]+$', filename):
+        return False
+    # Prevent directory traversal
+    if '..' in filename or filename.startswith('/') or filename.startswith('\\'):
+        return False
+    # Must end with .xml for templates
+    if not filename.endswith('.xml'):
+        return False
+    return True
+
+def validate_backup_name(backup_name):
+    """Validate backup name to prevent path traversal"""
+    if not backup_name:
+        return False
+    # Allow only alphanumeric, hyphens
+    if not re.match(r'^[a-zA-Z0-9-]+$', backup_name):
+        return False
+    if '..' in backup_name or '/' in backup_name or '\\' in backup_name:
+        return False
+    return True
+
+def safe_path_join(base_dir, filename):
+    """Safely join paths to prevent directory traversal"""
+    try:
+        # Use werkzeug's safe_join which prevents path traversal
+        safe_path = safe_join(base_dir, filename)
+        if safe_path is None or not safe_path.startswith(os.path.abspath(base_dir)):
+            return None
+        return safe_path
+    except Exception:
+        return None
 
 # Configuration
 TEMPLATE_DIR = os.getenv('TEMPLATE_DIR', '/templates')
@@ -91,12 +162,21 @@ class TemplateManager:
     
     @staticmethod
     def get_template_content(filename):
-        """Read template XML content"""
-        filepath = os.path.join(TEMPLATE_DIR, filename)
+        """Read template XML content with security validation"""
+        # Security: Validate filename
+        if not validate_filename(filename):
+            return None
+        
+        filepath = safe_path_join(TEMPLATE_DIR, filename)
+        if filepath is None:
+            return None
+            
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 return f.read()
         except Exception as e:
+            # Security: Don't expose detailed error messages
+            print(f"Error reading template {filename}: {e}")
             return None
 
 
@@ -247,7 +327,7 @@ class BackupManager:
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint - no authentication required"""
     docker_status = 'connected' if docker_client else 'disconnected'
     template_dir_exists = os.path.exists(TEMPLATE_DIR)
     
@@ -260,6 +340,7 @@ def health_check():
 
 
 @app.route('/api/stats', methods=['GET'])
+@require_api_key
 def get_stats():
     """Get dashboard statistics"""
     templates = TemplateManager.get_all_templates()
@@ -287,6 +368,7 @@ def get_stats():
 
 
 @app.route('/api/templates', methods=['GET'])
+@require_api_key
 def list_templates():
     """List all templates with matching status"""
     templates = TemplateManager.get_all_templates()
@@ -305,8 +387,13 @@ def list_templates():
 
 
 @app.route('/api/templates/<filename>', methods=['GET'])
+@require_api_key
 def get_template(filename):
     """Get specific template details"""
+    # Security: Validate filename
+    if not validate_filename(filename):
+        return jsonify({'error': 'Invalid filename'}), 400
+    
     content = TemplateManager.get_template_content(filename)
     if content is None:
         return jsonify({'error': 'Template not found'}), 404
@@ -318,11 +405,15 @@ def get_template(filename):
 
 
 @app.route('/api/templates/<filename>', methods=['DELETE'])
+@require_api_key
 def delete_template(filename):
     """Delete a template file"""
-    filepath = os.path.join(TEMPLATE_DIR, filename)
+    # Security: Validate filename
+    if not validate_filename(filename):
+        return jsonify({'error': 'Invalid filename'}), 400
     
-    if not os.path.exists(filepath):
+    filepath = safe_path_join(TEMPLATE_DIR, filename)
+    if filepath is None or not os.path.exists(filepath):
         return jsonify({'error': 'Template not found'}), 404
     
     try:
@@ -331,7 +422,12 @@ def delete_template(filename):
         os.makedirs(backup_path, exist_ok=True)
         
         timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
-        backup_file = os.path.join(backup_path, f"{timestamp}-{filename}")
+        backup_filename = f"{timestamp}-{filename}"
+        backup_file = safe_path_join(backup_path, backup_filename)
+        
+        if backup_file is None:
+            return jsonify({'error': 'Invalid backup path'}), 500
+        
         shutil.copy2(filepath, backup_file)
         
         # Delete original
@@ -339,14 +435,16 @@ def delete_template(filename):
         
         return jsonify({
             'success': True,
-            'message': f'Template {filename} deleted',
-            'backup': backup_file
+            'message': f'Template {filename} deleted'
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # Security: Don't expose detailed error messages
+        print(f"Error deleting template: {e}")
+        return jsonify({'error': 'Failed to delete template'}), 500
 
 
 @app.route('/api/templates/cleanup', methods=['POST'])
+@require_api_key
 def cleanup_templates():
     """Clean up unused templates"""
     data = request.json or {}
@@ -392,6 +490,7 @@ def cleanup_templates():
 
 
 @app.route('/api/containers', methods=['GET'])
+@require_api_key
 def list_containers():
     """List all containers"""
     containers = ContainerManager.get_all_containers()
@@ -412,8 +511,13 @@ def list_containers():
 
 
 @app.route('/api/containers/<container_name>', methods=['GET'])
+@require_api_key
 def get_container(container_name):
     """Get specific container details"""
+    # Security: Validate container name
+    if not re.match(r'^[a-zA-Z0-9_-]+$', container_name):
+        return jsonify({'error': 'Invalid container name'}), 400
+    
     inspect_data = ContainerManager.get_container_inspect(container_name)
     if inspect_data is None:
         return jsonify({'error': 'Container not found'}), 404
@@ -422,6 +526,7 @@ def get_container(container_name):
 
 
 @app.route('/api/backups', methods=['GET'])
+@require_api_key
 def list_backups():
     """List all backups"""
     backups = BackupManager.list_backups()
@@ -429,10 +534,15 @@ def list_backups():
 
 
 @app.route('/api/backups', methods=['POST'])
+@require_api_key
 def create_backup():
     """Create a new backup"""
     data = request.json or {}
     backup_name = data.get('name')
+    
+    # Security: Validate backup name if provided
+    if backup_name and not validate_backup_name(backup_name):
+        return jsonify({'error': 'Invalid backup name. Use only alphanumeric characters and hyphens'}), 400
     
     try:
         backup_name = BackupManager.create_backup(backup_name)
@@ -442,15 +552,22 @@ def create_backup():
             'message': f'Backup created: {backup_name}'
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # Security: Don't expose detailed error messages
+        print(f"Error creating backup: {e}")
+        return jsonify({'error': 'Failed to create backup'}), 500
 
 
 @app.route('/api/backups/<backup_name>', methods=['DELETE'])
+@require_api_key
 def delete_backup(backup_name):
     """Delete a backup"""
-    backup_path = os.path.join(BACKUP_DIR, backup_name)
+    # Security: Validate backup name
+    if not validate_backup_name(backup_name):
+        return jsonify({'error': 'Invalid backup name'}), 400
     
-    if not os.path.exists(backup_path):
+    backup_path = safe_path_join(BACKUP_DIR, backup_name)
+    
+    if backup_path is None or not os.path.exists(backup_path):
         return jsonify({'error': 'Backup not found'}), 404
     
     try:
@@ -460,12 +577,22 @@ def delete_backup(backup_name):
             'message': f'Backup {backup_name} deleted'
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # Security: Don't expose detailed error messages
+        print(f"Error deleting backup: {e}")
+        return jsonify({'error': 'Failed to delete backup'}), 500
 
 @app.route('/api/backups/<backup_name>/restore', methods=['POST'])
+@require_api_key
 def restore_backup(backup_name):
     """Restore templates from a backup"""
-    backup_path = os.path.join(BACKUP_DIR, backup_name)
+    # Security: Validate backup name
+    if not validate_backup_name(backup_name):
+        return jsonify({'error': 'Invalid backup name'}), 400
+    
+    backup_path = safe_path_join(BACKUP_DIR, backup_name)
+    if backup_path is None:
+        return jsonify({'error': 'Invalid backup path'}), 400
+        
     templates_backup_path = os.path.join(backup_path, 'templates')
     
     if not os.path.exists(backup_path):
@@ -476,15 +603,18 @@ def restore_backup(backup_name):
     
     try:
         # Count templates to restore
-        template_files = [f for f in os.listdir(templates_backup_path) if f.endswith('.xml')]
+        template_files = [f for f in os.listdir(templates_backup_path) 
+                         if f.endswith('.xml') and validate_filename(f)]
         
         # Copy templates back to templates directory
         restored_count = 0
         for template_file in template_files:
-            src = os.path.join(templates_backup_path, template_file)
-            dst = os.path.join(TEMPLATE_DIR, template_file)
-            shutil.copy2(src, dst)
-            restored_count += 1
+            src = safe_path_join(templates_backup_path, template_file)
+            dst = safe_path_join(TEMPLATE_DIR, template_file)
+            
+            if src and dst:
+                shutil.copy2(src, dst)
+                restored_count += 1
         
         return jsonify({
             'success': True,
@@ -492,7 +622,9 @@ def restore_backup(backup_name):
             'restored_count': restored_count
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # Security: Don't expose detailed error messages
+        print(f"Error restoring backup: {e}")
+        return jsonify({'error': 'Failed to restore backup'}), 500
 
 @app.route('/')
 @app.route('/index.html')
@@ -519,5 +651,10 @@ def favicon():
     return '', 204
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    # Security: Disable debug mode in production
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    if debug_mode:
+        print("WARNING: Running in DEBUG mode. Disable in production!")
+    
+    app.run(host='0.0.0.0', port=8080, debug=debug_mode)
     

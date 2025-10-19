@@ -1,3 +1,14 @@
+# Docker Template Manager - For Unraid
+# 
+# For local development/testing. Unraid users should use the
+# Community Apps template instead.
+#
+# Local setup:
+#   1. cp .env.example .env
+#   2. Generate key: openssl rand -base64 32
+#   3. Add key to .env
+#   4. docker-compose up -d
+
 version: '3.8'
 
 services:
@@ -7,25 +18,26 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      # Docker socket for container access (read-only)
+      # Docker socket (read-only for security)
       - /var/run/docker.sock:/var/run/docker.sock:ro
       
-      # Unraid template directory (read-write)
+      # Unraid paths (adjust for your system)
       - /boot/config/plugins/dockerMan/templates-user:/templates:rw
-      
-      # Backup storage
       - /mnt/user/appdata/docker-template-manager/backups:/backups:rw
-      
-      # Application config
       - /mnt/user/appdata/docker-template-manager/config:/config:rw
     
     environment:
-      - TZ=Europe/Amsterdam
+      # Security (load from .env)
+      - API_KEY=${API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8080}
+      - FLASK_DEBUG=${FLASK_DEBUG:-false}
+      
+      # Configuration
+      - TZ=${TZ:-America/New_York}
       - TEMPLATE_DIR=/templates
       - BACKUP_DIR=/backups
       - CONFIG_DIR=/config
       - BACKUP_RETENTION_DAYS=30
-      - AUTO_CLEANUP_ENABLED=false
     
     restart: unless-stopped
     
