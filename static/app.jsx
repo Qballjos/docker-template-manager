@@ -8,17 +8,58 @@ function App() {
   const [backups, setBackups] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
+  const [apiKey, setApiKey] = React.useState(localStorage.getItem('apiKey') || '');
+  const [showApiKeyPrompt, setShowApiKeyPrompt] = React.useState(!localStorage.getItem('apiKey'));
+
+  // API helper with authentication
+  const fetchWithAuth = async (url, options = {}) => {
+    const headers = {
+      'X-API-Key': apiKey,
+      'Content-Type': 'application/json',
+      ...options.headers
+    };
+    
+    const response = await fetch(url, { ...options, headers });
+    
+    if (response.status === 401) {
+      setShowApiKeyPrompt(true);
+      localStorage.removeItem('apiKey');
+      throw new Error('Unauthorized - Invalid API key');
+    }
+    
+    return response;
+  };
+
+  const handleApiKeySubmit = (e) => {
+    e.preventDefault();
+    const key = e.target.apikey.value.trim();
+    if (key) {
+      localStorage.setItem('apiKey', key);
+      setApiKey(key);
+      setShowApiKeyPrompt(false);
+    }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Clear API key and logout?')) {
+      localStorage.removeItem('apiKey');
+      setApiKey('');
+      setShowApiKeyPrompt(true);
+    }
+  };
 
   React.useEffect(() => {
-    fetchStats();
-    fetchTemplates();
-    fetchContainers();
-    fetchBackups();
-  }, []);
+    if (apiKey && !showApiKeyPrompt) {
+      fetchStats();
+      fetchTemplates();
+      fetchContainers();
+      fetchBackups();
+    }
+  }, [apiKey, showApiKeyPrompt]);
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/stats`);
+      const response = await fetchWithAuth(`${API_URL}/api/stats`);
       const data = await response.json();
       setStats(data);
     } catch (error) {
@@ -29,7 +70,7 @@ function App() {
   const fetchTemplates = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/templates`);
+      const response = await fetchWithAuth(`${API_URL}/api/templates`);
       const data = await response.json();
       setTemplates(data);
     } catch (error) {
@@ -40,7 +81,7 @@ function App() {
 
   const fetchContainers = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/containers`);
+      const response = await fetchWithAuth(`${API_URL}/api/containers`);
       const data = await response.json();
       setContainers(data);
     } catch (error) {
@@ -50,7 +91,7 @@ function App() {
 
   const fetchBackups = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/backups`);
+      const response = await fetchWithAuth(`${API_URL}/api/backups`);
       const data = await response.json();
       setBackups(data);
     } catch (error) {
@@ -64,7 +105,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/templates/${filename}`, {
+      const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`, {
         method: 'DELETE'
       });
       
@@ -84,9 +125,8 @@ function App() {
   const handleCleanupTemplates = async (dryRun = true) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/templates/cleanup`, {
+      const response = await fetchWithAuth(`${API_URL}/api/templates/cleanup`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dry_run: dryRun })
       });
       
@@ -116,9 +156,8 @@ function App() {
   const handleCreateBackup = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/backups`, {
+      const response = await fetchWithAuth(`${API_URL}/api/backups`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
       });
       
@@ -140,7 +179,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/backups/${backupName}`, {
+      const response = await fetchWithAuth(`${API_URL}/api/backups/${backupName}`, {
         method: 'DELETE'
       });
       
@@ -161,7 +200,7 @@ function App() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/backups/${backupName}/restore`, {
+      const response = await fetchWithAuth(`${API_URL}/api/backups/${backupName}/restore`, {
         method: 'POST'
       });
       
@@ -214,7 +253,7 @@ function App() {
     setLoading(true);
     for (const filename of selectedTemplates) {
       try {
-        await fetch(`${API_URL}/api/templates/${filename}`, { method: 'DELETE' });
+        await fetchWithAuth(`${API_URL}/api/templates/${filename}`, { method: 'DELETE' });
       } catch (error) {
         console.error(`Error deleting ${filename}:`, error);
       }
@@ -227,9 +266,33 @@ function App() {
   };
 
   return React.createElement('div', { className: 'app' },
+    // API Key Prompt Modal
+    showApiKeyPrompt && React.createElement('div', { className: 'modal-overlay' },
+      React.createElement('div', { className: 'modal' },
+        React.createElement('h2', null, '🔑 API Key Required'),
+        React.createElement('p', null, 'Enter your API key to access Docker Template Manager.'),
+        React.createElement('p', { className: 'text-small text-muted' }, 
+          'Find your API key in Docker logs: Docker tab → Container icon → Logs'),
+        React.createElement('form', { onSubmit: handleApiKeySubmit },
+          React.createElement('input', {
+            type: 'password',
+            name: 'apikey',
+            placeholder: 'Enter API key',
+            autoFocus: true,
+            required: true,
+            style: { width: '100%', padding: '10px', marginBottom: '10px', fontSize: '14px' }
+          }),
+          React.createElement('button', { type: 'submit', className: 'btn-primary' }, 'Submit')
+        )
+      )
+    ),
     React.createElement('header', { className: 'header' },
       React.createElement('h1', null, '🐳 Docker Template Manager'),
-      React.createElement('p', null, 'Manage Unraid Docker Templates')
+      React.createElement('p', null, 'Manage Unraid Docker Templates'),
+      !showApiKeyPrompt && React.createElement('button', {
+        onClick: handleLogout,
+        style: { position: 'absolute', right: '20px', top: '20px', fontSize: '12px' }
+      }, '🔓 Logout')
     ),
     React.createElement('nav', { className: 'tabs' },
       React.createElement('button', { 
