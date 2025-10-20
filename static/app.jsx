@@ -10,6 +10,9 @@ function App() {
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
   const [apiKey, setApiKey] = React.useState(localStorage.getItem('apiKey') || '');
   const [showApiKeyPrompt, setShowApiKeyPrompt] = React.useState(!localStorage.getItem('apiKey'));
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [filterStatus, setFilterStatus] = React.useState('all'); // all, matched, unmatched
+  const [sortBy, setSortBy] = React.useState('name'); // name, size, date
 
   // API helper with authentication
   const fetchWithAuth = async (url, options = {}) => {
@@ -232,6 +235,78 @@ function App() {
     return new Date(isoString).toLocaleString();
   };
 
+  // Simple SVG Pie Chart Component
+  const PieChart = ({ matched, unmatched }) => {
+    const total = matched + unmatched;
+    if (total === 0) return null;
+    
+    const matchedPercent = (matched / total) * 100;
+    const unmatchedPercent = (unmatched / total) * 100;
+    
+    // Calculate pie chart segments
+    const matchedAngle = (matched / total) * 360;
+    const unmatchedAngle = (unmatched / total) * 360;
+    
+    const getCoordinatesForPercent = (percent) => {
+      const x = Math.cos(2 * Math.PI * percent);
+      const y = Math.sin(2 * Math.PI * percent);
+      return [x, y];
+    };
+    
+    const matchedPath = () => {
+      const [startX, startY] = getCoordinatesForPercent(0);
+      const [endX, endY] = getCoordinatesForPercent(matched / total);
+      const largeArcFlag = matched / total > 0.5 ? 1 : 0;
+      
+      return [
+        `M 0 0`,
+        `L ${startX} ${startY}`,
+        `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+        `Z`
+      ].join(' ');
+    };
+    
+    const unmatchedPath = () => {
+      const [startX, startY] = getCoordinatesForPercent(matched / total);
+      const [endX, endY] = getCoordinatesForPercent(1);
+      const largeArcFlag = unmatched / total > 0.5 ? 1 : 0;
+      
+      return [
+        `M 0 0`,
+        `L ${startX} ${startY}`,
+        `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+        `Z`
+      ].join(' ');
+    };
+    
+    return React.createElement('div', { className: 'pie-chart-container' },
+      React.createElement('svg', { viewBox: '-1 -1 2 2', className: 'pie-chart' },
+        React.createElement('path', {
+          d: matchedPath(),
+          fill: '#5cb85c',
+          stroke: '#1b1b1b',
+          strokeWidth: '0.02'
+        }),
+        React.createElement('path', {
+          d: unmatchedPath(),
+          fill: '#f0ad4e',
+          stroke: '#1b1b1b',
+          strokeWidth: '0.02'
+        })
+      ),
+      React.createElement('div', { className: 'chart-legend' },
+        React.createElement('div', { className: 'legend-item' },
+          React.createElement('span', { className: 'legend-color', style: { background: '#5cb85c' } }),
+          React.createElement('span', null, `Matched: ${matched} (${matchedPercent.toFixed(1)}%)`)
+        ),
+        React.createElement('div', { className: 'legend-item' },
+          React.createElement('span', { className: 'legend-color', style: { background: '#f0ad4e' } }),
+          React.createElement('span', null, `Unused: ${unmatched} (${unmatchedPercent.toFixed(1)}%)`)
+        )
+      )
+    );
+  };
+
   const toggleTemplateSelection = (filename) => {
     setSelectedTemplates(prev => 
       prev.includes(filename) 
@@ -263,6 +338,40 @@ function App() {
     fetchStats();
     setLoading(false);
     alert(`Deleted ${selectedTemplates.length} templates`);
+  };
+
+  // Filter and sort templates
+  const getFilteredAndSortedTemplates = () => {
+    let filtered = templates;
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(t => 
+        t.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (t.container && t.container.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Apply status filter
+    if (filterStatus === 'matched') {
+      filtered = filtered.filter(t => t.matched);
+    } else if (filterStatus === 'unmatched') {
+      filtered = filtered.filter(t => !t.matched);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      if (sortBy === 'name') {
+        return a.filename.localeCompare(b.filename);
+      } else if (sortBy === 'size') {
+        return b.size - a.size;
+      } else if (sortBy === 'date') {
+        return new Date(b.modified) - new Date(a.modified);
+      }
+      return 0;
+    });
+
+    return filtered;
   };
 
   return React.createElement('div', { className: 'app' },
@@ -333,6 +442,14 @@ function App() {
             React.createElement('div', { className: 'stat-value' }, stats.total_backups)
           )
         ),
+        // Pie Chart
+        stats.total_templates > 0 && React.createElement('div', { className: 'chart-section' },
+          React.createElement('h3', null, 'Template Status Overview'),
+          React.createElement(PieChart, {
+            matched: stats.matched_templates,
+            unmatched: stats.unmatched_templates
+          })
+        ),
         stats.unmatched_templates > 0 && React.createElement('div', { className: 'alert alert-warning' },
           React.createElement('strong', null, `⚠️ ${stats.unmatched_templates} unused templates detected`),
           React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
@@ -348,7 +465,7 @@ function App() {
       ) : null,
       activeTab === 'templates' ? React.createElement('div', { className: 'templates' },
         React.createElement('div', { className: 'section-header' },
-          React.createElement('h2', null, `Templates (${templates.length})`),
+          React.createElement('h2', null, `Templates (${getFilteredAndSortedTemplates().length}/${templates.length})`),
           React.createElement('div', { className: 'actions' },
             selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
               React.createElement('span', null, `${selectedTemplates.length} selected`),
@@ -357,6 +474,43 @@ function App() {
             ),
             React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
               '🧹 Clean Up Unused')
+          )
+        ),
+        // Search and Filter Bar
+        React.createElement('div', { className: 'filter-bar' },
+          React.createElement('div', { className: 'search-box' },
+            React.createElement('input', {
+              type: 'text',
+              placeholder: '🔍 Search templates...',
+              value: searchTerm,
+              onChange: (e) => setSearchTerm(e.target.value),
+              className: 'search-input'
+            }),
+            searchTerm && React.createElement('button', {
+              onClick: () => setSearchTerm(''),
+              className: 'clear-search',
+              title: 'Clear search'
+            }, '✕')
+          ),
+          React.createElement('div', { className: 'filter-controls' },
+            React.createElement('select', {
+              value: filterStatus,
+              onChange: (e) => setFilterStatus(e.target.value),
+              className: 'filter-select'
+            },
+              React.createElement('option', { value: 'all' }, 'All Templates'),
+              React.createElement('option', { value: 'matched' }, '✓ Matched Only'),
+              React.createElement('option', { value: 'unmatched' }, '✗ Unused Only')
+            ),
+            React.createElement('select', {
+              value: sortBy,
+              onChange: (e) => setSortBy(e.target.value),
+              className: 'filter-select'
+            },
+              React.createElement('option', { value: 'name' }, 'Sort: Name'),
+              React.createElement('option', { value: 'size' }, 'Sort: Size'),
+              React.createElement('option', { value: 'date' }, 'Sort: Date')
+            )
           )
         ),
         loading ? React.createElement('div', { className: 'loading' }, 'Loading...') : 
@@ -386,7 +540,7 @@ function App() {
               )
             ),
             React.createElement('tbody', null,
-              templates.map(template => React.createElement('tr', { 
+              getFilteredAndSortedTemplates().map(template => React.createElement('tr', { 
                 key: template.filename, 
                 className: template.matched ? '' : 'unused' 
               },
