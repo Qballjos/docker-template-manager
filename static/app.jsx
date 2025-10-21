@@ -669,7 +669,7 @@ function App() {
       ) : null
     ),
     React.createElement('footer', { className: 'footer' },
-      React.createElement('p', null, 'Docker Template Manager v1.0 | Made for Unraid')
+      React.createElement('p', null, 'Docker Template Manager v1.2.0 | Made for Unraid')
     )
   );
 }
