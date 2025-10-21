@@ -963,3 +963,132 @@ button:disabled {
     width: 100%;
   }
 }
+
+
+/* Template Editor Modal */
+.modal-large {
+  max-width: 900px;
+  width: 95%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--unraid-border);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  color: var(--unraid-text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: var(--transition-fast);
+}
+
+.close-button:hover {
+  background: var(--unraid-bg-hover);
+  color: var(--unraid-text-primary);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.code-editor {
+  width: 100%;
+  min-height: 400px;
+  background: var(--unraid-bg-primary);
+  color: var(--unraid-text-primary);
+  border: 1px solid var(--unraid-border);
+  border-radius: 6px;
+  padding: 15px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  tab-size: 2;
+}
+
+.code-editor:focus {
+  outline: none;
+  border-color: var(--unraid-orange);
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 15px;
+  border-top: 1px solid var(--unraid-border);
+}
+
+.btn-primary {
+  background: var(--unraid-orange);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--unraid-orange-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-small.btn-primary {
+  background: var(--unraid-orange);
+  color: white;
+  border: 1px solid var(--unraid-orange);
+}
+
+.btn-small.btn-primary:hover {
+  background: var(--unraid-orange-hover);
+  border-color: var(--unraid-orange-hover);
+  color: white;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+  .modal-large {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px;
+  }
+  
+  .code-editor {
+    font-size: 12px;
+    min-height: 300px;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .modal-footer button {
+    width: 100%;
+  }
+}

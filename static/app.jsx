@@ -13,6 +13,10 @@ function App() {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [filterStatus, setFilterStatus] = React.useState('all'); // all, matched, unmatched
   const [sortBy, setSortBy] = React.useState('name'); // name, size, date
+  const [editingTemplate, setEditingTemplate] = React.useState(null);
+  const [editContent, setEditContent] = React.useState('');
+  const [renamingTemplate, setRenamingTemplate] = React.useState(null);
+  const [newTemplateName, setNewTemplateName] = React.useState('');
 
   // API helper with authentication
   const fetchWithAuth = async (url, options = {}) => {
@@ -158,6 +162,96 @@ function App() {
     } catch (error) {
       console.error('Error cloning template:', error);
       alert('Error cloning template');
+    }
+    setLoading(false);
+  };
+
+  const handleViewTemplate = async (filename) => {
+    setLoading(true);
+    try {
+      const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setEditingTemplate(filename);
+        setEditContent(data.content);
+      } else {
+        alert('Failed to load template');
+      }
+    } catch (error) {
+      console.error('Error loading template:', error);
+      alert('Error loading template');
+    }
+    setLoading(false);
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!editingTemplate) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetchWithAuth(`${API_URL}/api/templates/${editingTemplate}/edit`, {
+        method: 'PUT',
+        body: JSON.stringify({ content: editContent })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(data.message || 'Template saved successfully');
+        setEditingTemplate(null);
+        setEditContent('');
+        fetchTemplates();
+      } else {
+        alert(data.error || 'Failed to save template');
+      }
+    } catch (error) {
+      console.error('Error saving template:', error);
+      alert('Error saving template');
+    }
+    setLoading(false);
+  };
+
+  const handleCloseEditor = () => {
+    if (editContent && window.confirm('You have unsaved changes. Close anyway?')) {
+      setEditingTemplate(null);
+      setEditContent('');
+    } else if (!editContent) {
+      setEditingTemplate(null);
+      setEditContent('');
+    }
+  };
+
+  const handleRenameTemplate = (filename) => {
+    const baseName = filename.replace('.xml', '');
+    setRenamingTemplate(filename);
+    setNewTemplateName(baseName);
+  };
+
+  const handleSaveRename = async () => {
+    if (!renamingTemplate || !newTemplateName.trim()) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetchWithAuth(`${API_URL}/api/templates/${renamingTemplate}/rename`, {
+        method: 'PATCH',
+        body: JSON.stringify({ new_name: newTemplateName.trim() })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(data.message || 'Template renamed successfully');
+        setRenamingTemplate(null);
+        setNewTemplateName('');
+        fetchTemplates();
+        fetchStats();
+      } else {
+        alert(data.error || 'Failed to rename template');
+      }
+    } catch (error) {
+      console.error('Error renaming template:', error);
+      alert('Error renaming template');
     }
     setLoading(false);
   };
@@ -432,6 +526,70 @@ function App() {
         )
       )
     ),
+    // Template Editor Modal
+    editingTemplate && React.createElement('div', { className: 'modal-overlay' },
+      React.createElement('div', { className: 'modal modal-large' },
+        React.createElement('div', { className: 'modal-header' },
+          React.createElement('h2', null, `✏️ Edit: ${editingTemplate}`),
+          React.createElement('button', {
+            className: 'close-button',
+            onClick: handleCloseEditor
+          }, '✕')
+        ),
+        React.createElement('div', { className: 'modal-body' },
+          React.createElement('textarea', {
+            className: 'code-editor',
+            value: editContent,
+            onChange: (e) => setEditContent(e.target.value),
+            spellCheck: false,
+            rows: 20
+          })
+        ),
+        React.createElement('div', { className: 'modal-footer' },
+          React.createElement('button', {
+            className: 'btn-secondary',
+            onClick: handleCloseEditor
+          }, 'Cancel'),
+          React.createElement('button', {
+            className: 'btn-primary',
+            onClick: handleSaveTemplate,
+            disabled: loading
+          }, loading ? 'Saving...' : 'Save Changes')
+        )
+      )
+    ),
+    // Rename Template Modal
+    renamingTemplate && React.createElement('div', { className: 'modal-overlay' },
+      React.createElement('div', { className: 'modal' },
+        React.createElement('h2', null, '✏️ Rename Template'),
+        React.createElement('p', null, `Renaming: ${renamingTemplate}`),
+        React.createElement('div', { style: { marginBottom: '15px' } },
+          React.createElement('label', { style: { display: 'block', marginBottom: '5px', color: 'var(--unraid-text-secondary)' } }, 'New name:'),
+          React.createElement('input', {
+            type: 'text',
+            value: newTemplateName,
+            onChange: (e) => setNewTemplateName(e.target.value),
+            placeholder: 'template-name',
+            style: { width: '100%', padding: '10px', fontSize: '14px' },
+            autoFocus: true
+          })
+        ),
+        React.createElement('div', { className: 'modal-footer' },
+          React.createElement('button', {
+            className: 'btn-secondary',
+            onClick: () => {
+              setRenamingTemplate(null);
+              setNewTemplateName('');
+            }
+          }, 'Cancel'),
+          React.createElement('button', {
+            className: 'btn-primary',
+            onClick: handleSaveRename,
+            disabled: loading || !newTemplateName.trim()
+          }, loading ? 'Renaming...' : 'Rename')
+        )
+      )
+    ),
     React.createElement('header', { className: 'header' },
       React.createElement('h1', null, '🐳 Docker Template Manager'),
       React.createElement('p', null, 'Manage Unraid Docker Templates'),
@@ -603,6 +761,16 @@ function App() {
                 React.createElement('td', null, formatDate(template.modified)),
                 React.createElement('td', null,
                   React.createElement('div', { className: 'action-buttons' },
+                    React.createElement('button', {
+                      className: 'btn-small btn-primary',
+                      onClick: () => handleViewTemplate(template.filename),
+                      title: 'View/Edit template'
+                    }, '👁️ View'),
+                    React.createElement('button', {
+                      className: 'btn-small btn-secondary',
+                      onClick: () => handleRenameTemplate(template.filename),
+                      title: 'Rename template'
+                    }, '✏️ Rename'),
                     React.createElement('button', {
                       className: 'btn-small btn-secondary',
                       onClick: () => handleCloneTemplate(template.filename),

@@ -495,6 +495,107 @@ def clone_template(filename):
         return jsonify({'error': 'Failed to clone template'}), 500
 
 
+@app.route('/api/templates/<filename>/edit', methods=['PUT'])
+@require_api_key
+def edit_template(filename):
+    """Edit template content"""
+    data = request.json or {}
+    new_content = data.get('content', '').strip()
+    
+    # Security: Validate filename
+    if not validate_filename(filename):
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    if not new_content:
+        return jsonify({'error': 'Content is required'}), 400
+    
+    # Get file path
+    filepath = safe_path_join(TEMPLATE_DIR, filename)
+    
+    if filepath is None:
+        return jsonify({'error': 'Invalid file path'}), 400
+    
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'Template not found'}), 404
+    
+    try:
+        # Backup original before editing
+        backup_path = os.path.join(BACKUP_DIR, 'edited-templates')
+        os.makedirs(backup_path, exist_ok=True)
+        
+        timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+        backup_filename = f"{timestamp}-{filename}"
+        backup_file = safe_path_join(backup_path, backup_filename)
+        
+        if backup_file:
+            shutil.copy2(filepath, backup_file)
+        
+        # Write new content
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Template {filename} updated successfully'
+        })
+    except Exception as e:
+        # Security: Don't expose detailed error messages
+        print(f"Error editing template: {e}")
+        return jsonify({'error': 'Failed to edit template'}), 500
+
+
+@app.route('/api/templates/<filename>/rename', methods=['PATCH'])
+@require_api_key
+def rename_template(filename):
+    """Rename a template"""
+    data = request.json or {}
+    new_name = data.get('new_name', '').strip()
+    
+    # Security: Validate source filename
+    if not validate_filename(filename):
+        return jsonify({'error': 'Invalid source filename'}), 400
+    
+    # Security: Validate new filename
+    if not new_name:
+        return jsonify({'error': 'New name is required'}), 400
+    
+    # Ensure .xml extension
+    if not new_name.endswith('.xml'):
+        new_name += '.xml'
+    
+    if not validate_filename(new_name):
+        return jsonify({'error': 'Invalid new filename. Use only letters, numbers, hyphens, underscores, and dots'}), 400
+    
+    # Get paths
+    source_path = safe_path_join(TEMPLATE_DIR, filename)
+    dest_path = safe_path_join(TEMPLATE_DIR, new_name)
+    
+    if source_path is None or dest_path is None:
+        return jsonify({'error': 'Invalid file path'}), 400
+    
+    # Check source exists
+    if not os.path.exists(source_path):
+        return jsonify({'error': 'Source template not found'}), 404
+    
+    # Check destination doesn't exist
+    if os.path.exists(dest_path):
+        return jsonify({'error': f'Template {new_name} already exists'}), 409
+    
+    try:
+        # Rename the file
+        os.rename(source_path, dest_path)
+        
+        return jsonify({
+            'success': True,
+            'filename': new_name,
+            'message': f'Template renamed to {new_name}'
+        })
+    except Exception as e:
+        # Security: Don't expose detailed error messages
+        print(f"Error renaming template: {e}")
+        return jsonify({'error': 'Failed to rename template'}), 500
+
+
 @app.route('/api/templates/cleanup', methods=['POST'])
 @require_api_key
 def cleanup_templates():
