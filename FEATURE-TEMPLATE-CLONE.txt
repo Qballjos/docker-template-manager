@@ -1,0 +1,269 @@
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║   📋 NEXT FEATURE: TEMPLATE CLONE/COPY/CREATE             ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+🎯 FEATURE OVERVIEW
+═══════════════════════════════════════════════════════════
+
+Manual template operations:
+  • Clone existing template (duplicate with new name)
+  • Copy template (quick duplicate)
+  • Create new template from scratch
+  • Edit template XML
+  • Rename template
+
+═══════════════════════════════════════════════════════════
+
+💡 USE CASES
+═══════════════════════════════════════════════════════════
+
+1. CLONE TEMPLATE
+   User has "my-app" template, wants to create "my-app-test"
+   → Clone creates copy with different name
+   → Can modify for testing
+
+2. QUICK COPY
+   Backup template before editing
+   → Copy creates "template-name-copy.xml"
+   → Original stays intact
+
+3. CREATE NEW
+   User wants custom template
+   → Blank template or from template
+   → Fill in details
+   → Save as new
+
+4. EDIT TEMPLATE
+   Fix typo or update settings
+   → Edit XML directly in UI
+   → Validate before saving
+   → Backup original
+
+5. RENAME
+   Template name doesn't match container
+   → Rename to match
+   → Update internal references
+
+═══════════════════════════════════════════════════════════
+
+🔧 IMPLEMENTATION PLAN
+═══════════════════════════════════════════════════════════
+
+BACKEND (Python/Flask):
+  
+  1. Clone Template Endpoint
+     POST /api/templates/{filename}/clone
+     Body: { "new_name": "my-new-template" }
+     
+  2. Create Template Endpoint
+     POST /api/templates
+     Body: { "name": "template", "content": "<xml>..." }
+     
+  3. Update Template Endpoint
+     PUT /api/templates/{filename}
+     Body: { "content": "<xml>..." }
+     
+  4. Rename Template Endpoint
+     PATCH /api/templates/{filename}/rename
+     Body: { "new_name": "new-template-name" }
+
+FRONTEND (React):
+  
+  1. Clone Button
+     - On each template row
+     - Opens modal: "Clone template to?"
+     - Input for new name
+     - Validates name doesn't exist
+     
+  2. Edit Modal
+     - Click template to view
+     - Syntax highlighted XML editor
+     - Save/Cancel buttons
+     - Validation before save
+     
+  3. Create Button
+     - "New Template" button in header
+     - Wizard or blank template
+     - Form for basic fields
+     - Advanced: Raw XML editor
+     
+  4. Rename Modal
+     - Right-click or button
+     - Simple rename dialog
+     - Updates filename
+
+═══════════════════════════════════════════════════════════
+
+📝 UI MOCKUP
+═══════════════════════════════════════════════════════════
+
+Templates Table Row:
+  ┌────────────────────────────────────────────────────┐
+  │ ☑ ✓ my-app.xml    my-app  2KB  [View][Clone][Del] │
+  └────────────────────────────────────────────────────┘
+                                      ↑
+                            New "Clone" button
+
+Clone Modal:
+  ┌─────────────────────────────────────┐
+  │  📋 Clone Template                  │
+  │                                     │
+  │  Cloning: my-app.xml               │
+  │                                     │
+  │  New name: [my-app-test_____]      │
+  │                                     │
+  │  [Cancel]           [Clone]        │
+  └─────────────────────────────────────┘
+
+Template Editor Modal:
+  ┌─────────────────────────────────────┐
+  │  ✏️  Edit: my-app.xml               │
+  │                                     │
+  │  <?xml version="1.0"?>             │
+  │  <Container>                        │
+  │    <Name>My App</Name>             │
+  │    ...                              │
+  │  </Container>                       │
+  │                                     │
+  │  [Cancel]  [Validate]  [Save]      │
+  └─────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════
+
+🔐 SECURITY CONSIDERATIONS
+═══════════════════════════════════════════════════════════
+
+✓ Validate new filenames (no ../, special chars)
+✓ Check file doesn't exist before clone
+✓ Validate XML before saving
+✓ Auto-backup before edit
+✓ Sanitize XML content
+✓ Check file size limits
+✓ Rate limit create operations
+
+═══════════════════════════════════════════════════════════
+
+📦 IMPLEMENTATION PHASES
+═══════════════════════════════════════════════════════════
+
+PHASE 1: Clone (Easiest, Most Useful)
+  Time: 1-2 hours
+  - Backend endpoint
+  - Clone button in UI
+  - Simple modal
+  - Test & validate
+
+PHASE 2: Template Viewer/Editor
+  Time: 2-3 hours
+  - View modal
+  - Read-only first
+  - Then add edit capability
+  - Syntax highlighting (optional)
+
+PHASE 3: Create New
+  Time: 2-3 hours
+  - Create button
+  - Basic form or wizard
+  - Generate XML
+  - Save functionality
+
+PHASE 4: Advanced Features
+  Time: 1-2 hours each
+  - Rename capability
+  - Template validation
+  - Import from URL
+  - Export templates
+
+═══════════════════════════════════════════════════════════
+
+🎯 RECOMMENDED: START WITH PHASE 1 (CLONE)
+═══════════════════════════════════════════════════════════
+
+Why Clone First?
+  • Simplest to implement
+  • Most commonly used
+  • Low risk (just copies files)
+  • Quick win for users
+  • Tests the pattern for other features
+
+What You Get:
+  • Clone any template
+  • New name automatically
+  • Instant duplicate
+  • Safe operation
+
+═══════════════════════════════════════════════════════════
+
+💻 SAMPLE CODE STRUCTURE
+═══════════════════════════════════════════════════════════
+
+Backend (Python):
+```python
+@app.route('/api/templates/<filename>/clone', methods=['POST'])
+@require_api_key
+def clone_template(filename):
+    data = request.json
+    new_name = data.get('new_name')
+    
+    # Validate inputs
+    if not validate_filename(filename):
+        return jsonify({'error': 'Invalid filename'}), 400
+    if not validate_filename(new_name):
+        return jsonify({'error': 'Invalid new name'}), 400
+    
+    # Get source
+    source_path = safe_path_join(TEMPLATE_DIR, filename)
+    dest_path = safe_path_join(TEMPLATE_DIR, new_name)
+    
+    # Check if exists
+    if os.path.exists(dest_path):
+        return jsonify({'error': 'Template already exists'}), 409
+    
+    # Clone
+    shutil.copy2(source_path, dest_path)
+    
+    return jsonify({
+        'success': True,
+        'filename': new_name
+    })
+```
+
+Frontend (React):
+```javascript
+const handleClone = async (filename) => {
+  const newName = prompt(`Clone ${filename} as:`, 
+    filename.replace('.xml', '-copy.xml'));
+  
+  if (!newName) return;
+  
+  const response = await fetchWithAuth(
+    `${API_URL}/api/templates/${filename}/clone`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ new_name: newName })
+    }
+  );
+  
+  if (response.ok) {
+    alert('Template cloned successfully!');
+    fetchTemplates();
+  }
+};
+```
+
+═══════════════════════════════════════════════════════════
+
+✅ READY TO IMPLEMENT?
+═══════════════════════════════════════════════════════════
+
+Let me know if you want to:
+  1. Start with Clone feature (recommended)
+  2. Full template editor
+  3. Create new template wizard
+  4. All of the above
+
+I can implement any or all of these! Which would you like first?
+
+═══════════════════════════════════════════════════════════

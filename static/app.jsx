@@ -125,6 +125,43 @@ function App() {
     }
   };
 
+  const handleCloneTemplate = async (filename) => {
+    const baseName = filename.replace('.xml', '');
+    const defaultName = `${baseName}-copy`;
+    
+    const newName = prompt(`Clone "${filename}" as:`, defaultName);
+    
+    if (!newName) return; // Cancelled
+    
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
+      alert('Template name cannot be empty');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}/clone`, {
+        method: 'POST',
+        body: JSON.stringify({ new_name: trimmedName })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(data.message || `Template cloned as ${data.filename}`);
+        fetchTemplates();
+        fetchStats();
+      } else {
+        alert(data.error || 'Failed to clone template');
+      }
+    } catch (error) {
+      console.error('Error cloning template:', error);
+      alert('Error cloning template');
+    }
+    setLoading(false);
+  };
+
   const handleCleanupTemplates = async (dryRun = true) => {
     setLoading(true);
     try {
@@ -565,10 +602,18 @@ function App() {
                 React.createElement('td', null, formatBytes(template.size)),
                 React.createElement('td', null, formatDate(template.modified)),
                 React.createElement('td', null,
-                  React.createElement('button', {
-                    className: 'btn-small btn-danger',
-                    onClick: () => handleDeleteTemplate(template.filename)
-                  }, 'Delete')
+                  React.createElement('div', { className: 'action-buttons' },
+                    React.createElement('button', {
+                      className: 'btn-small btn-secondary',
+                      onClick: () => handleCloneTemplate(template.filename),
+                      title: 'Clone template'
+                    }, '📋 Clone'),
+                    React.createElement('button', {
+                      className: 'btn-small btn-danger',
+                      onClick: () => handleDeleteTemplate(template.filename),
+                      title: 'Delete template'
+                    }, '🗑️ Delete')
+                  )
                 )
               ))
             )

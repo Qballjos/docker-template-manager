@@ -443,6 +443,58 @@ def delete_template(filename):
         return jsonify({'error': 'Failed to delete template'}), 500
 
 
+@app.route('/api/templates/<filename>/clone', methods=['POST'])
+@require_api_key
+def clone_template(filename):
+    """Clone a template with a new name"""
+    data = request.json or {}
+    new_name = data.get('new_name', '').strip()
+    
+    # Security: Validate source filename
+    if not validate_filename(filename):
+        return jsonify({'error': 'Invalid source filename'}), 400
+    
+    # Security: Validate new filename
+    if not new_name:
+        return jsonify({'error': 'New name is required'}), 400
+    
+    # Ensure .xml extension
+    if not new_name.endswith('.xml'):
+        new_name += '.xml'
+    
+    if not validate_filename(new_name):
+        return jsonify({'error': 'Invalid new filename. Use only letters, numbers, hyphens, underscores, and dots'}), 400
+    
+    # Get paths
+    source_path = safe_path_join(TEMPLATE_DIR, filename)
+    dest_path = safe_path_join(TEMPLATE_DIR, new_name)
+    
+    if source_path is None or dest_path is None:
+        return jsonify({'error': 'Invalid file path'}), 400
+    
+    # Check source exists
+    if not os.path.exists(source_path):
+        return jsonify({'error': 'Source template not found'}), 404
+    
+    # Check destination doesn't exist
+    if os.path.exists(dest_path):
+        return jsonify({'error': f'Template {new_name} already exists'}), 409
+    
+    try:
+        # Clone the file
+        shutil.copy2(source_path, dest_path)
+        
+        return jsonify({
+            'success': True,
+            'filename': new_name,
+            'message': f'Template cloned as {new_name}'
+        })
+    except Exception as e:
+        # Security: Don't expose detailed error messages
+        print(f"Error cloning template: {e}")
+        return jsonify({'error': 'Failed to clone template'}), 500
+
+
 @app.route('/api/templates/cleanup', methods=['POST'])
 @require_api_key
 def cleanup_templates():

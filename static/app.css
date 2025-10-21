@@ -911,3 +911,55 @@ button:disabled {
     height: 150px;
   }
 }
+
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-secondary {
+  background: var(--unraid-bg-tertiary);
+  color: var(--unraid-text-primary);
+  border: 1px solid var(--unraid-border);
+}
+
+.btn-secondary:hover {
+  background: var(--unraid-bg-hover);
+  border-color: var(--unraid-orange);
+  color: var(--unraid-orange);
+}
+
+.btn-small.btn-danger {
+  background: var(--unraid-danger);
+  color: white;
+}
+
+.btn-small.btn-danger:hover {
+  background: var(--unraid-danger-dark);
+}
+
+/* Responsive action buttons */
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-small {
+    width: 100%;
+  }
+}
