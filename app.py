@@ -596,6 +596,84 @@ def rename_template(filename):
         return jsonify({'error': 'Failed to rename template'}), 500
 
 
+@app.route('/api/containers/<container_name>/start', methods=['POST'])
+@require_api_key
+def start_container(container_name):
+    """Start a container"""
+    # Security: Validate container name
+    if not re.match(r'^[a-zA-Z0-9_-]+$', container_name):
+        return jsonify({'error': 'Invalid container name'}), 400
+    
+    if not docker_client:
+        return jsonify({'error': 'Docker not available'}), 503
+    
+    try:
+        container = docker_client.containers.get(container_name)
+        container.start()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Container {container_name} started'
+        })
+    except docker.errors.NotFound:
+        return jsonify({'error': 'Container not found'}), 404
+    except Exception as e:
+        print(f"Error starting container: {e}")
+        return jsonify({'error': 'Failed to start container'}), 500
+
+
+@app.route('/api/containers/<container_name>/stop', methods=['POST'])
+@require_api_key
+def stop_container(container_name):
+    """Stop a container"""
+    # Security: Validate container name
+    if not re.match(r'^[a-zA-Z0-9_-]+$', container_name):
+        return jsonify({'error': 'Invalid container name'}), 400
+    
+    if not docker_client:
+        return jsonify({'error': 'Docker not available'}), 503
+    
+    try:
+        container = docker_client.containers.get(container_name)
+        container.stop()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Container {container_name} stopped'
+        })
+    except docker.errors.NotFound:
+        return jsonify({'error': 'Container not found'}), 404
+    except Exception as e:
+        print(f"Error stopping container: {e}")
+        return jsonify({'error': 'Failed to stop container'}), 500
+
+
+@app.route('/api/containers/<container_name>/restart', methods=['POST'])
+@require_api_key
+def restart_container(container_name):
+    """Restart a container"""
+    # Security: Validate container name
+    if not re.match(r'^[a-zA-Z0-9_-]+$', container_name):
+        return jsonify({'error': 'Invalid container name'}), 400
+    
+    if not docker_client:
+        return jsonify({'error': 'Docker not available'}), 503
+    
+    try:
+        container = docker_client.containers.get(container_name)
+        container.restart()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Container {container_name} restarted'
+        })
+    except docker.errors.NotFound:
+        return jsonify({'error': 'Container not found'}), 404
+    except Exception as e:
+        print(f"Error restarting container: {e}")
+        return jsonify({'error': 'Failed to restart container'}), 500
+
+
 @app.route('/api/templates/cleanup', methods=['POST'])
 @require_api_key
 def cleanup_templates():

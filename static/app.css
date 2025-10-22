@@ -1092,3 +1092,340 @@ button:disabled {
     width: 100%;
   }
 }
+
+/* Light Mode Variables */
+:root[data-theme="light"] {
+  --unraid-bg-primary: #f5f5f5;
+  --unraid-bg-secondary: #ffffff;
+  --unraid-bg-tertiary: #e8e8e8;
+  --unraid-bg-hover: #e0e0e0;
+  --unraid-border: #d0d0d0;
+  --unraid-border-light: #e0e0e0;
+  --unraid-text-primary: #2b2b2b;
+  --unraid-text-secondary: #5a5a5a;
+  --unraid-text-muted: #808080;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* New Sidebar Layout (like *arr apps) */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 240px;
+  background: var(--unraid-bg-secondary);
+  border-right: 1px solid var(--unraid-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform var(--transition-base);
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--unraid-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--unraid-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.sidebar-title {
+  flex: 1;
+}
+
+.sidebar-title h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--unraid-orange);
+  margin-bottom: 2px;
+}
+
+.sidebar-title p {
+  font-size: 11px;
+  color: var(--unraid-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 10px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: var(--unraid-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border-left: 3px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background: var(--unraid-bg-hover);
+  color: var(--unraid-text-primary);
+}
+
+.nav-item.active {
+  background: var(--unraid-bg-tertiary);
+  color: var(--unraid-orange);
+  border-left-color: var(--unraid-orange);
+}
+
+.nav-icon {
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  padding: 15px 20px;
+  border-top: 1px solid var(--unraid-border);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: var(--unraid-bg-tertiary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  background: var(--unraid-bg-hover);
+}
+
+.theme-label {
+  font-size: 13px;
+  color: var(--unraid-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--unraid-border);
+  border-radius: 12px;
+  transition: var(--transition-base);
+}
+
+.theme-switch.active {
+  background: var(--unraid-orange);
+}
+
+.theme-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: var(--transition-base);
+}
+
+.theme-switch.active .theme-switch-thumb {
+  transform: translateX(20px);
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  margin-left: 240px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Top Bar */
+.top-bar {
+  background: var(--unraid-bg-secondary);
+  border-bottom: 1px solid var(--unraid-border);
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.top-bar-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.top-bar-title h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--unraid-text-primary);
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: var(--unraid-bg-tertiary);
+  border: 1px solid var(--unraid-border);
+  border-radius: 6px;
+  color: var(--unraid-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.top-bar-button:hover {
+  background: var(--unraid-bg-hover);
+  border-color: var(--unraid-orange);
+}
+
+.top-bar-button.primary {
+  background: var(--unraid-orange);
+  color: white;
+  border-color: var(--unraid-orange);
+}
+
+.top-bar-button.primary:hover {
+  background: var(--unraid-orange-hover);
+}
+
+/* Content Wrapper */
+.content-wrapper {
+  flex: 1;
+  padding: 30px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Mobile Sidebar Toggle */
+.mobile-menu-button {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background: var(--unraid-orange);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  z-index: 110;
+  transition: var(--transition-fast);
+}
+
+.mobile-menu-button:hover {
+  background: var(--unraid-orange-hover);
+  transform: scale(1.05);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .mobile-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .sidebar-overlay.active {
+    display: block;
+  }
+  
+  .content-wrapper {
+    padding: 20px 15px;
+  }
+  
+  .top-bar {
+    padding: 15px;
+  }
+}
+
+/* Update existing content styles */
+.content {
+  /* Remove old styles, content now in content-wrapper */
+}
+
+.header {
+  /* Remove old header, now using sidebar */
+  display: none;
+}
+
+.tabs {
+  /* Remove old tabs, now using sidebar nav */
+  display: none;
+}
+
+.footer {
+  background: var(--unraid-bg-secondary);
+  border-top: 1px solid var(--unraid-border);
+  padding: 20px 30px;
+  text-align: center;
+  color: var(--unraid-text-muted);
+  font-size: 13px;
+}

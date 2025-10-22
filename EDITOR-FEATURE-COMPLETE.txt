@@ -1,0 +1,315 @@
+👁️ View] [✏️ Rename] [📋 Clone] [🗑️ Delete]        │
+  └──────────────────────────────────────────────────────────┘
+        ↑          ↑          ↑           ↑
+      NEW!       NEW!      (prev)      (existing)
+
+═══════════════════════════════════════════════════════════
+
+💡 HOW TO USE
+═══════════════════════════════════════════════════════════
+
+VIEW/EDIT TEMPLATE:
+  1. Click "👁️ View" on any template
+  2. Full XML editor opens
+  3. Edit anything you want:
+     - Container name
+     - Image/repository
+     - Ports and paths
+     - Variables
+     - Network settings
+     - Support URLs
+     - Icons
+  4. Click "Save Changes" (auto-backs up original)
+  5. Or "Cancel" to close without saving
+
+RENAME TEMPLATE:
+  1. Click "✏️ Rename" on template
+  2. Enter new name (e.g., "my-app-v2")
+  3. .xml added automatically
+  4. Click "Rename" - done!
+
+═══════════════════════════════════════════════════════════
+
+🎨 EDITOR FEATURES
+═══════════════════════════════════════════════════════════
+
+✨ Full-Screen Modal Editor
+  • Large editing area (900px wide)
+  • Monospace font for code
+  • Line numbers visible
+  • Scrollable for long templates
+  • Resizable text area
+
+✨ Safety Features
+  • Auto-backup before any edit
+  • Unsaved changes warning
+  • Cancel anytime
+  • Original preserved if error
+
+✨ Smart Defaults
+  • Pre-fills current content
+  • Suggests logical names
+  • Validates input
+
+═══════════════════════════════════════════════════════════
+
+🔐 SECURITY
+═══════════════════════════════════════════════════════════
+
+✓ All operations require API key
+✓ Filename validation (no ../, special chars)
+✓ Existing file check (no overwrites)
+✓ Auto-backup before edits (in /backups/edited-templates/)
+✓ Path traversal protection
+✓ Error handling for all cases
+✓ Content validation
+
+═══════════════════════════════════════════════════════════
+
+📝 EDIT USE CASES
+═══════════════════════════════════════════════════════════
+
+1. FIX TYPO IN NAME
+   View template → Change <n>Name</n> → Save
+
+2. UPDATE IMAGE VERSION
+   View → Change repository tag → Save
+   Example: plex:latest → plex:1.40.0
+
+3. CHANGE PORT
+   View → Update <Config Target="8080"> → Save
+
+4. ADD/REMOVE VARIABLES
+   View → Add new <Config Type="Variable"> → Save
+
+5. UPDATE SUPPORT URL
+   View → Change <Support>url</Support> → Save
+
+6. CHANGE ICON
+   View → Update <Icon>url</Icon> → Save
+
+7. FIX PATHS
+   View → Correct volume paths → Save
+
+═══════════════════════════════════════════════════════════
+
+📦 TECHNICAL DETAILS
+═══════════════════════════════════════════════════════════
+
+Backend Endpoints:
+  • PUT /api/templates/{filename}/edit
+    Body: { "content": "<xml>..." }
+    
+  • PATCH /api/templates/{filename}/rename
+    Body: { "new_name": "new-name" }
+
+Frontend:
+  • Editor modal with textarea
+  • Rename modal with input
+  • State management for editing
+  • Loading states
+  • Error handling
+
+Files Modified:
+  • app.py (+105 lines) - Edit & rename endpoints
+  • static/app.jsx (+150 lines) - Modals & handlers
+  • static/app.css (+130 lines) - Editor styles
+
+Auto-Backup Location:
+  /backups/edited-templates/[timestamp]-[filename]
+
+═══════════════════════════════════════════════════════════
+
+🎯 BUTTON LAYOUT
+═══════════════════════════════════════════════════════════
+
+Button Colors:
+  👁️ View   - Orange (primary action)
+  ✏️ Rename - Gray (secondary)
+  📋 Clone  - Gray (secondary)
+  🗑️ Delete - Red (danger)
+
+Mobile View:
+  Buttons stack vertically
+  Full width for easy tapping
+
+═══════════════════════════════════════════════════════════
+
+📸 WHAT YOU'LL SEE
+═══════════════════════════════════════════════════════════
+
+Editor Modal:
+  ┌─────────────────────────────────────────────────┐
+  │ ✏️ Edit: my-app.xml                      [✕]   │
+  │─────────────────────────────────────────────────│
+  │ <?xml version="1.0"?>                           │
+  │ <Container version="2">                         │
+  │   <n>My App</n>                         │
+  │   <Repository>myapp:latest</Repository>         │
+  │   <Config Name="Port" Target="8080">            │
+  │     8080                                        │
+  │   </Config>                                     │
+  │   ...                                           │
+  │ </Container>                                    │
+  │─────────────────────────────────────────────────│
+  │                    [Cancel] [Save Changes]      │
+  └─────────────────────────────────────────────────┘
+
+Rename Modal:
+  ┌─────────────────────────────────────────────────┐
+  │ ✏️ Rename Template                              │
+  │                                                 │
+  │ Renaming: my-app.xml                           │
+  │                                                 │
+  │ New name: [my-app-v2_____________]             │
+  │                                                 │
+  │                    [Cancel] [Rename]           │
+  └─────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════
+
+✅ TESTING CHECKLIST
+═══════════════════════════════════════════════════════════
+
+Test View/Edit:
+  [ ] Open template editor
+  [ ] Edit content
+  [ ] Save changes
+  [ ] Cancel without saving
+  [ ] Warning on unsaved changes
+  [ ] Check backup created
+
+Test Rename:
+  [ ] Rename with new name
+  [ ] Rename without .xml (should add it)
+  [ ] Try existing name (should error)
+  [ ] Cancel rename
+  [ ] Check file renamed
+
+Test All Buttons:
+  [ ] View button opens editor
+  [ ] Rename button opens dialog
+  [ ] Clone button works
+  [ ] Delete button works
+  [ ] All require API key
+
+═══════════════════════════════════════════════════════════
+
+🔄 HOW TO UPDATE
+═══════════════════════════════════════════════════════════
+
+In Unraid:
+  1. Docker tab → Your container
+  2. Force Update
+  3. Hard refresh browser (Ctrl+F5 or Cmd+Shift+R)
+  4. Go to Templates tab
+  5. See new buttons!
+
+Or rebuild locally:
+  cd ~/Documents/GitHub/wordpress/docker-template-manager
+  git pull
+  docker-compose down
+  docker-compose build --no-cache
+  docker-compose up -d
+
+═══════════════════════════════════════════════════════════
+
+📊 COMMON EDITS
+═══════════════════════════════════════════════════════════
+
+What People Usually Edit:
+  ✓ Container name (<n>Name</n>)
+  ✓ Image/tag (<Repository>image:tag</Repository>)
+  ✓ Ports (<Config Target="8080">)
+  ✓ Paths (<Config Target="/config">)
+  ✓ Environment variables (<Config Type="Variable">)
+  ✓ Support URL (<Support>https://...</Support>)
+  ✓ Icon (<Icon>https://...</Icon>)
+  ✓ Network mode (<Network>bridge</Network>)
+
+═══════════════════════════════════════════════════════════
+
+⚠️ TIPS & WARNINGS
+═══════════════════════════════════════════════════════════
+
+💡 TIPS:
+  • Original auto-backed up before edit
+  • Can undo by restoring backup
+  • Test changes on clone first
+  • Use meaningful names
+  • Save frequently
+
+⚠️ WARNINGS:
+  • Invalid XML may break template
+  • Changing paths may affect data
+  • Wrong ports may cause conflicts
+  • Always backup before major edits
+
+═══════════════════════════════════════════════════════════
+
+🚀 WHAT'S POSSIBLE NOW
+═══════════════════════════════════════════════════════════
+
+You Can Now:
+  ✓ View any template content
+  ✓ Edit anything in template (full control!)
+  ✓ Rename templates easily
+  ✓ Clone for testing
+  ✓ Delete unused ones
+  ✓ All from the UI!
+
+No More:
+  ✗ SSH to edit files
+  ✗ Manual XML editing in terminal
+  ✗ FTP/file manager needed
+  ✗ Risky direct edits
+
+═══════════════════════════════════════════════════════════
+
+📈 VERSION UPDATE
+═══════════════════════════════════════════════════════════
+
+Current: v1.2.0
+Next: v1.3.0 (with editor)
+
+Changelog:
+  • Template editor (view/edit)
+  • Rename function
+  • Auto-backup on edit
+  • 4-button layout
+  • Enhanced modals
+
+═══════════════════════════════════════════════════════════
+
+✅ COMMIT INFO
+═══════════════════════════════════════════════════════════
+
+Commit: 256580a
+Message: "Add template editor: view, edit, and rename features"
+Status: ✅ Pushed to GitHub
+Ready: ✅ For testing
+
+═══════════════════════════════════════════════════════════
+
+🎉 WHAT'S NEXT?
+═══════════════════════════════════════════════════════════
+
+Now that you have full template control, we could add:
+  • XML syntax validation
+  • Template preview (formatted view)
+  • Export templates (download)
+  • Import templates (upload)
+  • Template library/repository
+  • Scheduled backups
+  • Undo/redo for edits
+  • Diff viewer (compare versions)
+
+Want any of these? 🚀
+
+═══════════════════════════════════════════════════════════
+
+           🎉 Full Template Control Unlocked! 🎉
+                  
+   View, Edit, Rename, Clone, Delete - All in UI!
+
+═══════════════════════════════════════════════════════════

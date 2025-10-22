@@ -17,6 +17,18 @@ function App() {
   const [editContent, setEditContent] = React.useState('');
   const [renamingTemplate, setRenamingTemplate] = React.useState(null);
   const [newTemplateName, setNewTemplateName] = React.useState('');
+  const [theme, setTheme] = React.useState(localStorage.getItem('theme') || 'dark');
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  // Apply theme on mount and change
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   // API helper with authentication
   const fetchWithAuth = async (url, options = {}) => {
@@ -254,6 +266,38 @@ function App() {
       alert('Error renaming template');
     }
     setLoading(false);
+  };
+
+  const handleContainerAction = async (containerName, action) => {
+    setLoading(true);
+    try {
+      const response = await fetchWithAuth(`${API_URL}/api/containers/${containerName}/${action}`, {
+        method: 'POST'
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(data.message || `Container ${action}ed successfully`);
+        fetchContainers();
+      } else {
+        alert(data.error || `Failed to ${action} container`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing container:`, error);
+      alert(`Error ${action}ing container`);
+    }
+    setLoading(false);
+  };
+
+  const getPageTitle = () => {
+    const titles = {
+      'dashboard': 'Dashboard',
+      'templates': 'Templates',
+      'containers': 'Containers',
+      'backups': 'Backups'
+    };
+    return titles[activeTab] || 'Dashboard';
   };
 
   const handleCleanupTemplates = async (dryRun = true) => {
