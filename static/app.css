@@ -1429,3 +1429,24 @@ button:disabled {
   color: var(--unraid-text-muted);
   font-size: 13px;
 }
+
+
+.btn-success {
+  background: var(--unraid-success);
+  color: white;
+  border: 1px solid var(--unraid-success);
+}
+
+.btn-success:hover:not(:disabled) {
+  background: var(--unraid-success-dark);
+  border-color: var(--unraid-success-dark);
+}
+
+.btn-small.btn-success {
+  background: var(--unraid-success);
+  color: white;
+}
+
+.btn-small.btn-success:hover:not(:disabled) {
+  background: var(--unraid-success-dark);
+}

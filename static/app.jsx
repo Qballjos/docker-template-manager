@@ -549,7 +549,7 @@ function App() {
     return filtered;
   };
 
-  return React.createElement('div', { className: 'app' },
+  return React.createElement('div', { className: 'app-container' },
     // API Key Prompt Modal
     showApiKeyPrompt && React.createElement('div', { className: 'modal-overlay' },
       React.createElement('div', { className: 'modal' },
@@ -634,33 +634,103 @@ function App() {
         )
       )
     ),
-    React.createElement('header', { className: 'header' },
-      React.createElement('h1', null, '🐳 Docker Template Manager'),
-      React.createElement('p', null, 'Manage Unraid Docker Templates'),
-      !showApiKeyPrompt && React.createElement('button', {
-        onClick: handleLogout,
-        style: { position: 'absolute', right: '20px', top: '20px', fontSize: '12px' }
-      }, '🔓 Logout')
+    // Sidebar Navigation
+    !showApiKeyPrompt && React.createElement('aside', { 
+      className: `sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`
+    },
+      // Sidebar Header
+      React.createElement('div', { className: 'sidebar-header' },
+        React.createElement('div', { className: 'sidebar-logo' }, '🐳'),
+        React.createElement('div', { className: 'sidebar-title' },
+          React.createElement('h1', null, 'Template Manager'),
+          React.createElement('p', null, 'for Unraid')
+        )
+      ),
+      // Sidebar Navigation
+      React.createElement('nav', { className: 'sidebar-nav' },
+        React.createElement('div', {
+          className: `nav-item ${activeTab === 'dashboard' ? 'active' : ''}`,
+          onClick: () => { setActiveTab('dashboard'); setMobileMenuOpen(false); }
+        },
+          React.createElement('span', { className: 'nav-icon' }, '📊'),
+          React.createElement('span', null, 'Dashboard')
+        ),
+        React.createElement('div', {
+          className: `nav-item ${activeTab === 'templates' ? 'active' : ''}`,
+          onClick: () => { setActiveTab('templates'); setMobileMenuOpen(false); }
+        },
+          React.createElement('span', { className: 'nav-icon' }, '📄'),
+          React.createElement('span', null, 'Templates')
+        ),
+        React.createElement('div', {
+          className: `nav-item ${activeTab === 'containers' ? 'active' : ''}`,
+          onClick: () => { setActiveTab('containers'); setMobileMenuOpen(false); }
+        },
+          React.createElement('span', { className: 'nav-icon' }, '📦'),
+          React.createElement('span', null, 'Containers')
+        ),
+        React.createElement('div', {
+          className: `nav-item ${activeTab === 'backups' ? 'active' : ''}`,
+          onClick: () => { setActiveTab('backups'); setMobileMenuOpen(false); }
+        },
+          React.createElement('span', { className: 'nav-icon' }, '💾'),
+          React.createElement('span', null, 'Backups')
+        )
+      ),
+      // Sidebar Footer
+      React.createElement('div', { className: 'sidebar-footer' },
+        React.createElement('div', { className: 'theme-toggle', onClick: toggleTheme },
+          React.createElement('span', { className: 'theme-label' },
+            React.createElement('span', null, theme === 'dark' ? '🌙' : '☀️'),
+            React.createElement('span', null, theme === 'dark' ? 'Dark' : 'Light')
+          ),
+          React.createElement('div', { className: `theme-switch ${theme === 'dark' ? 'active' : ''}` },
+            React.createElement('div', { className: 'theme-switch-thumb' })
+          )
+        ),
+        React.createElement('button', {
+          onClick: handleLogout,
+          style: { 
+            width: '100%', 
+            marginTop: '10px', 
+            padding: '10px', 
+            background: 'var(--unraid-bg-tertiary)',
+            border: '1px solid var(--unraid-border)',
+            borderRadius: '6px',
+            color: 'var(--unraid-text-secondary)',
+            cursor: 'pointer',
+            fontSize: '13px'
+          }
+        }, '🔓 Logout')
+      )
     ),
-    React.createElement('nav', { className: 'tabs' },
-      React.createElement('button', { 
-        className: activeTab === 'dashboard' ? 'active' : '', 
-        onClick: () => setActiveTab('dashboard')
-      }, '📊 Dashboard'),
-      React.createElement('button', { 
-        className: activeTab === 'templates' ? 'active' : '', 
-        onClick: () => setActiveTab('templates')
-      }, '📄 Templates'),
-      React.createElement('button', { 
-        className: activeTab === 'containers' ? 'active' : '', 
-        onClick: () => setActiveTab('containers')
-      }, '📦 Containers'),
-      React.createElement('button', { 
-        className: activeTab === 'backups' ? 'active' : '', 
-        onClick: () => setActiveTab('backups')
-      }, '💾 Backups')
-    ),
-    React.createElement('main', { className: 'content' },
+    // Mobile Overlay
+    !showApiKeyPrompt && mobileMenuOpen && React.createElement('div', {
+      className: 'sidebar-overlay active',
+      onClick: () => setMobileMenuOpen(false)
+    }),
+    // Main Content
+    !showApiKeyPrompt && React.createElement('main', { className: 'main-content' },
+      // Top Bar
+      React.createElement('div', { className: 'top-bar' },
+        React.createElement('div', { className: 'top-bar-title' },
+          React.createElement('h2', null, getPageTitle())
+        ),
+        React.createElement('div', { className: 'top-bar-actions' },
+          activeTab === 'templates' && React.createElement('button', {
+            className: 'top-bar-button primary',
+            onClick: () => handleCleanupTemplates(true),
+            disabled: loading
+          }, '🧹 Cleanup'),
+          activeTab === 'backups' && React.createElement('button', {
+            className: 'top-bar-button primary',
+            onClick: handleCreateBackup,
+            disabled: loading
+          }, '💾 Create Backup')
+        )
+      ),
+      // Content Wrapper
+      React.createElement('div', { className: 'content-wrapper' },
       activeTab === 'dashboard' && stats ? React.createElement('div', { className: 'dashboard' },
         React.createElement('h2', null, 'Dashboard'),
         React.createElement('div', { className: 'stats-grid' },
@@ -845,7 +915,8 @@ function App() {
                 React.createElement('th', null, 'Name'),
                 React.createElement('th', null, 'Image'),
                 React.createElement('th', null, 'State'),
-                React.createElement('th', null, 'Template')
+                React.createElement('th', null, 'Template'),
+                React.createElement('th', null, 'Actions')
               )
             ),
             React.createElement('tbody', null,
@@ -868,6 +939,29 @@ function App() {
                       `✓ ${container.template.filename}`) :
                     React.createElement('span', { className: 'status-badge status-warning' }, 
                       '⚠️ No template')
+                ),
+                React.createElement('td', null,
+                  React.createElement('div', { className: 'action-buttons' },
+                    container.state === 'running' ? React.createElement(React.Fragment, null,
+                      React.createElement('button', {
+                        className: 'btn-small btn-danger',
+                        onClick: () => handleContainerAction(container.name, 'stop'),
+                        disabled: loading,
+                        title: 'Stop container'
+                      }, '■ Stop'),
+                      React.createElement('button', {
+                        className: 'btn-small btn-secondary',
+                        onClick: () => handleContainerAction(container.name, 'restart'),
+                        disabled: loading,
+                        title: 'Restart container'
+                      }, '↻ Restart')
+                    ) : React.createElement('button', {
+                      className: 'btn-small btn-success',
+                      onClick: () => handleContainerAction(container.name, 'start'),
+                      disabled: loading,
+                      title: 'Start container'
+                    }, '▶ Start')
+                  )
                 )
               ))
             )
@@ -925,9 +1019,17 @@ function App() {
           )
       ) : null
     ),
+    // Close content-wrapper
     React.createElement('footer', { className: 'footer' },
-      React.createElement('p', null, 'Docker Template Manager v1.2.0 | Made for Unraid')
+      React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
     )
+    // Close main-content
+    ),
+    // Mobile Menu Button
+    !showApiKeyPrompt && React.createElement('button', {
+      className: 'mobile-menu-button',
+      onClick: () => setMobileMenuOpen(!mobileMenuOpen)
+    }, mobileMenuOpen ? '✕' : '☰')
   );
 }
 
