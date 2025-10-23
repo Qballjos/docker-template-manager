@@ -1,5 +1,77 @@
 const API_URL = window.location.origin;
 
+// Define PieChart component before using it
+const PieChart = ({ matched, unmatched }) => {
+  const total = matched + unmatched;
+  if (total === 0) return null;
+  
+  const matchedPercent = (matched / total) * 100;
+  const unmatchedPercent = (unmatched / total) * 100;
+  
+  // Calculate pie chart segments
+  const matchedAngle = (matched / total) * 360;
+  const unmatchedAngle = (unmatched / total) * 360;
+  
+  const getCoordinatesForPercent = (percent) => {
+    const x = Math.cos(2 * Math.PI * percent);
+    const y = Math.sin(2 * Math.PI * percent);
+    return [x, y];
+  };
+  
+  const matchedPath = () => {
+    const [startX, startY] = getCoordinatesForPercent(0);
+    const [endX, endY] = getCoordinatesForPercent(matched / total);
+    const largeArcFlag = matched / total > 0.5 ? 1 : 0;
+    
+    return [
+      `M 0 0`,
+      `L ${startX} ${startY}`,
+      `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+      `Z`
+    ].join(' ');
+  };
+  
+  const unmatchedPath = () => {
+    const [startX, startY] = getCoordinatesForPercent(matched / total);
+    const [endX, endY] = getCoordinatesForPercent(1);
+    const largeArcFlag = unmatched / total > 0.5 ? 1 : 0;
+    
+    return [
+      `M 0 0`,
+      `L ${startX} ${startY}`,
+      `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+      `Z`
+    ].join(' ');
+  };
+  
+  return React.createElement('div', { className: 'pie-chart-container' },
+    React.createElement('svg', { viewBox: '-1 -1 2 2', className: 'pie-chart' },
+      React.createElement('path', {
+        d: matchedPath(),
+        fill: '#5cb85c',
+        stroke: '#1b1b1b',
+        strokeWidth: '0.02'
+      }),
+      React.createElement('path', {
+        d: unmatchedPath(),
+        fill: '#f0ad4e',
+        stroke: '#1b1b1b',
+        strokeWidth: '0.02'
+      })
+    ),
+    React.createElement('div', { className: 'chart-legend' },
+      React.createElement('div', { className: 'legend-item' },
+        React.createElement('span', { className: 'legend-color', style: { background: '#5cb85c' } }),
+        React.createElement('span', null, `Matched: ${matched} (${matchedPercent.toFixed(1)}%)`)
+      ),
+      React.createElement('div', { className: 'legend-item' },
+        React.createElement('span', { className: 'legend-color', style: { background: '#f0ad4e' } }),
+        React.createElement('span', null, `Unused: ${unmatched} (${unmatchedPercent.toFixed(1)}%)`)
+      )
+    )
+  );
+};
+
 function App() {
   const [activeTab, setActiveTab] = React.useState('dashboard');
   const [stats, setStats] = React.useState(null);
@@ -1335,78 +1407,6 @@ function App() {
     }, mobileMenuOpen ? '✕' : '☰')
   );
 }
-
-// Define PieChart component before using it
-const PieChart = ({ matched, unmatched }) => {
-  const total = matched + unmatched;
-  if (total === 0) return null;
-  
-  const matchedPercent = (matched / total) * 100;
-  const unmatchedPercent = (unmatched / total) * 100;
-  
-  // Calculate pie chart segments
-  const matchedAngle = (matched / total) * 360;
-  const unmatchedAngle = (unmatched / total) * 360;
-  
-  const getCoordinatesForPercent = (percent) => {
-    const x = Math.cos(2 * Math.PI * percent);
-    const y = Math.sin(2 * Math.PI * percent);
-    return [x, y];
-  };
-  
-  const matchedPath = () => {
-    const [startX, startY] = getCoordinatesForPercent(0);
-    const [endX, endY] = getCoordinatesForPercent(matched / total);
-    const largeArcFlag = matched / total > 0.5 ? 1 : 0;
-    
-    return [
-      `M 0 0`,
-      `L ${startX} ${startY}`,
-      `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
-      `Z`
-    ].join(' ');
-  };
-  
-  const unmatchedPath = () => {
-    const [startX, startY] = getCoordinatesForPercent(matched / total);
-    const [endX, endY] = getCoordinatesForPercent(1);
-    const largeArcFlag = unmatched / total > 0.5 ? 1 : 0;
-    
-    return [
-      `M 0 0`,
-      `L ${startX} ${startY}`,
-      `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
-      `Z`
-    ].join(' ');
-  };
-  
-  return React.createElement('div', { className: 'pie-chart-container' },
-    React.createElement('svg', { viewBox: '-1 -1 2 2', className: 'pie-chart' },
-      React.createElement('path', {
-        d: matchedPath(),
-        fill: '#5cb85c',
-        stroke: '#1b1b1b',
-        strokeWidth: '0.02'
-      }),
-      React.createElement('path', {
-        d: unmatchedPath(),
-        fill: '#f0ad4e',
-        stroke: '#1b1b1b',
-        strokeWidth: '0.02'
-      })
-    ),
-    React.createElement('div', { className: 'chart-legend' },
-      React.createElement('div', { className: 'legend-item' },
-        React.createElement('span', { className: 'legend-color', style: { background: '#5cb85c' } }),
-        React.createElement('span', null, `Matched: ${matched} (${matchedPercent.toFixed(1)}%)`)
-      ),
-      React.createElement('div', { className: 'legend-item' },
-        React.createElement('span', { className: 'legend-color', style: { background: '#f0ad4e' } }),
-        React.createElement('span', null, `Unused: ${unmatched} (${unmatchedPercent.toFixed(1)}%)`)
-      )
-    )
-  );
-};
 
 // Export for global access
 window.App = App;
