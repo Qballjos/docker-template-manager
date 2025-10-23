@@ -8,6 +8,15 @@ function App() {
   const [templates, setTemplates] = React.useState([]);
   const [containers, setContainers] = React.useState([]);
   const [backups, setBackups] = React.useState([]);
+  
+  // Debug state changes
+  React.useEffect(() => {
+    console.log('Containers state updated:', containers);
+  }, [containers]);
+  
+  React.useEffect(() => {
+    console.log('Backups state updated:', backups);
+  }, [backups]);
   const [loading, setLoading] = React.useState(false);
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
   const [selectedContainers, setSelectedContainers] = React.useState([]);
@@ -113,9 +122,12 @@ function App() {
   };
 
   const fetchContainers = async () => {
+    console.log('fetchContainers called');
     try {
       const response = await fetchWithAuth(`${API_URL}/api/containers`);
       const data = await response.json();
+      console.log('Containers data received:', data);
+      console.log('Containers count:', data.length);
       setContainers(data);
     } catch (error) {
       console.error('Error fetching containers:', error);
@@ -123,9 +135,12 @@ function App() {
   };
 
   const fetchBackups = async () => {
+    console.log('fetchBackups called');
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups`);
       const data = await response.json();
+      console.log('Backups data received:', data);
+      console.log('Backups count:', data.length);
       setBackups(data);
     } catch (error) {
       console.error('Error fetching backups:', error);
