@@ -203,7 +203,7 @@ function App() {
   const handleViewTemplate = async (filename) => {
     setLoading(true);
     try {
-            const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
+      const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -211,11 +211,15 @@ function App() {
         setEditingTemplate(filename);      
         setEditContent(data.content);
         setEditorMode('form');
+        
         // Parse XML to form data
         const parsedData = parseXmlToFormData(data.content);
         console.log('Parsed form data:', parsedData);
+        
+        // Set form data immediately
         setFormData(parsedData);
         console.log('FormData state set with:', parsedData);
+        
       } else {
         alert('Failed to load template');
       }
@@ -952,7 +956,11 @@ function App() {
                         console.log('Name field changed:', e.target.value);
                         setFormData(prev => ({ ...prev, name: e.target.value }));
                       },
-                      placeholder: 'my-container'
+                      placeholder: 'my-container',
+                      style: { 
+                        backgroundColor: formData.name ? '#f0f8ff' : '#fff',
+                        border: formData.name ? '2px solid #4CAF50' : '1px solid #ddd'
+                      }
                     })
                   ),
                   React.createElement('div', { className: 'form-group' },
@@ -961,7 +969,11 @@ function App() {
                       type: 'text',
                       value: formData.repository || '',
                       onChange: (e) => setFormData(prev => ({ ...prev, repository: e.target.value })),
-                      placeholder: 'nginx'
+                      placeholder: 'nginx',
+                      style: { 
+                        backgroundColor: formData.repository ? '#f0f8ff' : '#fff',
+                        border: formData.repository ? '2px solid #4CAF50' : '1px solid #ddd'
+                      }
                     })
                   )
                 ),
