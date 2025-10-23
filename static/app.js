@@ -1,31 +1,13 @@
-// API Configuration
 const API_URL = window.location.origin;
-console.log('API_URL set to:', API_URL);
 
 function App() {
   const [activeTab, setActiveTab] = React.useState('dashboard');
-  
-  // Debug active tab changes
-  React.useEffect(() => {
-    console.log('Active tab changed to:', activeTab);
-  }, [activeTab]);
   const [stats, setStats] = React.useState(null);
   const [templates, setTemplates] = React.useState([]);
   const [containers, setContainers] = React.useState([]);
   const [backups, setBackups] = React.useState([]);
-  
-  // Debug state changes
-  React.useEffect(() => {
-    console.log('Containers state updated:', containers);
-  }, [containers]);
-  
-  React.useEffect(() => {
-    console.log('Backups state updated:', backups);
-  }, [backups]);
   const [loading, setLoading] = React.useState(false);
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
-  const [selectedContainers, setSelectedContainers] = React.useState([]);
-  const [selectedContainerRow, setSelectedContainerRow] = React.useState(null);
   const [apiKey, setApiKey] = React.useState(localStorage.getItem('apiKey') || '');
   const [showApiKeyPrompt, setShowApiKeyPrompt] = React.useState(!localStorage.getItem('apiKey'));
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -51,22 +33,15 @@ function App() {
 
   // API helper with authentication
   const fetchWithAuth = async (url, options = {}) => {
-    console.log('fetchWithAuth called with:', { url, apiKey: apiKey ? 'present' : 'missing' });
-    
     const headers = {
       'X-API-Key': apiKey,
       'Content-Type': 'application/json',
       ...options.headers
     };
     
-    console.log('Making request to:', url, 'with headers:', headers);
-    
     const response = await fetch(url, { ...options, headers });
     
-    console.log('Response status:', response.status);
-    
     if (response.status === 401) {
-      console.error('API key authentication failed');
       setShowApiKeyPrompt(true);
       localStorage.removeItem('apiKey');
       throw new Error('Unauthorized - Invalid API key');
@@ -103,11 +78,9 @@ function App() {
   }, [apiKey, showApiKeyPrompt]);
 
   const fetchStats = async () => {
-    console.log('fetchStats called');
     try {
       const response = await fetchWithAuth(`${API_URL}/api/stats`);
       const data = await response.json();
-      console.log('Stats data received:', data);
       setStats(data);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -127,12 +100,9 @@ function App() {
   };
 
   const fetchContainers = async () => {
-    console.log('fetchContainers called');
     try {
       const response = await fetchWithAuth(`${API_URL}/api/containers`);
       const data = await response.json();
-      console.log('Containers data received:', data);
-      console.log('Containers count:', data.length);
       setContainers(data);
     } catch (error) {
       console.error('Error fetching containers:', error);
@@ -140,12 +110,9 @@ function App() {
   };
 
   const fetchBackups = async () => {
-    console.log('fetchBackups called');
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups`);
       const data = await response.json();
-      console.log('Backups data received:', data);
-      console.log('Backups count:', data.length);
       setBackups(data);
     } catch (error) {
       console.error('Error fetching backups:', error);
@@ -444,19 +411,83 @@ function App() {
     return new Date(isoString).toLocaleString();
   };
 
+  // Simple SVG Pie Chart Component
+  const PieChart = ({ matched, unmatched }) => {
+    const total = matched + unmatched;
+    if (total === 0) return null;
+    
+    const matchedPercent = (matched / total) * 100;
+    const unmatchedPercent = (unmatched / total) * 100;
+    
+    // Calculate pie chart segments
+    const matchedAngle = (matched / total) * 360;
+    const unmatchedAngle = (unmatched / total) * 360;
+    
+    const getCoordinatesForPercent = (percent) => {
+      const x = Math.cos(2 * Math.PI * percent);
+      const y = Math.sin(2 * Math.PI * percent);
+      return [x, y];
+    };
+    
+    const matchedPath = () => {
+      const [startX, startY] = getCoordinatesForPercent(0);
+      const [endX, endY] = getCoordinatesForPercent(matched / total);
+      const largeArcFlag = matched / total > 0.5 ? 1 : 0;
+      
+      return [
+        `M 0 0`,
+        `L ${startX} ${startY}`,
+        `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+        `Z`
+      ].join(' ');
+    };
+    
+    const unmatchedPath = () => {
+      const [startX, startY] = getCoordinatesForPercent(matched / total);
+      const [endX, endY] = getCoordinatesForPercent(1);
+      const largeArcFlag = unmatched / total > 0.5 ? 1 : 0;
+      
+      return [
+        `M 0 0`,
+        `L ${startX} ${startY}`,
+        `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+        `Z`
+      ].join(' ');
+    };
+    
+    return React.createElement('div', { className: 'pie-chart-container' },
+      React.createElement('svg', { viewBox: '-1 -1 2 2', className: 'pie-chart' },
+        React.createElement('path', {
+          d: matchedPath(),
+          fill: '#5cb85c',
+          stroke: '#1b1b1b',
+          strokeWidth: '0.02'
+        }),
+        React.createElement('path', {
+          d: unmatchedPath(),
+          fill: '#f0ad4e',
+          stroke: '#1b1b1b',
+          strokeWidth: '0.02'
+        })
+      ),
+      React.createElement('div', { className: 'chart-legend' },
+        React.createElement('div', { className: 'legend-item' },
+          React.createElement('span', { className: 'legend-color', style: { background: '#5cb85c' } }),
+          React.createElement('span', null, `Matched: ${matched} (${matchedPercent.toFixed(1)}%)`)
+        ),
+        React.createElement('div', { className: 'legend-item' },
+          React.createElement('span', { className: 'legend-color', style: { background: '#f0ad4e' } }),
+          React.createElement('span', null, `Unused: ${unmatched} (${unmatchedPercent.toFixed(1)}%)`)
+        )
+      )
+    );
+  };
+
   const toggleTemplateSelection = (filename) => {
     setSelectedTemplates(prev => 
       prev.includes(filename) 
         ? prev.filter(f => f !== filename)
         : [...prev, filename]
-    );
-  };
-
-  const toggleContainerSelection = (containerName) => {
-    setSelectedContainers(prev => 
-      prev.includes(containerName) 
-        ? prev.filter(c => c !== containerName)
-        : [...prev, containerName]
     );
   };
 
@@ -482,34 +513,7 @@ function App() {
     fetchTemplates();
     fetchStats();
     setLoading(false);
-  };
-
-  const handleBulkContainerAction = async (action) => {
-    if (selectedContainers.length === 0) {
-      alert('No containers selected');
-      return;
-    }
-
-    const actionText = action === 'stop' ? 'stop' : action === 'start' ? 'start' : 'restart';
-    if (!window.confirm(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${selectedContainers.length} selected container(s)?`)) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      for (const containerName of selectedContainers) {
-        await fetchWithAuth(`${API_URL}/api/containers/${containerName}/${action}`, {
-          method: 'POST'
-        });
-      }
-      setSelectedContainers([]);
-      fetchContainers();
-      alert(`Containers ${actionText}ed successfully`);
-    } catch (error) {
-      console.error(`Error ${actionText}ing containers:`, error);
-      alert(`Error ${actionText}ing containers`);
-    }
-    setLoading(false);
+    alert(`Deleted ${selectedTemplates.length} templates`);
   };
 
   // Filter and sort templates
@@ -546,31 +550,7 @@ function App() {
     return filtered;
   };
 
-  // Create base elements
-  const modals = [
-    showApiKeyPrompt && React.createElement('div', { key: 'api-modal', className: 'modal-overlay' },
-      React.createElement('div', { className: 'modal' },
-        React.createElement('h2', null, '🔑 API Key Required'),
-        React.createElement('p', null, 'Enter your API key to access Docker Template Manager.'),
-        React.createElement('p', { className: 'text-small text-muted' }, 
-          'Find your API key in Docker logs: Docker tab → Container icon → Logs'),
-        React.createElement('form', { onSubmit: handleApiKeySubmit },
-          React.createElement('input', {
-            type: 'password',
-            name: 'apikey',
-            placeholder: 'Enter API key',
-            autoFocus: true,
-            required: true,
-            style: { width: '100%', padding: '10px', marginBottom: '10px', fontSize: '14px' }
-          }),
-          React.createElement('button', { type: 'submit', className: 'btn-primary' }, 'Submit')
-        )
-      )
-    )
-  ].filter(Boolean);
-
-  // Main app structure
-  const container = React.createElement('div', { className: 'app-container' },
+  return React.createElement('div', { className: 'app-container' },
     // API Key Prompt Modal
     showApiKeyPrompt && React.createElement('div', { className: 'modal-overlay' },
       React.createElement('div', { className: 'modal' },
@@ -665,12 +645,7 @@ function App() {
           React.createElement('img', { 
             src: '/static/png/logo.png', 
             alt: 'Docker Template Manager',
-            style: { 
-              width: '40px', 
-              height: '40px',
-              objectFit: 'contain',
-              display: 'block'
-            }
+            style: { width: '48px', height: '48px' }
           })
         )
       ),
@@ -680,28 +655,28 @@ function App() {
           className: `nav-item ${activeTab === 'dashboard' ? 'active' : ''}`,
           onClick: () => { setActiveTab('dashboard'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'fas fa-tachometer-alt nav-icon' }),
+          React.createElement('span', { className: 'nav-icon' }, '📊'),
           React.createElement('span', null, 'Dashboard')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'templates' ? 'active' : ''}`,
           onClick: () => { setActiveTab('templates'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'fas fa-file-alt nav-icon' }),
+          React.createElement('span', { className: 'nav-icon' }, '📄'),
           React.createElement('span', null, 'Templates')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'containers' ? 'active' : ''}`,
           onClick: () => { setActiveTab('containers'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'fab fa-docker nav-icon' }),
+          React.createElement('span', { className: 'nav-icon' }, '📦'),
           React.createElement('span', null, 'Containers')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'backups' ? 'active' : ''}`,
           onClick: () => { setActiveTab('backups'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'fas fa-cloud-upload-alt nav-icon' }),
+          React.createElement('span', { className: 'nav-icon' }, '💾'),
           React.createElement('span', null, 'Backups')
         )
       ),
@@ -709,7 +684,7 @@ function App() {
       React.createElement('div', { className: 'sidebar-footer' },
         React.createElement('div', { className: 'theme-toggle', onClick: toggleTheme },
           React.createElement('span', { className: 'theme-label' },
-            React.createElement('i', { className: `lni ${theme === 'dark' ? 'lni-moon' : 'lni-sun'} theme-icon` }),
+            React.createElement('span', null, theme === 'dark' ? '🌙' : '☀️'),
             React.createElement('span', null, theme === 'dark' ? 'Dark' : 'Light')
           ),
           React.createElement('div', { className: `theme-switch ${theme === 'dark' ? 'active' : ''}` },
@@ -729,10 +704,7 @@ function App() {
             cursor: 'pointer',
             fontSize: '13px'
           }
-        }, 
-          React.createElement('i', { className: 'lni lni-exit' }),
-          React.createElement('span', { style: { marginLeft: '6px' } }, 'Logout')
-        )
+        }, '🔓 Logout')
       )
     ),
     // Mobile Overlay
@@ -743,7 +715,7 @@ function App() {
     // Main Content
     !showApiKeyPrompt && React.createElement('main', { className: 'main-content' },
       // Top Bar
-      React.createElement('div', { key: 'top-bar', className: 'top-bar' },
+      React.createElement('div', { className: 'top-bar' },
         React.createElement('div', { className: 'top-bar-title' },
           React.createElement('div', { className: 'breadcrumb' },
             React.createElement('span', { className: 'breadcrumb-item' }, 'Docker Template Manager'),
@@ -756,23 +728,17 @@ function App() {
             className: 'top-bar-button primary',
             onClick: () => handleCleanupTemplates(true),
             disabled: loading
-          }, 
-            React.createElement('i', { className: 'lni lni-broom' }),
-            React.createElement('span', { style: { marginLeft: '4px' } }, 'Cleanup')
-          ),
+          }, '🧹 Cleanup'),
           activeTab === 'backups' && React.createElement('button', {
             className: 'top-bar-button primary',
             onClick: handleCreateBackup,
             disabled: loading
-          }, 
-            React.createElement('i', { className: 'lni lni-cloud-upload' }),
-            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create Backup')
-          )
+          }, '💾 Create Backup')
         )
       ),
       // Content Wrapper
-      React.createElement('div', { key: 'content-wrapper', className: 'content-wrapper' },
-      activeTab === 'dashboard' && stats && React.createElement('div', { className: 'dashboard' },
+      React.createElement('div', { className: 'content-wrapper' },
+      activeTab === 'dashboard' && stats ? React.createElement('div', { className: 'dashboard' },
         React.createElement('div', { className: 'stats-grid' },
           React.createElement('div', { className: 'stat-card' },
             React.createElement('h3', null, 'Templates'),
@@ -791,6 +757,14 @@ function App() {
             React.createElement('div', { className: 'stat-value' }, stats.total_backups)
           )
         ),
+        // Pie Chart
+        stats.total_templates > 0 && React.createElement('div', { className: 'chart-section' },
+          React.createElement('h3', null, 'Template Status Overview'),
+          React.createElement(PieChart, {
+            matched: stats.matched_templates,
+            unmatched: stats.unmatched_templates
+          })
+        ),
         stats.unmatched_templates > 0 && React.createElement('div', { className: 'alert alert-warning' },
           React.createElement('strong', null, `⚠️ ${stats.unmatched_templates} unused templates detected`),
           React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
@@ -799,27 +773,17 @@ function App() {
         React.createElement('div', { className: 'quick-actions' },
           React.createElement('h3', null, 'Quick Actions'),
           React.createElement('button', { onClick: () => handleCreateBackup(), disabled: loading }, 
-            React.createElement('i', { className: 'lni lni-cloud-upload' }),
-            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create Backup')
-          ),
+            '💾 Create Backup'),
           React.createElement('button', { onClick: () => fetchStats() }, 
-            React.createElement('i', { className: 'lni lni-reload' }),
-            React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh Stats')
-          )
+            '🔄 Refresh Stats')
         ),
         // Migration Guide Section
         React.createElement('div', { className: 'migration-guide-section' },
-          React.createElement('h3', null, 
-            React.createElement('i', { className: 'lni lni-book', style: { marginRight: '8px' } }),
-            'Docker Migration Guides'
-          ),
+          React.createElement('h3', null, '📚 Docker Migration Guides'),
           React.createElement('div', { className: 'migration-cards' },
             // vDisk to Folder Guide
             React.createElement('div', { className: 'migration-card' },
-              React.createElement('h4', null, 
-                React.createElement('i', { className: 'lni lni-arrow-right', style: { marginRight: '8px' } }),
-                'vDisk → Folder Migration'
-              ),
+              React.createElement('h4', null, '🔄 vDisk → Folder Migration'),
               React.createElement('p', { className: 'migration-desc' }, 'Convert your Docker containers from vdisk.img to folder-based storage'),
               React.createElement('div', { className: 'pros-cons' },
                 React.createElement('div', { className: 'pros' },
@@ -843,17 +807,11 @@ function App() {
               React.createElement('button', {
                 className: 'migration-button',
                 onClick: () => window.open('https://wiki.unraid.net/Docker_Migration#From_vDisk_to_Folder', '_blank')
-              }, 
-                React.createElement('i', { className: 'lni lni-book' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'View Guide')
-              )
+              }, '📖 View Guide')
             ),
             // Folder to vDisk Guide
             React.createElement('div', { className: 'migration-card' },
-              React.createElement('h4', null, 
-                React.createElement('i', { className: 'lni lni-arrow-left', style: { marginRight: '8px' } }),
-                'Folder → vDisk Migration'
-              ),
+              React.createElement('h4', null, '🔄 Folder → vDisk Migration'),
               React.createElement('p', { className: 'migration-desc' }, 'Convert your Docker containers from folder-based to vdisk.img storage'),
               React.createElement('div', { className: 'pros-cons' },
                 React.createElement('div', { className: 'pros' },
@@ -877,10 +835,7 @@ function App() {
               React.createElement('button', {
                 className: 'migration-button',
                 onClick: () => window.open('https://wiki.unraid.net/Docker_Migration#From_Folder_to_vDisk', '_blank')
-              }, 
-                React.createElement('i', { className: 'lni lni-book' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'View Guide')
-              )
+              }, '📖 View Guide')
             )
           ),
           React.createElement('div', { className: 'migration-note' },
@@ -888,39 +843,17 @@ function App() {
             React.createElement('span', null, 'Always create a backup before migrating! Use the backup feature above.')
           )
         )
-      ),
-      activeTab === 'templates' && React.createElement('div', { className: 'templates' },
-        // Bulk Actions Bar (only when templates are selected)
-        selectedTemplates.length > 0 && React.createElement('div', { className: 'bulk-actions-bar' },
-          React.createElement('div', { className: 'bulk-actions-content' },
-            React.createElement('span', { className: 'selected-count' }, 
-              `${selectedTemplates.length} template${selectedTemplates.length > 1 ? 's' : ''} selected`
-            ),
-            React.createElement('div', { className: 'bulk-actions-buttons' },
-              React.createElement('button', { 
-                className: 'btn-danger',
-                onClick: handleDeleteSelected, 
-                disabled: loading 
-              }, 
-                React.createElement('i', { className: 'fas fa-trash' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete Selected')
-              ),
-              React.createElement('button', { 
-                className: 'btn-secondary',
-                onClick: () => setSelectedTemplates([])
-              }, 
-                React.createElement('i', { className: 'fas fa-times' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'Clear Selection')
-              )
-            )
-          )
-        ),
+      ) : null,
+      activeTab === 'templates' ? React.createElement('div', { className: 'templates' },
         React.createElement('div', { className: 'section-header' },
           React.createElement('div', { className: 'actions' },
+            selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
+              React.createElement('span', null, `${selectedTemplates.length} selected`),
+              React.createElement('button', { onClick: handleDeleteSelected, disabled: loading }, 
+                '🗑️ Delete Selected')
+            ),
             React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
-              React.createElement('i', { className: 'fas fa-broom' }),
-              React.createElement('span', { style: { marginLeft: '4px' } }, 'Clean Up Unused')
-            )
+              '🧹 Clean Up Unused')
           )
         ),
         // Search and Filter Bar
@@ -982,7 +915,8 @@ function App() {
                 React.createElement('th', null, 'Template'),
                 React.createElement('th', null, 'Container'),
                 React.createElement('th', null, 'Size'),
-                React.createElement('th', null, 'Modified')
+                React.createElement('th', null, 'Modified'),
+                React.createElement('th', null, 'Actions')
               )
             ),
             React.createElement('tbody', null,
@@ -1011,160 +945,54 @@ function App() {
                     React.createElement('span', { className: 'text-muted' }, '-')
                 ),
                 React.createElement('td', null, formatBytes(template.size)),
-                React.createElement('td', null, formatDate(template.modified))
-              )),
-            // Individual Template Actions (appears below selected template)
-            selectedRow && React.createElement('tr', { key: `${selectedRow}-actions`, className: 'template-actions-row' },
-              React.createElement('td', { colSpan: 6, className: 'template-actions-cell' },
-                React.createElement('div', { className: 'template-actions' },
-                  React.createElement('div', { className: 'template-actions-header' },
-                    React.createElement('span', { className: 'template-name' }, selectedRow),
-                    React.createElement('button', { 
-                      className: 'btn-close',
-                      onClick: () => setSelectedRow(null)
-                    }, 
-                      React.createElement('i', { className: 'fas fa-times' })
-                    )
-                  ),
-                  React.createElement('div', { className: 'template-actions-buttons' },
+                React.createElement('td', null, formatDate(template.modified)),
+                React.createElement('td', null,
+                  selectedRow === template.filename ? React.createElement('div', { className: 'action-buttons' },
                     React.createElement('button', {
-                      className: 'btn-primary',
-                      onClick: () => { handleViewTemplate(selectedRow); setSelectedRow(null); },
+                      className: 'btn-small btn-primary',
+                      onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
                       title: 'View/Edit template'
-                    }, 
-                      React.createElement('i', { className: 'fas fa-eye' }),
-                      React.createElement('span', { style: { marginLeft: '4px' } }, 'View/Edit')
-                    ),
+                    }, '👁️ View'),
                     React.createElement('button', {
-                      className: 'btn-secondary',
-                      onClick: () => { handleRenameTemplate(selectedRow); setSelectedRow(null); },
+                      className: 'btn-small btn-secondary',
+                      onClick: (e) => { e.stopPropagation(); handleRenameTemplate(template.filename); },
                       title: 'Rename template'
-                    }, 
-                      React.createElement('i', { className: 'fas fa-pencil-alt' }),
-                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Rename')
-                    ),
+                    }, '✏️ Rename'),
                     React.createElement('button', {
-                      className: 'btn-secondary',
-                      onClick: () => { handleCloneTemplate(selectedRow); setSelectedRow(null); },
+                      className: 'btn-small btn-secondary',
+                      onClick: (e) => { e.stopPropagation(); handleCloneTemplate(template.filename); },
                       title: 'Clone template'
-                    }, 
-                      React.createElement('i', { className: 'fas fa-copy' }),
-                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Clone')
-                    ),
+                    }, '📋 Clone'),
                     React.createElement('button', {
-                      className: 'btn-danger',
-                      onClick: () => { 
-                        if (window.confirm(`Delete template "${selectedRow}"?`)) {
-                          handleDeleteTemplate(selectedRow);
-                          setSelectedRow(null);
-                        }
-                      },
+                      className: 'btn-small btn-danger',
+                      onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
                       title: 'Delete template'
-                    }, 
-                      React.createElement('i', { className: 'fas fa-trash' }),
-                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
-                    )
-                  )
+                    }, '🗑️ Delete')
+                  ) : null
                 )
-              )
+              ))
             )
           )
         )
-      ),
-      activeTab === 'containers' && (console.log('Rendering containers tab with', containers.length, 'containers'), React.createElement('div', { className: 'containers' },
-        // Bulk Actions Bar (only when containers are selected)
-        selectedContainers.length > 0 && React.createElement('div', { className: 'bulk-actions-bar' },
-          React.createElement('div', { className: 'bulk-actions-content' },
-            React.createElement('span', { className: 'selected-count' }, 
-              `${selectedContainers.length} container${selectedContainers.length > 1 ? 's' : ''} selected`
-            ),
-            React.createElement('div', { className: 'bulk-actions-buttons' },
-              React.createElement('button', { 
-                className: 'btn-success',
-                onClick: () => handleBulkContainerAction('start'), 
-                disabled: loading 
-              }, 
-                React.createElement('i', { className: 'fas fa-play' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'Start All')
-              ),
-              React.createElement('button', { 
-                className: 'btn-danger',
-                onClick: () => handleBulkContainerAction('stop'), 
-                disabled: loading 
-              }, 
-                React.createElement('i', { className: 'fas fa-stop' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop All')
-              ),
-              React.createElement('button', { 
-                className: 'btn-secondary',
-                onClick: () => handleBulkContainerAction('restart'), 
-                disabled: loading 
-              }, 
-                React.createElement('i', { className: 'fas fa-redo' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart All')
-              ),
-              React.createElement('button', { 
-                className: 'btn-secondary',
-                onClick: () => setSelectedContainers([])
-              }, 
-                React.createElement('i', { className: 'fas fa-times' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'Clear Selection')
-              )
-            )
-          )
-        ),
+      ) : null,
+      activeTab === 'containers' ? React.createElement('div', { className: 'containers' },
         React.createElement('div', { className: 'section-header' },
-          React.createElement('button', { onClick: fetchContainers }, 
-            React.createElement('i', { className: 'fas fa-sync-alt' }),
-            React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh')
-          )
+          React.createElement('button', { onClick: fetchContainers }, '🔄 Refresh')
         ),
         React.createElement('div', { className: 'table-container' },
           React.createElement('table', null,
             React.createElement('thead', null,
               React.createElement('tr', null,
-                React.createElement('th', null, 
-                  React.createElement('input', { 
-                    type: 'checkbox',
-                    onChange: (e) => {
-                      if (e.target.checked) {
-                        setSelectedContainers(containers.map(c => c.name));
-                      } else {
-                        setSelectedContainers([]);
-                      }
-                    },
-                    checked: selectedContainers.length === containers.length && containers.length > 0
-                  })
-                ),
                 React.createElement('th', null, 'Status'),
                 React.createElement('th', null, 'Name'),
                 React.createElement('th', null, 'Image'),
                 React.createElement('th', null, 'State'),
-                React.createElement('th', null, 'Template')
+                React.createElement('th', null, 'Template'),
+                React.createElement('th', null, 'Actions')
               )
             ),
             React.createElement('tbody', null,
-              containers.length === 0 ? 
-                React.createElement('tr', null,
-                  React.createElement('td', { colSpan: 6, className: 'empty-state' },
-                    React.createElement('p', null, 'No containers found')
-                  )
-                ) :
-                containers.map(container => React.createElement('tr', { 
-                  key: container.id,
-                  className: selectedContainerRow === container.name ? 'selected' : '',
-                  onClick: () => setSelectedContainerRow(selectedContainerRow === container.name ? null : container.name)
-                },
-                React.createElement('td', { className: 'checkbox-cell' },
-                  React.createElement('input', {
-                    type: 'checkbox',
-                    checked: selectedContainers.includes(container.name),
-                    onChange: (e) => {
-                      e.stopPropagation();
-                      toggleContainerSelection(container.name);
-                    }
-                  })
-                ),
+              containers.map(container => React.createElement('tr', { key: container.id },
                 React.createElement('td', null,
                   React.createElement('span', { className: `status-indicator status-${container.state}` },
                     container.state === 'running' ? '🟢' : '🔴')
@@ -1183,74 +1011,39 @@ function App() {
                       `✓ ${container.template.filename}`) :
                     React.createElement('span', { className: 'status-badge status-warning' }, 
                       '⚠️ No template')
-                )
-              )),
-            // Individual Container Actions (appears below selected container)
-            selectedContainerRow && React.createElement('tr', { key: `${selectedContainerRow}-actions`, className: 'container-actions-row' },
-              React.createElement('td', { colSpan: 6, className: 'container-actions-cell' },
-                React.createElement('div', { className: 'container-actions' },
-                  React.createElement('div', { className: 'container-actions-header' },
-                    React.createElement('span', { className: 'container-name' }, selectedContainerRow),
-                    React.createElement('button', { 
-                      className: 'btn-close',
-                      onClick: () => setSelectedContainerRow(null)
-                    }, 
-                      React.createElement('i', { className: 'fas fa-times' })
-                    )
-                  ),
-                  React.createElement('div', { className: 'container-actions-buttons' },
-                    containers.find(c => c.name === selectedContainerRow)?.state === 'running' ? 
-                      React.createElement(React.Fragment, null,
-                        React.createElement('button', {
-                          className: 'btn-danger',
-                          onClick: () => { 
-                            handleContainerAction(selectedContainerRow, 'stop');
-                            setSelectedContainerRow(null);
-                          },
-                          disabled: loading,
-                          title: 'Stop container'
-                        }, 
-                          React.createElement('i', { className: 'fas fa-stop' }),
-                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop')
-                        ),
-                        React.createElement('button', {
-                          className: 'btn-secondary',
-                          onClick: () => { 
-                            handleContainerAction(selectedContainerRow, 'restart');
-                            setSelectedContainerRow(null);
-                          },
-                          disabled: loading,
-                          title: 'Restart container'
-                        }, 
-                          React.createElement('i', { className: 'fas fa-redo' }),
-                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart')
-                        )
-                      ) : 
+                ),
+                React.createElement('td', null,
+                  React.createElement('div', { className: 'action-buttons' },
+                    container.state === 'running' ? React.createElement(React.Fragment, null,
                       React.createElement('button', {
-                        className: 'btn-success',
-                        onClick: () => { 
-                          handleContainerAction(selectedContainerRow, 'start');
-                          setSelectedContainerRow(null);
-                        },
+                        className: 'btn-small btn-danger',
+                        onClick: () => handleContainerAction(container.name, 'stop'),
                         disabled: loading,
-                        title: 'Start container'
-                      }, 
-                        React.createElement('i', { className: 'fas fa-play' }),
-                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Start')
-                      )
+                        title: 'Stop container'
+                      }, '■ Stop'),
+                      React.createElement('button', {
+                        className: 'btn-small btn-secondary',
+                        onClick: () => handleContainerAction(container.name, 'restart'),
+                        disabled: loading,
+                        title: 'Restart container'
+                      }, '↻ Restart')
+                    ) : React.createElement('button', {
+                      className: 'btn-small btn-success',
+                      onClick: () => handleContainerAction(container.name, 'start'),
+                      disabled: loading,
+                      title: 'Start container'
+                    }, '▶ Start')
                   )
                 )
-              )
+              ))
             )
           )
         )
-      ),
-      activeTab === 'backups' && (console.log('Rendering backups tab with', backups.length, 'backups'), React.createElement('div', { className: 'backups' },
+      ) : null,
+      activeTab === 'backups' ? React.createElement('div', { className: 'backups' },
         React.createElement('div', { className: 'section-header' },
           React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
-            React.createElement('i', { className: 'lni lni-cloud-upload' }),
-            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create New Backup')
-          )
+            '💾 Create New Backup')
         ),
         backups.length === 0 ? 
           React.createElement('div', { className: 'empty-state' },
@@ -1286,36 +1079,29 @@ function App() {
                   className: 'btn-primary',
                   onClick: () => handleRestoreBackup(backup.name),
                   disabled: loading
-                }, 
-                  React.createElement('i', { className: 'lni lni-reload' }),
-                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
-                ),
+                }, '🔄 Restore'),
                 React.createElement('button', { 
                   className: 'btn-danger',
                   onClick: () => handleDeleteBackup(backup.name),
                   disabled: loading
-                }, 
-                  React.createElement('i', { className: 'lni lni-trash-can' }),
-                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
-                )
+                }, '🗑️ Delete')
               )
             ))
           )
-        )
-      )
-    ), // Closing main-content
-    // Footer
-    !showApiKeyPrompt && React.createElement('footer', { className: 'footer' },
+      ) : null
+    ),
+    // Close content-wrapper
+    React.createElement('footer', { className: 'footer' },
       React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
+    )
+    // Close main-content
     ),
     // Mobile Menu Button
     !showApiKeyPrompt && React.createElement('button', {
       className: 'mobile-menu-button',
       onClick: () => setMobileMenuOpen(!mobileMenuOpen)
     }, mobileMenuOpen ? '✕' : '☰')
-  ))); // Closing app-container div
-  
-  return container;
+  );
 }
 
 // Export for global access
