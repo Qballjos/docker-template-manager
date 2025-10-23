@@ -24,7 +24,16 @@ function App() {
   const [editingTemplate, setEditingTemplate] = React.useState(null);
   const [editContent, setEditContent] = React.useState('');
   const [editorMode, setEditorMode] = React.useState('form'); // 'form' or 'xml'
-  const [formData, setFormData] = React.useState({});
+  const [formData, setFormData] = React.useState({
+    name: '',
+    repository: '',
+    tag: '',
+    network: 'bridge',
+    restart: 'unless-stopped',
+    ports: [],
+    volumes: [],
+    environment: []
+  });
   const [renamingTemplate, setRenamingTemplate] = React.useState(null);
   const [newTemplateName, setNewTemplateName] = React.useState('');
   const [theme, setTheme] = React.useState(localStorage.getItem('theme') || 'dark');
@@ -204,6 +213,11 @@ function App() {
         const parsedData = parseXmlToFormData(data.content);
         console.log('Parsed form data:', parsedData);
         setFormData(parsedData);
+        
+        // Debug: Check if formData state is being set
+        setTimeout(() => {
+          console.log('FormData state after setting:', formData);
+        }, 100);
       } else {
         alert('Failed to load template');
       }
@@ -884,6 +898,8 @@ function App() {
           editorMode === 'form' ? 
             // Form-based editor
             React.createElement('div', { className: 'form-editor' },
+              // Debug: Log formData when form is rendered
+              console.log('FormData when rendering form:', formData),
               // Basic Information
               React.createElement('div', { className: 'form-section' },
                 React.createElement('h3', null, 'Basic Information'),
@@ -893,7 +909,10 @@ function App() {
                     React.createElement('input', {
                       type: 'text',
                       value: formData.name || '',
-                      onChange: (e) => setFormData(prev => ({ ...prev, name: e.target.value })),
+                      onChange: (e) => {
+                        console.log('Name field changed:', e.target.value);
+                        setFormData(prev => ({ ...prev, name: e.target.value }));
+                      },
                       placeholder: 'my-container'
                     })
                   ),
