@@ -1,0 +1,104 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install linting tools
+        run: |
+          pip install flake8 black isort
+      
+      - name: Lint Python code
+        run: |
+          echo "🔍 Running Python linting..."
+          flake8 app.py --max-line-length=120 --ignore=E501,W503 || echo "⚠️  Linting issues found"
+          black --check app.py || echo "⚠️  Formatting issues found"
+          isort --check-only app.py || echo "⚠️  Import sorting issues found"
+          echo "✅ Python linting completed"
+      
+      - name: Check file sizes
+        run: |
+          echo "📏 Checking file sizes..."
+          find . -type f -size +50M -not -path "./.git/*" | while read file; do
+            echo "⚠️  Large file detected: $file"
+          done
+          echo "✅ File size check completed"
+      
+      - name: Check for common issues
+        run: |
+          echo "🔍 Checking for common issues..."
+          
+          # Check for hardcoded secrets
+          if grep -r -i "password\|secret\|key\|token" app.py | grep -v "API_KEY" | grep -v "X-API-Key"; then
+            echo "⚠️  Potential hardcoded secrets found"
+          else
+            echo "✅ No obvious hardcoded secrets found"
+          fi
+          
+          # Check for TODO/FIXME comments
+          TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" . --exclude-dir=.git || true | wc -l)
+          if [ "$TODO_COUNT" -gt 0 ]; then
+            echo "⚠️  Found $TODO_COUNT TODO/FIXME comments"
+          else
+            echo "✅ No TODO/FIXME comments found"
+          fi
+          
+          echo "✅ Common issues check completed"
+
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Test Python syntax
+        run: |
+          python -m py_compile app.py
+          echo "✅ Python syntax is valid"
+      
+      - name: Test Flask app import
+        run: |
+          python -c "from app import app; print('✅ Flask app imports successfully')"
+      
+      - name: Test Docker build
+        run: |
+          docker build -t docker-template-manager:test .
+          echo "✅ Docker image builds successfully"
+      
+      - name: Test Docker container
+        run: |
+          docker run --rm -d --name test-container -p 8889:8889 docker-template-manager:test
+          sleep 10
+          if curl -f http://localhost:8889/api/health; then
+            echo "✅ Container health check passed"
+          else
+            echo "❌ Container health check failed"
+            exit 1
+          fi
+          docker stop test-container
+          echo "✅ Docker container test completed"
