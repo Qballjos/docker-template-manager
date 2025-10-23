@@ -2,7 +2,7 @@
 
 ## 🔒 What's Protected
 
-Version 1.1.0 fixes all 11 security vulnerabilities:
+Version 1.4.0 includes comprehensive security measures:
 
 - ✅ API key authentication required
 - ✅ Path traversal attacks blocked

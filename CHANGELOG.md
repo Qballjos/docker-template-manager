@@ -1,5 +1,54 @@
 # Changelog
 
+## [1.4.0] - 2025-10-23
+
+### 🎉 Major Features
+
+**Professional UI Redesign:**
+- *arr-style sidebar navigation (240px)
+- Fixed left sidebar with logo
+- Top bar with page title and actions
+- Professional appearance matching Sonarr/Radarr
+- More content space and better layout
+
+**Theme Toggle:**
+- Dark mode (default) and Light mode
+- Toggle in sidebar footer
+- Persists in localStorage
+- Smooth transitions between themes
+
+**Container Management:**
+- Start/Stop/Restart containers from UI
+- Color-coded buttons (green/red/orange)
+- Loading states and success/error messages
+- Bulk container operations
+
+**Mobile Responsive:**
+- Hamburger menu button
+- Slide-out sidebar
+- Overlay backdrop
+- Touch-friendly buttons
+- Full responsive layout
+
+**Template Editor:**
+- Hybrid form-based and raw XML editor
+- Form fields for basic info, ports, volumes, environment
+- Toggle between form editor and raw XML
+- Better user experience for template editing
+
+**Enhanced Sections:**
+- Templates: Individual actions underneath clicked rows
+- Containers: Individual actions underneath clicked rows  
+- Backups: Individual actions underneath clicked rows
+- Bulk operations for all sections
+- Sortable tables for all data
+
+**Migration Guides:**
+- vDisk → Folder migration guide
+- Folder → vDisk migration guide
+- Step-by-step instructions with DTM integration
+- Professional documentation
+
 ## [1.2.0] - 2025-10-21
 
 ### 🎉 New Features
