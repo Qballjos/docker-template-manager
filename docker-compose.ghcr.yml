@@ -1,0 +1,46 @@
+# Docker Template Manager - Using GitHub Container Registry
+# 
+# This version uses the pre-built image from GitHub Container Registry
+# instead of building locally. Requires a published release.
+#
+# Usage:
+#   docker-compose -f docker-compose.ghcr.yml up -d
+
+version: '3.8'
+
+services:
+  docker-template-manager:
+    image: ghcr.io/qballjos/docker-template-manager:latest
+    container_name: docker-template-manager
+    ports:
+      - "8889:8889"
+    volumes:
+      # Docker socket (read-only for security)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
+      # Unraid paths (adjust for your system)
+      - /boot/config/plugins/dockerMan/templates-user:/templates:rw
+      - /mnt/user/appdata/docker-template-manager/backups:/backups:rw
+      - /mnt/user/appdata/docker-template-manager/config:/config:rw
+    
+    environment:
+      # Security (load from .env)
+      - API_KEY=${API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8889}
+      - FLASK_DEBUG=${FLASK_DEBUG:-false}
+      
+      # Configuration
+      - TZ=${TZ:-America/New_York}
+      - TEMPLATE_DIR=/templates
+      - BACKUP_DIR=/backups
+      - CONFIG_DIR=/config
+      - BACKUP_RETENTION_DAYS=30
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8889/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
