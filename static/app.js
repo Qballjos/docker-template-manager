@@ -4,6 +4,11 @@ console.log('API_URL set to:', API_URL);
 
 function App() {
   const [activeTab, setActiveTab] = React.useState('dashboard');
+  
+  // Debug active tab changes
+  React.useEffect(() => {
+    console.log('Active tab changed to:', activeTab);
+  }, [activeTab]);
   const [stats, setStats] = React.useState(null);
   const [templates, setTemplates] = React.useState([]);
   const [containers, setContainers] = React.useState([]);
