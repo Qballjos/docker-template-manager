@@ -1320,8 +1320,8 @@ function App() {
               )
             ))
           )
-        ),
-    ),
+        )
+      ),
     // Close content-wrapper
     React.createElement('footer', { className: 'footer' },
       React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
