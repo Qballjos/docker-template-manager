@@ -970,7 +970,8 @@ function App() {
                 ),
                 // Actions row (only when selected)
                 selectedRow === template.filename && React.createElement('tr', { className: 'actions-row' },
-                  React.createElement('td', { colSpan: 5, className: 'actions-cell' },
+                  React.createElement('td', { className: 'checkbox-cell' }, ''), // Empty checkbox cell
+                  React.createElement('td', { className: 'actions-cell' },
                     React.createElement('div', { className: 'template-actions' },
                       React.createElement('button', { 
                         className: 'btn btn-primary',
@@ -1005,7 +1006,10 @@ function App() {
                         React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
                       )
                     )
-                  )
+                  ),
+                  React.createElement('td', null, ''), // Empty container cell
+                  React.createElement('td', null, ''), // Empty size cell
+                  React.createElement('td', null, '')  // Empty modified cell
                 )
               ))
             )
