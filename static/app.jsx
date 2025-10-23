@@ -1,5 +1,6 @@
 // API Configuration
 const API_URL = window.location.origin;
+console.log('API_URL set to:', API_URL);
 
 function App() {
   const [activeTab, setActiveTab] = React.useState('dashboard');
