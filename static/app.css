@@ -1970,6 +1970,81 @@ tr:hover {
   }
 }
 
+/* Container Actions Row */
+.container-actions-row {
+  background: var(--unraid-bg-tertiary);
+  border-top: 2px solid var(--unraid-orange);
+}
+
+.container-actions-cell {
+  padding: 0 !important;
+  border: none !important;
+}
+
+.container-actions {
+  padding: 16px 20px;
+  animation: slideDown 0.3s ease;
+}
+
+.container-actions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--unraid-border);
+}
+
+.container-name {
+  font-weight: 600;
+  color: var(--unraid-text-primary);
+  font-size: 14px;
+}
+
+.container-actions-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.container-actions-buttons button {
+  padding: 8px 16px;
+  border: 1px solid var(--unraid-border);
+  background: var(--unraid-bg-secondary);
+  color: var(--unraid-text-primary);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.container-actions-buttons button:hover {
+  background: var(--unraid-bg-hover);
+  border-color: var(--unraid-orange);
+}
+
+.container-actions-buttons .btn-success {
+  background: var(--unraid-success);
+  color: white;
+  border-color: var(--unraid-success);
+}
+
+.container-actions-buttons .btn-success:hover {
+  background: var(--unraid-success-dark);
+}
+
+.container-actions-buttons .btn-danger {
+  background: var(--unraid-danger);
+  color: white;
+  border-color: var(--unraid-danger);
+}
+
+.container-actions-buttons .btn-danger:hover {
+  background: var(--unraid-danger-dark);
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .bulk-actions-content {
@@ -1978,11 +2053,13 @@ tr:hover {
     align-items: flex-start;
   }
   
-  .template-actions-buttons {
+  .template-actions-buttons,
+  .container-actions-buttons {
     flex-direction: column;
   }
   
-  .template-actions-buttons button {
+  .template-actions-buttons button,
+  .container-actions-buttons button {
     width: 100%;
     justify-content: center;
   }

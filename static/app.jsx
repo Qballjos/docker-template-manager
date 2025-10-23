@@ -8,6 +8,8 @@ function App() {
   const [backups, setBackups] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
+  const [selectedContainers, setSelectedContainers] = React.useState([]);
+  const [selectedContainerRow, setSelectedContainerRow] = React.useState(null);
   const [apiKey, setApiKey] = React.useState(localStorage.getItem('apiKey') || '');
   const [showApiKeyPrompt, setShowApiKeyPrompt] = React.useState(!localStorage.getItem('apiKey'));
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -491,6 +493,14 @@ function App() {
     );
   };
 
+  const toggleContainerSelection = (containerName) => {
+    setSelectedContainers(prev => 
+      prev.includes(containerName) 
+        ? prev.filter(c => c !== containerName)
+        : [...prev, containerName]
+    );
+  };
+
   const handleDeleteSelected = async () => {
     if (selectedTemplates.length === 0) {
       alert('No templates selected');
@@ -513,7 +523,34 @@ function App() {
     fetchTemplates();
     fetchStats();
     setLoading(false);
-    alert(`Deleted ${selectedTemplates.length} templates`);
+  };
+
+  const handleBulkContainerAction = async (action) => {
+    if (selectedContainers.length === 0) {
+      alert('No containers selected');
+      return;
+    }
+
+    const actionText = action === 'stop' ? 'stop' : action === 'start' ? 'start' : 'restart';
+    if (!window.confirm(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${selectedContainers.length} selected container(s)?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      for (const containerName of selectedContainers) {
+        await fetchWithAuth(`${API_URL}/api/containers/${containerName}/${action}`, {
+          method: 'POST'
+        });
+      }
+      setSelectedContainers([]);
+      fetchContainers();
+      alert(`Containers ${actionText}ed successfully`);
+    } catch (error) {
+      console.error(`Error ${actionText}ing containers:`, error);
+      alert(`Error ${actionText}ing containers`);
+    }
+    setLoading(false);
   };
 
   // Filter and sort templates
@@ -1060,9 +1097,50 @@ function App() {
         )
       ) : null,
       activeTab === 'containers' ? React.createElement('div', { className: 'containers' },
+        // Bulk Actions Bar (only when containers are selected)
+        selectedContainers.length > 0 && React.createElement('div', { className: 'bulk-actions-bar' },
+          React.createElement('div', { className: 'bulk-actions-content' },
+            React.createElement('span', { className: 'selected-count' }, 
+              `${selectedContainers.length} container${selectedContainers.length > 1 ? 's' : ''} selected`
+            ),
+            React.createElement('div', { className: 'bulk-actions-buttons' },
+              React.createElement('button', { 
+                className: 'btn-success',
+                onClick: () => handleBulkContainerAction('start'), 
+                disabled: loading 
+              }, 
+                React.createElement('i', { className: 'fas fa-play' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'Start All')
+              ),
+              React.createElement('button', { 
+                className: 'btn-danger',
+                onClick: () => handleBulkContainerAction('stop'), 
+                disabled: loading 
+              }, 
+                React.createElement('i', { className: 'fas fa-stop' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop All')
+              ),
+              React.createElement('button', { 
+                className: 'btn-secondary',
+                onClick: () => handleBulkContainerAction('restart'), 
+                disabled: loading 
+              }, 
+                React.createElement('i', { className: 'fas fa-redo' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart All')
+              ),
+              React.createElement('button', { 
+                className: 'btn-secondary',
+                onClick: () => setSelectedContainers([])
+              }, 
+                React.createElement('i', { className: 'fas fa-times' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'Clear Selection')
+              )
+            )
+          )
+        ),
         React.createElement('div', { className: 'section-header' },
           React.createElement('button', { onClick: fetchContainers }, 
-            React.createElement('i', { className: 'lni lni-reload' }),
+            React.createElement('i', { className: 'fas fa-sync-alt' }),
             React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh')
           )
         ),
@@ -1070,16 +1148,42 @@ function App() {
           React.createElement('table', null,
             React.createElement('thead', null,
               React.createElement('tr', null,
+                React.createElement('th', null, 
+                  React.createElement('input', { 
+                    type: 'checkbox',
+                    onChange: (e) => {
+                      if (e.target.checked) {
+                        setSelectedContainers(containers.map(c => c.name));
+                      } else {
+                        setSelectedContainers([]);
+                      }
+                    },
+                    checked: selectedContainers.length === containers.length && containers.length > 0
+                  })
+                ),
                 React.createElement('th', null, 'Status'),
                 React.createElement('th', null, 'Name'),
                 React.createElement('th', null, 'Image'),
                 React.createElement('th', null, 'State'),
-                React.createElement('th', null, 'Template'),
-                React.createElement('th', null, 'Actions')
+                React.createElement('th', null, 'Template')
               )
             ),
             React.createElement('tbody', null,
-              containers.map(container => React.createElement('tr', { key: container.id },
+              containers.map(container => React.createElement('tr', { 
+                key: container.id,
+                className: selectedContainerRow === container.name ? 'selected' : '',
+                onClick: () => setSelectedContainerRow(selectedContainerRow === container.name ? null : container.name)
+              },
+                React.createElement('td', { className: 'checkbox-cell' },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: selectedContainers.includes(container.name),
+                    onChange: (e) => {
+                      e.stopPropagation();
+                      toggleContainerSelection(container.name);
+                    }
+                  })
+                ),
                 React.createElement('td', null,
                   React.createElement('span', { className: `status-indicator status-${container.state}` },
                     container.state === 'running' ? '🟢' : '🔴')
@@ -1098,40 +1202,64 @@ function App() {
                       `✓ ${container.template.filename}`) :
                     React.createElement('span', { className: 'status-badge status-warning' }, 
                       '⚠️ No template')
-                ),
-                React.createElement('td', null,
-                  React.createElement('div', { className: 'action-buttons' },
-                    container.state === 'running' ? React.createElement(React.Fragment, null,
-                      React.createElement('button', {
-                        className: 'btn-small btn-danger',
-                        onClick: () => handleContainerAction(container.name, 'stop'),
-                        disabled: loading,
-                        title: 'Stop container'
-                      }, 
-                        React.createElement('i', { className: 'lni lni-stop' }),
-                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop')
-                      ),
-                      React.createElement('button', {
-                        className: 'btn-small btn-secondary',
-                        onClick: () => handleContainerAction(container.name, 'restart'),
-                        disabled: loading,
-                        title: 'Restart container'
-                      }, 
-                        React.createElement('i', { className: 'lni lni-reload' }),
-                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart')
-                      )
-                    ) : React.createElement('button', {
-                      className: 'btn-small btn-success',
-                      onClick: () => handleContainerAction(container.name, 'start'),
-                      disabled: loading,
-                      title: 'Start container'
+                )
+              )),
+            // Individual Container Actions (appears below selected container)
+            selectedContainerRow && React.createElement('tr', { key: `${selectedContainerRow}-actions`, className: 'container-actions-row' },
+              React.createElement('td', { colSpan: 6, className: 'container-actions-cell' },
+                React.createElement('div', { className: 'container-actions' },
+                  React.createElement('div', { className: 'container-actions-header' },
+                    React.createElement('span', { className: 'container-name' }, selectedContainerRow),
+                    React.createElement('button', { 
+                      className: 'btn-close',
+                      onClick: () => setSelectedContainerRow(null)
                     }, 
-                      React.createElement('i', { className: 'lni lni-play' }),
-                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Start')
+                      React.createElement('i', { className: 'fas fa-times' })
                     )
+                  ),
+                  React.createElement('div', { className: 'container-actions-buttons' },
+                    containers.find(c => c.name === selectedContainerRow)?.state === 'running' ? 
+                      React.createElement(React.Fragment, null,
+                        React.createElement('button', {
+                          className: 'btn-danger',
+                          onClick: () => { 
+                            handleContainerAction(selectedContainerRow, 'stop');
+                            setSelectedContainerRow(null);
+                          },
+                          disabled: loading,
+                          title: 'Stop container'
+                        }, 
+                          React.createElement('i', { className: 'fas fa-stop' }),
+                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop')
+                        ),
+                        React.createElement('button', {
+                          className: 'btn-secondary',
+                          onClick: () => { 
+                            handleContainerAction(selectedContainerRow, 'restart');
+                            setSelectedContainerRow(null);
+                          },
+                          disabled: loading,
+                          title: 'Restart container'
+                        }, 
+                          React.createElement('i', { className: 'fas fa-redo' }),
+                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart')
+                        )
+                      ) : 
+                      React.createElement('button', {
+                        className: 'btn-success',
+                        onClick: () => { 
+                          handleContainerAction(selectedContainerRow, 'start');
+                          setSelectedContainerRow(null);
+                        },
+                        disabled: loading,
+                        title: 'Start container'
+                      }, 
+                        React.createElement('i', { className: 'fas fa-play' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Start')
+                      )
                   )
                 )
-              ))
+              )
             )
           )
         )
