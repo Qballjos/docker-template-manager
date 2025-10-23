@@ -103,22 +103,28 @@ TEMPLATE_DIR = os.getenv('TEMPLATE_DIR', '/templates')
 BACKUP_DIR = os.getenv('BACKUP_DIR', '/backups')
 CONFIG_DIR = os.getenv('CONFIG_DIR', '/config')
 
-# Ensure directories exist (only if we have write permissions)
-try:
-    os.makedirs(BACKUP_DIR, exist_ok=True)
-    os.makedirs(CONFIG_DIR, exist_ok=True)
-except PermissionError:
-    # In CI/testing environments, use local directories
-    if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
-        BACKUP_DIR = os.path.join(os.getcwd(), 'test_backups')
-        CONFIG_DIR = os.path.join(os.getcwd(), 'test_config')
+def ensure_directories():
+    """Ensure required directories exist with proper error handling."""
+    global BACKUP_DIR, CONFIG_DIR
+    
+    try:
         os.makedirs(BACKUP_DIR, exist_ok=True)
         os.makedirs(CONFIG_DIR, exist_ok=True)
-    else:
-        print(f"Warning: Could not create directories {BACKUP_DIR}, {CONFIG_DIR}")
-        print("Using current directory for backups and config")
-        BACKUP_DIR = os.getcwd()
-        CONFIG_DIR = os.getcwd()
+    except PermissionError:
+        # In CI/testing environments, use local directories
+        if os.getenv('CI') or os.getenv('GITHUB_ACTIONS'):
+            BACKUP_DIR = os.path.join(os.getcwd(), 'test_backups')
+            CONFIG_DIR = os.path.join(os.getcwd(), 'test_config')
+            os.makedirs(BACKUP_DIR, exist_ok=True)
+            os.makedirs(CONFIG_DIR, exist_ok=True)
+        else:
+            print(f"Warning: Could not create directories {BACKUP_DIR}, {CONFIG_DIR}")
+            print("Using current directory for backups and config")
+            BACKUP_DIR = os.getcwd()
+            CONFIG_DIR = os.getcwd()
+
+# Initialize directories
+ensure_directories()
 
 # Initialize Docker client
 try:
