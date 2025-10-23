@@ -1204,7 +1204,7 @@ function App() {
           React.createElement('img', { 
             src: '/static/png/logo.png', 
             alt: 'Docker Template Manager',
-            style: { width: '48px', height: '48px' }
+            className: 'logo'
           })
         )
       ),

@@ -1807,9 +1807,10 @@ tr:hover {
 
 /* Logo size fix */
 .logo {
-  height: 32px;
+  height: 40px;
   width: auto;
   max-width: 200px;
+  object-fit: contain;
 }
 
 /* Selection count styling */
