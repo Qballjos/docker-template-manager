@@ -26,7 +26,7 @@ mimetypes.add_type('application/javascript', '.js')
 app = Flask(__name__)
 
 # Security: Configure CORS properly - restrict to specific origins
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8080,http://localhost:5173').split(',')
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8889,http://localhost:5173').split(',')
 CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
 # Security: API Key authentication
@@ -887,5 +887,5 @@ if __name__ == '__main__':
     if debug_mode:
         print("WARNING: Running in DEBUG mode. Disable in production!")
     
-    app.run(host='0.0.0.0', port=8080, debug=debug_mode)
+    app.run(host='0.0.0.0', port=8889, debug=debug_mode)
     

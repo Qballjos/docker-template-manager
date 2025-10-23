@@ -55,7 +55,7 @@ services:
 ```bash
 docker run -d \
   --name docker-template-manager \
-  -p 8889:8080 \
+  -p 8889:8889 \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -v /boot/config/plugins/dockerMan/templates-user:/templates:rw \
   -v /mnt/user/appdata/docker-template-manager/backups:/backups:rw \

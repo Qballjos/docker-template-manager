@@ -6,7 +6,7 @@ services:
     build: .
     container_name: docker-template-manager-local
     ports:
-      - "8889:8080"
+      - "8889:8889"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./local-data/templates:/app/templates:rw

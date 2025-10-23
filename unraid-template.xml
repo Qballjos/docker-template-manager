@@ -64,7 +64,7 @@
   <Requires/>
   
   <!-- Port Configuration -->
-  <Config Name="WebUI Port" Target="8080" Default="8889" Mode="tcp" Description="Web interface port" Type="Port" Display="always" Required="true" Mask="false">8889</Config>
+  <Config Name="WebUI Port" Target="8889" Default="8889" Mode="tcp" Description="Web interface port" Type="Port" Display="always" Required="true" Mask="false">8889</Config>
   
   <!-- Path Configurations -->
   <Config Name="Docker Socket" Target="/var/run/docker.sock" Default="/var/run/docker.sock" Mode="ro" Description="Docker socket (read-only)" Type="Path" Display="always" Required="true" Mask="false">/var/run/docker.sock</Config>
