@@ -33,7 +33,7 @@ services:
     image: qballjos/docker-template-manager:latest
     container_name: docker-template-manager
     ports:
-      - "8889:8080"
+      - "8889:8889"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /boot/config/plugins/dockerMan/templates-user:/templates:rw

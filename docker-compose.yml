@@ -29,7 +29,7 @@ services:
     environment:
       # Security (load from .env)
       - API_KEY=${API_KEY}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8080}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8889}
       - FLASK_DEBUG=${FLASK_DEBUG:-false}
       
       # Configuration
@@ -42,7 +42,7 @@ services:
     restart: unless-stopped
     
     healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8080/api/health')"]
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8889/api/health')"]
       interval: 30s
       timeout: 10s
       retries: 3

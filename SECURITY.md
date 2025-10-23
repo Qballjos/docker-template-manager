@@ -35,7 +35,7 @@ Add to container's `API_KEY` environment variable.
 ## 🛡️ Best Practices
 
 1. **Never share your API key**
-2. **Don't expose port 8080 to internet** - Local network only
+2. **Don't expose port 8889 to internet** - Local network only
 3. **Use VPN for remote access**
 4. **Update container regularly**
 5. **Check logs periodically**

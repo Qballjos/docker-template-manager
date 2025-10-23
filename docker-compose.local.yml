@@ -14,7 +14,7 @@ services:
       - ./local-data/config:/app/config:rw
     environment:
       - API_KEY=${API_KEY}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8080,http://192.168.2.82:8889}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8889,http://192.168.2.82:8889}
       - FLASK_DEBUG=${FLASK_DEBUG:-false}
       - TZ=${TZ:-Europe/Amsterdam}
       - TEMPLATE_DIR=/app/templates
@@ -22,7 +22,7 @@ services:
       - CONFIG_DIR=/app/config
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8889/health"]
       interval: 30s
       timeout: 10s
       retries: 3
