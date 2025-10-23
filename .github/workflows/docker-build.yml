@@ -44,7 +44,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run Dockerfile lint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: dockerfile
           config: .hadolint.yaml
