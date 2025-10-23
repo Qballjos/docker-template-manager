@@ -1788,3 +1788,26 @@ tr:hover {
 .lni-xl {
   font-size: 24px;
 }
+
+/* Clickable stat cards */
+.stat-card.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
+  border-color: var(--unraid-orange);
+}
+
+.stat-card.clickable:active {
+  transform: translateY(0);
+}
+
+/* Logo size fix */
+.logo {
+  height: 32px;
+  width: auto;
+  max-width: 200px;
+}

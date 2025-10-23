@@ -36,19 +36,19 @@ function App() {
     const headers = {
       'X-API-Key': apiKey,
       'Content-Type': 'application/json',
-      ...options.headers
+          ...options.headers
     };
-    
+
     const response = await fetch(url, { ...options, headers });
-    
+
     if (response.status === 401) {
-      setShowApiKeyPrompt(true);
+      setShowApiKeyPrompt(true);    
       localStorage.removeItem('apiKey');
-      throw new Error('Unauthorized - Invalid API key');
+          throw new Error('Unauthorized - Invalid API key');
     }
-    
+
     return response;
-  };
+  };    
 
   const handleApiKeySubmit = (e) => {
     e.preventDefault();
@@ -126,11 +126,11 @@ function App() {
 
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`, {
-        method: 'DELETE'
+              method: 'DELETE'
       });
-      
+
       if (response.ok) {
-        alert('Template deleted successfully');
+        alert('Template deleted successfully');      
         fetchTemplates();
         fetchStats();
       } else {
@@ -151,22 +151,22 @@ function App() {
     if (!newName) return; // Cancelled
     
     const trimmedName = newName.trim();
-    if (!trimmedName) {
+    if (!trimmedName) {    
       alert('Template name cannot be empty');
-      return;
+          return;
     }
     
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}/clone`, {
         method: 'POST',
-        body: JSON.stringify({ new_name: trimmedName })
+              body: JSON.stringify({ new_name: trimmedName })
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        alert(data.message || `Template cloned as ${data.filename}`);
+        alert(data.message || `Template cloned as ${data.filename}`);      
         fetchTemplates();
         fetchStats();
       } else {
@@ -182,11 +182,11 @@ function App() {
   const handleViewTemplate = async (filename) => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
+            const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
       const data = await response.json();
-      
+
       if (response.ok) {
-        setEditingTemplate(filename);
+        setEditingTemplate(filename);      
         setEditContent(data.content);
       } else {
         alert('Failed to load template');
@@ -200,18 +200,18 @@ function App() {
 
   const handleSaveTemplate = async () => {
     if (!editingTemplate) return;
-    
+
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${editingTemplate}/edit`, {
         method: 'PUT',
-        body: JSON.stringify({ content: editContent })
+              body: JSON.stringify({ content: editContent })
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        alert(data.message || 'Template saved successfully');
+        alert(data.message || 'Template saved successfully');      
         setEditingTemplate(null);
         setEditContent('');
         fetchTemplates();
@@ -243,18 +243,18 @@ function App() {
 
   const handleSaveRename = async () => {
     if (!renamingTemplate || !newTemplateName.trim()) return;
-    
+
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${renamingTemplate}/rename`, {
         method: 'PATCH',
-        body: JSON.stringify({ new_name: newTemplateName.trim() })
+              body: JSON.stringify({ new_name: newTemplateName.trim() })
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        alert(data.message || 'Template renamed successfully');
+        alert(data.message || 'Template renamed successfully');      
         setRenamingTemplate(null);
         setNewTemplateName('');
         fetchTemplates();
@@ -273,13 +273,13 @@ function App() {
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/containers/${containerName}/${action}`, {
-        method: 'POST'
+              method: 'POST'
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        alert(data.message || `Container ${action}ed successfully`);
+        alert(data.message || `Container ${action}ed successfully`);      
         fetchContainers();
       } else {
         alert(data.error || `Failed to ${action} container`);
@@ -306,13 +306,13 @@ function App() {
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/cleanup`, {
         method: 'POST',
-        body: JSON.stringify({ dry_run: dryRun })
+              body: JSON.stringify({ dry_run: dryRun })
       });
-      
+
       const data = await response.json();
-      
+
       if (dryRun) {
-        const unusedCount = data.unused_templates.length;
+        const unusedCount = data.unused_templates.length;      
         if (unusedCount > 0) {
           if (window.confirm(`Found ${unusedCount} unused templates. Delete them?`)) {
             handleCleanupTemplates(false);
@@ -337,11 +337,11 @@ function App() {
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups`, {
         method: 'POST',
-        body: JSON.stringify({})
+              body: JSON.stringify({})
       });
-      
+
       const data = await response.json();
-      if (data.success) {
+      if (data.success) {      
         alert(`Backup created: ${data.backup_name}`);
         fetchBackups();
       }
@@ -359,11 +359,11 @@ function App() {
 
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups/${backupName}`, {
-        method: 'DELETE'
+              method: 'DELETE'
       });
-      
+
       if (response.ok) {
-        alert('Backup deleted');
+        alert('Backup deleted');      
         fetchBackups();
       }
     } catch (error) {
@@ -380,13 +380,13 @@ function App() {
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups/${backupName}/restore`, {
-        method: 'POST'
+              method: 'POST'
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        alert(data.message || 'Backup restored successfully');
+        alert(data.message || 'Backup restored successfully');      
         fetchTemplates();
         fetchStats();
       } else {
@@ -743,19 +743,28 @@ function App() {
       React.createElement('div', { className: 'content-wrapper' },
       activeTab === 'dashboard' && stats ? React.createElement('div', { className: 'dashboard' },
         React.createElement('div', { className: 'stats-grid' },
-          React.createElement('div', { className: 'stat-card' },
+          React.createElement('div', { 
+            className: 'stat-card clickable',
+            onClick: () => setActiveTab('templates')
+          },
             React.createElement('h3', null, 'Templates'),
             React.createElement('div', { className: 'stat-value' }, stats.total_templates),
             React.createElement('div', { className: 'stat-detail' }, 
               `${stats.matched_templates} matched, ${stats.unmatched_templates} unused`)
           ),
-          React.createElement('div', { className: 'stat-card' },
+          React.createElement('div', { 
+            className: 'stat-card clickable',
+            onClick: () => setActiveTab('containers')
+          },
             React.createElement('h3', null, 'Containers'),
             React.createElement('div', { className: 'stat-value' }, stats.total_containers),
             React.createElement('div', { className: 'stat-detail' }, 
               `${stats.running_containers} running`)
           ),
-          React.createElement('div', { className: 'stat-card' },
+          React.createElement('div', { 
+            className: 'stat-card clickable',
+            onClick: () => setActiveTab('backups')
+          },
             React.createElement('h3', null, 'Backups'),
             React.createElement('div', { className: 'stat-value' }, stats.total_backups)
           )
@@ -958,7 +967,7 @@ function App() {
                 React.createElement('td', null, formatDate(template.modified)),
                 React.createElement('td', null,
                   selectedRow === template.filename ? React.createElement('div', { className: 'action-buttons' },
-                    React.createElement('button', {
+                    React.createElement('button', { 
                       className: 'btn-small btn-primary',
                       onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
                       title: 'View/Edit template'
@@ -1025,23 +1034,23 @@ function App() {
                 React.createElement('td', null,
                   React.createElement('div', { className: 'action-buttons' },
                     container.state === 'running' ? React.createElement(React.Fragment, null,
-                      React.createElement('button', {
+                        React.createElement('button', {
                         className: 'btn-small btn-danger',
                         onClick: () => handleContainerAction(container.name, 'stop'),
-                        disabled: loading,
-                        title: 'Stop container'
+                          disabled: loading,
+                          title: 'Stop container'
                       }, '■ Stop'),
-                      React.createElement('button', {
+                        React.createElement('button', {
                         className: 'btn-small btn-secondary',
                         onClick: () => handleContainerAction(container.name, 'restart'),
-                        disabled: loading,
-                        title: 'Restart container'
+                          disabled: loading,
+                          title: 'Restart container'
                       }, '↻ Restart')
                     ) : React.createElement('button', {
                       className: 'btn-small btn-success',
                       onClick: () => handleContainerAction(container.name, 'start'),
-                      disabled: loading,
-                      title: 'Start container'
+                        disabled: loading,
+                        title: 'Start container'
                     }, '▶ Start')
                   )
                 )
@@ -1099,18 +1108,18 @@ function App() {
             ))
           )
       ) : null
-    ),
+      ),
     // Close content-wrapper
-    React.createElement('footer', { className: 'footer' },
-      React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
+      React.createElement('footer', { className: 'footer' },
+        React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
     )
     // Close main-content
-    ),
-    // Mobile Menu Button
-    !showApiKeyPrompt && React.createElement('button', {
-      className: 'mobile-menu-button',
-      onClick: () => setMobileMenuOpen(!mobileMenuOpen)
-    }, mobileMenuOpen ? '✕' : '☰')
+      ),
+      // Mobile Menu Button
+      !showApiKeyPrompt && React.createElement('button', {
+        className: 'mobile-menu-button',
+        onClick: () => setMobileMenuOpen(!mobileMenuOpen)
+      }, mobileMenuOpen ? '✕' : '☰')
   );
 }
 
