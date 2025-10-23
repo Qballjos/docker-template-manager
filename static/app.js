@@ -1139,11 +1139,17 @@ function App() {
               )
             ),
             React.createElement('tbody', null,
-              containers.map(container => React.createElement('tr', { 
-                key: container.id,
-                className: selectedContainerRow === container.name ? 'selected' : '',
-                onClick: () => setSelectedContainerRow(selectedContainerRow === container.name ? null : container.name)
-              },
+              containers.length === 0 ? 
+                React.createElement('tr', null,
+                  React.createElement('td', { colSpan: 6, className: 'empty-state' },
+                    React.createElement('p', null, 'No containers found')
+                  )
+                ) :
+                containers.map(container => React.createElement('tr', { 
+                  key: container.id,
+                  className: selectedContainerRow === container.name ? 'selected' : '',
+                  onClick: () => setSelectedContainerRow(selectedContainerRow === container.name ? null : container.name)
+                },
                 React.createElement('td', { className: 'checkbox-cell' },
                   React.createElement('input', {
                     type: 'checkbox',
