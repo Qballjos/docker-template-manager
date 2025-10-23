@@ -36,15 +36,22 @@ function App() {
 
   // API helper with authentication
   const fetchWithAuth = async (url, options = {}) => {
+    console.log('fetchWithAuth called with:', { url, apiKey: apiKey ? 'present' : 'missing' });
+    
     const headers = {
       'X-API-Key': apiKey,
       'Content-Type': 'application/json',
       ...options.headers
     };
     
+    console.log('Making request to:', url, 'with headers:', headers);
+    
     const response = await fetch(url, { ...options, headers });
     
+    console.log('Response status:', response.status);
+    
     if (response.status === 401) {
+      console.error('API key authentication failed');
       setShowApiKeyPrompt(true);
       localStorage.removeItem('apiKey');
       throw new Error('Unauthorized - Invalid API key');
@@ -81,9 +88,11 @@ function App() {
   }, [apiKey, showApiKeyPrompt]);
 
   const fetchStats = async () => {
+    console.log('fetchStats called');
     try {
       const response = await fetchWithAuth(`${API_URL}/api/stats`);
       const data = await response.json();
+      console.log('Stats data received:', data);
       setStats(data);
     } catch (error) {
       console.error('Error fetching stats:', error);
