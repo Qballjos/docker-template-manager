@@ -1434,7 +1434,7 @@ function App() {
               ),
               React.createElement('button', {
                 className: 'migration-button',
-                onClick: () => window.open('/docs/unraid_vdisk_to_folder.md', '_blank')
+                onClick: () => window.open('/static/vdisk-to-folder.html', '_blank')
               }, '📖 View Guide')
             ),
             // Folder to vDisk Guide
@@ -1462,7 +1462,7 @@ function App() {
               ),
               React.createElement('button', {
                 className: 'migration-button',
-                onClick: () => window.open('/docs/unraid_folder_to_vdisk.md', '_blank')
+                onClick: () => window.open('/static/folder-to-vdisk.html', '_blank')
               }, '📖 View Guide')
             )
           ),

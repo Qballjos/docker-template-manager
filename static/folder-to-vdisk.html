@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder → vDisk Migration Guide - Docker Template Manager</title>
+    <link rel="stylesheet" href="https://cdn.lineicons.com/4.0/lineicons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        
+        .back-button:hover {
+            background: #2980b9;
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin: 30px 0 15px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin: 25px 0 10px 0;
+        }
+        
+        p {
+            margin: 15px 0;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .step h3 {
+            margin-top: 0;
+            color: #3498db;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-button">
+            <i class="lni lni-arrow-left"></i>
+            Back to Docker Template Manager
+        </a>
+        
+        <div class="header">
+            <h1><span class="emoji">🔄</span>Folder → vDisk Migration Guide</h1>
+            <p>Using Docker Template Manager</p>
+        </div>
+        
+        <div class="alert alert-info">
+            <strong>📋 Overview:</strong> This guide explains how to migrate your Unraid Docker setup from <strong>folder-based storage</strong> back to a <strong>vDisk-based setup</strong> using the Docker Template Manager web interface.
+        </div>
+        
+        <h2><span class="emoji">🧠</span>Why Switch Back?</h2>
+        <p>While folder mode offers flexibility, vDisk can be:</p>
+        <ul>
+            <li><strong>Easier to manage</strong> for beginners</li>
+            <li><strong>Simpler for snapshot-based backups</strong></li>
+            <li><strong>Useful for systems</strong> with limited shares or SMB exposure</li>
+            <li><strong>Single file simplicity</strong> for backup and migration</li>
+        </ul>
+        
+        <h2><span class="emoji">⚙️</span>Step 1: Backup Templates</h2>
+        <div class="step">
+            <h3>1. Access Docker Template Manager</h3>
+            <p>Open your browser and navigate to <code>http://your-unraid-ip:8889</code></p>
+        </div>
+        
+        <div class="step">
+            <h3>2. Create a Backup</h3>
+            <p>Before making any changes, backup all Docker templates:</p>
+            <ul>
+                <li>Go to <strong>Backups</strong> tab</li>
+                <li>Click <strong>"Create Backup"</strong> button</li>
+                <li>Wait for backup completion - this saves all templates to <code>/mnt/user/appdata/docker-template-manager/backups/</code></li>
+            </ul>
+        </div>
+        
+        <h2><span class="emoji">🧱</span>Step 2: Stop Docker Service</h2>
+        <div class="step">
+            <h3>In the Unraid Web Interface:</h3>
+            <ul>
+                <li>Go to <strong>Settings → Docker</strong></li>
+                <li>Set <strong>Enable Docker</strong> to <strong>No</strong></li>
+                <li>Click <strong>Apply</strong></li>
+            </ul>
+        </div>
+        
+        <div class="step">
+            <h3>Or via Terminal:</h3>
+            <pre><code>/etc/rc.d/rc.docker stop</code></pre>
+        </div>
+        
+        <h2><span class="emoji">🧹</span>Step 3: Prepare vDisk</h2>
+        <div class="step">
+            <h3>1. Create a New vDisk File</h3>
+            <pre><code>mkdir -p /mnt/user/system/docker/
+truncate -s 30G /mnt/user/system/docker/docker.img</code></pre>
+            <p><strong>Note:</strong> Adjust size (<code>30G</code>) to your needs. Consider your current Docker usage.</p>
+        </div>
+        
+        <div class="step">
+            <h3>2. Configure Docker Data Root</h3>
+            <ul>
+                <li>Go to <strong>Settings → Docker → Docker data-root</strong></li>
+                <li>Set to: <code>/mnt/user/system/docker/docker.img</code></li>
+                <li><strong>Enable Docker</strong> and click <strong>Apply</strong></li>
+            </ul>
+        </div>
+        
+        <h2><span class="emoji">🚀</span>Step 4: Restore Containers</h2>
+        <div class="step">
+            <h3>1. Access Docker Template Manager</h3>
+            <p>Navigate to <code>http://your-unraid-ip:8889</code></p>
+        </div>
+        
+        <div class="step">
+            <h3>2. Restore from Backup</h3>
+            <ul>
+                <li>Go to <strong>Backups</strong> tab</li>
+                <li>Find your backup in the list</li>
+                <li>Click <strong>"Restore"</strong> button next to your backup</li>
+                <li>Confirm the restore - this will copy all templates back to <code>/boot/config/plugins/dockerMan/templates-user/</code></li>
+            </ul>
+        </div>
+        
+        <p>This will repopulate your new Docker vDisk using saved templates.</p>
+        
+        <h2><span class="emoji">✅</span>Verification</h2>
+        <div class="step">
+            <h3>1. Check Docker Tab</h3>
+            <p>Go to the <strong>Docker tab</strong> in Unraid WebGUI</p>
+        </div>
+        
+        <div class="step">
+            <h3>2. Verify Containers</h3>
+            <ul>
+                <li>Ensure all containers reappear in the Docker interface</li>
+                <li>Start each container and test functionality</li>
+                <li>Check Docker Template Manager - all your templates should be listed in the Templates tab</li>
+            </ul>
+        </div>
+        
+        <h2><span class="emoji">🧹</span>Step 5: Cleanup (Optional)</h2>
+        <div class="step">
+            <h3>Clean Up After Migration</h3>
+            <ul>
+                <li>Go to <strong>Templates</strong> tab</li>
+                <li>Review your templates - remove any that are no longer needed</li>
+                <li>Delete unused templates using the individual delete buttons</li>
+                <li>Verify all containers are working correctly</li>
+            </ul>
+        </div>
+        
+        <h2><span class="emoji">💾</span>Backup Strategy</h2>
+        <div class="alert alert-success">
+            <strong>After migration, continue using Docker Template Manager for ongoing management:</strong>
+            <ul>
+                <li><strong>Regular backups:</strong> Use the "Create Backup" button in the Backups tab</li>
+                <li><strong>Automatic backups:</strong> Set up a cron job or use Unraid's built-in backup tools</li>
+                <li><strong>vDisk snapshots:</strong> Use Unraid's built-in snapshot features for the vDisk file</li>
+            </ul>
+        </div>
+        
+        <h2><span class="emoji">🧩</span>Troubleshooting</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Issue</th>
+                    <th>Possible Fix</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Docker won't start</td>
+                    <td>Check vDisk file path and permissions</td>
+                </tr>
+                <tr>
+                    <td>Missing templates</td>
+                    <td>Use Docker Template Manager to restore from backup</td>
+                </tr>
+                <tr>
+                    <td>vDisk too small</td>
+                    <td>Increase size: <code>truncate -s 50G /mnt/user/system/docker/docker.img</code></td>
+                </tr>
+                <tr>
+                    <td>Templates not showing</td>
+                    <td>Check <code>/boot/config/plugins/dockerMan/templates-user/</code> directory</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2><span class="emoji">🧰</span>Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Tool</th>
+                    <th>Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Backup templates</td>
+                    <td>Docker Template Manager</td>
+                    <td>Web interface → Backups → Create Backup</td>
+                </tr>
+                <tr>
+                    <td>Stop Docker</td>
+                    <td>Unraid GUI</td>
+                    <td>Settings → Docker → Disable</td>
+                </tr>
+                <tr>
+                    <td>Create vDisk</td>
+                    <td>Terminal</td>
+                    <td><code>truncate -s 30G docker.img</code></td>
+                </tr>
+                <tr>
+                    <td>Configure Docker</td>
+                    <td>Unraid GUI</td>
+                    <td>Settings → Docker → Change data-root</td>
+                </tr>
+                <tr>
+                    <td>Restore containers</td>
+                    <td>Docker Template Manager</td>
+                    <td>Web interface → Backups → Restore</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2><span class="emoji">🔗</span>Related Features</h2>
+        <ul>
+            <li><strong>Template Management:</strong> View, edit, clone, and delete Docker templates</li>
+            <li><strong>Container Control:</strong> Start, stop, and restart containers</li>
+            <li><strong>Backup & Restore:</strong> Create and restore template backups</li>
+            <li><strong>Professional UI:</strong> Modern interface with theme toggle and mobile support</li>
+        </ul>
+        
+        <div class="footer">
+            <p><strong>Author:</strong> Jos Visser (<a href="https://github.com/Qballjos" target="_blank">@Qballjos</a>)<br>
+            <strong>Tool:</strong> <a href="https://github.com/Qballjos/docker-template-manager" target="_blank">Docker Template Manager</a><br>
+            <strong>License:</strong> MIT | <strong>Version:</strong> 1.4.0</p>
+        </div>
+    </div>
+</body>
+</html>
