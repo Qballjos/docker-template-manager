@@ -1293,6 +1293,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  position: relative;
 }
 
 /* Top Bar */
@@ -1834,9 +1835,9 @@ tr:hover {
 
 /* Logo size fix */
 .logo {
-  height: 32px;
+  height: 60px;
   width: auto;
-  max-width: 150px;
+  max-width: 200px;
   object-fit: contain;
   display: block;
   margin: 0 auto;
@@ -1848,8 +1849,7 @@ tr:hover {
   border-top: 1px solid var(--unraid-border);
   padding: 12px 20px;
   margin-top: auto;
-  position: sticky;
-  bottom: 0;
+  position: relative;
   z-index: 10;
 }
 
