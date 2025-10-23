@@ -1,29 +1,55 @@
-FROM python:3.11-slim
+# Use specific version for security
+FROM python:3.11.7-slim-bookworm
 
-LABEL maintainer="your-email@example.com"
-LABEL description="Docker Template Manager for Unraid"
+# Security: Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Security: Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Security: Update packages and install security updates
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Security: Copy requirements first for better caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files and create directories
+# Security: Install dependencies with security flags
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy application files
 COPY app.py .
 COPY static/ ./static/
 COPY docker-entrypoint.sh /app/
+
+# Security: Set proper permissions
 RUN chmod +x /app/docker-entrypoint.sh && \
-    mkdir -p /templates /backups /config
+    chmod 755 /app/app.py && \
+    mkdir -p /templates /backups /config && \
+    chown -R appuser:appuser /app /templates /backups /config
+
+# Security: Switch to non-root user
+USER appuser
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8889
 
-# Health check
+# Health check with security considerations
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD python -c "import requests; requests.get('http://localhost:8080/api/health')"
+  CMD python -c "import requests; requests.get('http://localhost:8889/api/health', timeout=5)"
 
-# Run application
+# Security: Run as non-root user
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["python", "app.py"]

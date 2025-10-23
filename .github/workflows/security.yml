@@ -1,0 +1,158 @@
+name: Security & Auto-Update
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Run every Monday at 2 AM
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Run Trivy on Dockerfile
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'dockerfile'
+          format: 'table'
+          output: 'trivy-dockerfile.txt'
+      
+      - name: Check for security issues
+        run: |
+          echo "🔍 Security scan results:"
+          cat trivy-dockerfile.txt || echo "No Dockerfile issues found"
+          
+          # Check for high/critical vulnerabilities
+          if grep -q "HIGH\|CRITICAL" trivy-dockerfile.txt; then
+            echo "⚠️  High/Critical vulnerabilities found"
+            exit 1
+          else
+            echo "✅ No high/critical vulnerabilities found"
+          fi
+
+  dependency-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Check for outdated packages
+        run: |
+          echo "🔍 Checking for outdated packages..."
+          pip list --outdated --format=json > outdated.json
+          
+          if [ -s outdated.json ]; then
+            echo "📦 Outdated packages found:"
+            cat outdated.json
+            echo "⚠️  Consider updating dependencies"
+          else
+            echo "✅ All packages are up to date"
+          fi
+      
+      - name: Update requirements.txt
+        run: |
+          echo "🔄 Updating requirements.txt..."
+          pip freeze > requirements.txt
+          echo "✅ Requirements updated"
+      
+      - name: Create security report
+        run: |
+          echo "# Security Report - $(date)" > security-report.md
+          echo "" >> security-report.md
+          echo "## Dependency Status" >> security-report.md
+          echo "" >> security-report.md
+          if [ -s outdated.json ]; then
+            echo "⚠️  Outdated packages detected" >> security-report.md
+            cat outdated.json >> security-report.md
+          else
+            echo "✅ All packages are up to date" >> security-report.md
+          fi
+          echo "" >> security-report.md
+          echo "## Recommendations" >> security-report.md
+          echo "- Review and update outdated packages" >> security-report.md
+          echo "- Run security scans regularly" >> security-report.md
+          echo "- Monitor for new vulnerabilities" >> security-report.md
+      
+      - name: Commit security updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add requirements.txt security-report.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "security: update dependencies and security report"
+            git push
+          fi
+
+  docker-security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: docker-template-manager:security-test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Run Trivy on Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'docker-template-manager:security-test'
+          format: 'table'
+          output: 'trivy-image.txt'
+      
+      - name: Check Docker image security
+        run: |
+          echo "🔍 Docker image security scan:"
+          cat trivy-image.txt
+          
+          # Check for high/critical vulnerabilities
+          if grep -q "HIGH\|CRITICAL" trivy-image.txt; then
+            echo "⚠️  High/Critical vulnerabilities in Docker image"
+            exit 1
+          else
+            echo "✅ No high/critical vulnerabilities in Docker image"
+          fi
+      
+      - name: Clean up test image
+        run: |
+          docker rmi docker-template-manager:security-test || true
