@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Template Manager - Professional Docker Management for Unraid</title>
+    <meta name="description" content="Professional Docker template management for Unraid with modern web interface. Clean up unused templates, manage containers, create backups, and organize your Docker ecosystem.">
+    <meta name="keywords" content="docker, unraid, template, management, containers, backup, home lab">
+    <meta name="author" content="Docker Template Manager">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://qballjos.github.io/docker-template-manager/">
+    <meta property="og:title" content="Docker Template Manager - Professional Docker Management for Unraid">
+    <meta property="og:description" content="Professional Docker template management for Unraid with modern web interface. Clean up unused templates, manage containers, create backups, and organize your Docker ecosystem.">
+    <meta property="og:image" content="https://qballjos.github.io/docker-template-manager/assets/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://qballjos.github.io/docker-template-manager/">
+    <meta property="twitter:title" content="Docker Template Manager - Professional Docker Management for Unraid">
+    <meta property="twitter:description" content="Professional Docker template management for Unraid with modern web interface. Clean up unused templates, manage containers, create backups, and organize your Docker ecosystem.">
+    <meta property="twitter:image" content="https://qballjos.github.io/docker-template-manager/assets/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://qballjos.github.io/docker-template-manager/assets/favicon.png">
+    
+    <!-- Styles -->
+    <style>
+        :root {
+            --primary-color: #ff8c00;
+            --secondary-color: #2c3e50;
+            --accent-color: #3498db;
+            --text-color: #2c3e50;
+            --bg-color: #ffffff;
+            --card-bg: #f8f9fa;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: white;
+            color: var(--primary-color);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background: var(--card-bg);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--secondary-color);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Screenshots */
+        .screenshots {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .screenshots h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--secondary-color);
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .screenshot {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot:hover {
+            transform: scale(1.02);
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Installation */
+        .installation {
+            padding: 5rem 0;
+            background: var(--card-bg);
+        }
+
+        .installation h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--secondary-color);
+        }
+
+        .install-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .install-method {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .install-method h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            padding-top: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>🐳 Docker Template Manager</h1>
+            <p>Professional Docker template management for Unraid with modern web interface</p>
+            
+            <div class="badges">
+                <span class="badge">🚀 Easy Installation</span>
+                <span class="badge">🔒 Secure</span>
+                <span class="badge">📱 Mobile Ready</span>
+                <span class="badge">🎨 Modern UI</span>
+            </div>
+            
+            <div class="cta-buttons">
+                <a href="https://github.com/qballjos/docker-template-manager" class="btn">View on GitHub</a>
+                <a href="#installation" class="btn btn-secondary">Get Started</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="container">
+            <h2>✨ Why Docker Template Manager?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧹</div>
+                    <h3>Clean Up Clutter</h3>
+                    <p>Identify and remove unused Docker templates automatically. Keep your Docker ecosystem clean and organized.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Professional Dashboard</h3>
+                    <p>Get insights into your Docker environment at a glance with real-time statistics and metrics.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Container Management</h3>
+                    <p>Start, stop, and restart containers with ease. Bulk operations for efficient management.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Backup & Restore</h3>
+                    <p>Create and manage backups of your templates and containers. Never lose your configuration again.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Modern UI</h3>
+                    <p>Professional interface with dark/light theme support. Beautiful, responsive design for all devices.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure</h3>
+                    <p>API key authentication and secure file operations. Your data is protected with enterprise-grade security.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots -->
+    <section class="screenshots">
+        <div class="container">
+            <h2>📸 Screenshots</h2>
+            <div class="screenshot-grid">
+                <div class="screenshot">
+                    <img src="https://via.placeholder.com/600x400/ff8c00/ffffff?text=Dashboard+View" alt="Dashboard View">
+                </div>
+                <div class="screenshot">
+                    <img src="https://via.placeholder.com/600x400/3498db/ffffff?text=Templates+Management" alt="Templates Management">
+                </div>
+                <div class="screenshot">
+                    <img src="https://via.placeholder.com/600x400/2ecc71/ffffff?text=Container+Controls" alt="Container Controls">
+                </div>
+                <div class="screenshot">
+                    <img src="https://via.placeholder.com/600x400/e74c3c/ffffff?text=Backup+System" alt="Backup System">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation -->
+    <section class="installation" id="installation">
+        <div class="container">
+            <h2>🚀 Quick Installation</h2>
+            <div class="install-methods">
+                <div class="install-method">
+                    <h3>📦 Unraid Community Applications</h3>
+                    <p>Easiest way to install Docker Template Manager on Unraid:</p>
+                    <ol>
+                        <li>Go to <strong>Apps</strong> → <strong>Community Applications</strong></li>
+                        <li>Search for <strong>"Docker Template Manager"</strong></li>
+                        <li>Click <strong>Install</strong> → Leave default settings</li>
+                        <li>Set your API Key (or leave empty for auto-generate)</li>
+                        <li>Click <strong>Apply</strong> → Done! 🎉</li>
+                    </ol>
+                </div>
+                
+                <div class="install-method">
+                    <h3>🐳 Docker Compose</h3>
+                    <p>For advanced users or non-Unraid systems:</p>
+                    <div class="code-block">version: '3.8'
+services:
+  docker-template-manager:
+    image: qballjos/docker-template-manager:latest
+    container_name: docker-template-manager
+    ports:
+      - "8889:8889"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /path/to/templates:/templates:rw
+      - /path/to/backups:/backups:rw
+    environment:
+      - API_KEY=your-secure-api-key
+    restart: unless-stopped</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>📚 Documentation</h3>
+                    <a href="https://github.com/qballjos/docker-template-manager#readme">README</a>
+                    <a href="https://github.com/qballjos/docker-template-manager/blob/main/CONTRIBUTING.md">Contributing</a>
+                    <a href="https://github.com/qballjos/docker-template-manager/blob/main/docs/api.md">API Documentation</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>🤝 Community</h3>
+                    <a href="https://github.com/qballjos/docker-template-manager/issues">Report Bug</a>
+                    <a href="https://github.com/qballjos/docker-template-manager/issues">Request Feature</a>
+                    <a href="https://github.com/qballjos/docker-template-manager/discussions">Discussions</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>🔗 Links</h3>
+                    <a href="https://github.com/qballjos/docker-template-manager">GitHub Repository</a>
+                    <a href="https://hub.docker.com/r/qballjos/docker-template-manager">Docker Hub</a>
+                    <a href="https://github.com/qballjos/docker-template-manager/releases">Releases</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Docker Template Manager. Made with ❤️ for the Unraid community.</p>
+                <p>Licensed under <a href="https://github.com/qballjos/docker-template-manager/blob/main/LICENSE" style="color: var(--primary-color);">MIT License</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

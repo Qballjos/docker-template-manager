@@ -1,11 +1,52 @@
 # Docker Template Manager for Unraid
 
-A comprehensive Docker template management system for Unraid with a modern web interface. Clean up unused templates, manage containers, create backups, and organize your Docker ecosystem with professional tools.
+<div align="center">
 
+![Docker Template Manager](https://img.shields.io/badge/Docker%20Template%20Manager-v1.4.0-blue.svg)
 ![Unraid](https://img.shields.io/badge/Unraid-Compatible-orange.svg)
-![Version](https://img.shields.io/badge/Version-1.4.0-blue.svg)
 ![Security](https://img.shields.io/badge/Security-Hardened-green.svg)
-![Features](https://img.shields.io/badge/Features-Professional%20UI%20%7C%20Sortable%20Tables%20%7C%20Container%20Controls-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+**Professional Docker template management for Unraid with modern web interface**
+
+[🚀 Quick Start](#-installation) • [📖 Documentation](#-features) • [🐛 Report Bug](https://github.com/qballjos/docker-template-manager/issues) • [💡 Request Feature](https://github.com/qballjos/docker-template-manager/issues)
+
+</div>
+
+---
+
+## 🎯 About
+
+**Docker Template Manager** is a professional-grade web application designed specifically for Unraid users who want to efficiently manage their Docker templates, containers, and backups. Built with modern web technologies and following professional development standards, it provides a clean, intuitive interface for organizing your Docker ecosystem.
+
+### ✨ Why Docker Template Manager?
+
+- **🧹 Clean Up Clutter** - Identify and remove unused Docker templates automatically
+- **📊 Professional Dashboard** - Get insights into your Docker environment at a glance  
+- **🔄 Container Management** - Start, stop, and restart containers with ease
+- **💾 Backup & Restore** - Create and manage backups of your templates and containers
+- **🎨 Modern UI** - Professional interface with dark/light theme support
+- **📱 Mobile Responsive** - Works perfectly on desktop, tablet, and mobile devices
+- **🔒 Secure** - API key authentication and secure file operations
+- **⚡ Fast** - Optimized for performance with sortable tables and bulk operations
+
+### 🎯 Perfect For
+
+- **Unraid Power Users** who manage many Docker containers
+- **Home Lab Enthusiasts** who want to organize their Docker ecosystem
+- **System Administrators** who need professional Docker management tools
+- **Anyone** who wants to clean up and organize their Docker templates
+
+### 🏆 Professional Features
+
+- **📈 Real-time Statistics** - Dashboard with container and template metrics
+- **🔍 Advanced Search & Filtering** - Find templates and containers quickly
+- **📋 Sortable Tables** - Organize data by name, size, date, or status
+- **🎛️ Bulk Operations** - Select multiple items for batch actions
+- **📝 Hybrid Template Editor** - Form-based editing with raw XML fallback
+- **🔄 Migration Guides** - Built-in documentation for common scenarios
+- **🌙 Theme Support** - Dark and light modes with system preference detection
+- **📱 Mobile Optimized** - Touch-friendly interface for all devices
 
 ---
 
