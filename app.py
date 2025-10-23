@@ -721,7 +721,7 @@ def cleanup_templates():
 
 
 @app.route('/api/containers', methods=['GET'])
-# @require_api_key  # Temporarily disabled for debugging
+@require_api_key
 def list_containers():
     """List all containers"""
     containers = ContainerManager.get_all_containers()
