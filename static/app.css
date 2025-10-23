@@ -1753,3 +1753,46 @@ tr:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Lineicons styling */
+.lni {
+  font-size: 16px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.nav-icon.lni {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.theme-icon.lni {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+/* Button icons */
+.btn-small i.lni,
+.btn-primary i.lni,
+.btn-secondary i.lni,
+.btn-danger i.lni,
+.btn-success i.lni {
+  font-size: 14px;
+}
+
+/* Top bar button icons */
+.top-bar-button i.lni {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+/* Migration guide icons */
+.migration-card h4 i.lni {
+  font-size: 16px;
+  color: var(--unraid-orange);
+}
+
+.migration-card h3 i.lni {
+  font-size: 18px;
+  color: var(--unraid-orange);
+}

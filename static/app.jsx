@@ -655,28 +655,28 @@ function App() {
           className: `nav-item ${activeTab === 'dashboard' ? 'active' : ''}`,
           onClick: () => { setActiveTab('dashboard'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '📊'),
+          React.createElement('i', { className: 'lni lni-dashboard nav-icon' }),
           React.createElement('span', null, 'Dashboard')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'templates' ? 'active' : ''}`,
           onClick: () => { setActiveTab('templates'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '📄'),
+          React.createElement('i', { className: 'lni lni-files nav-icon' }),
           React.createElement('span', null, 'Templates')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'containers' ? 'active' : ''}`,
           onClick: () => { setActiveTab('containers'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '📦'),
+          React.createElement('i', { className: 'lni lni-docker nav-icon' }),
           React.createElement('span', null, 'Containers')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'backups' ? 'active' : ''}`,
           onClick: () => { setActiveTab('backups'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '💾'),
+          React.createElement('i', { className: 'lni lni-cloud-upload nav-icon' }),
           React.createElement('span', null, 'Backups')
         )
       ),
@@ -684,7 +684,7 @@ function App() {
       React.createElement('div', { className: 'sidebar-footer' },
         React.createElement('div', { className: 'theme-toggle', onClick: toggleTheme },
           React.createElement('span', { className: 'theme-label' },
-            React.createElement('span', null, theme === 'dark' ? '🌙' : '☀️'),
+            React.createElement('i', { className: `lni ${theme === 'dark' ? 'lni-moon' : 'lni-sun'} theme-icon` }),
             React.createElement('span', null, theme === 'dark' ? 'Dark' : 'Light')
           ),
           React.createElement('div', { className: `theme-switch ${theme === 'dark' ? 'active' : ''}` },
@@ -704,7 +704,10 @@ function App() {
             cursor: 'pointer',
             fontSize: '13px'
           }
-        }, '🔓 Logout')
+        }, 
+          React.createElement('i', { className: 'lni lni-exit' }),
+          React.createElement('span', { style: { marginLeft: '6px' } }, 'Logout')
+        )
       )
     ),
     // Mobile Overlay
@@ -728,12 +731,18 @@ function App() {
             className: 'top-bar-button primary',
             onClick: () => handleCleanupTemplates(true),
             disabled: loading
-          }, '🧹 Cleanup'),
+          }, 
+            React.createElement('i', { className: 'lni lni-broom' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Cleanup')
+          ),
           activeTab === 'backups' && React.createElement('button', {
             className: 'top-bar-button primary',
             onClick: handleCreateBackup,
             disabled: loading
-          }, '💾 Create Backup')
+          }, 
+            React.createElement('i', { className: 'lni lni-cloud-upload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create Backup')
+          )
         )
       ),
       // Content Wrapper
@@ -773,17 +782,27 @@ function App() {
         React.createElement('div', { className: 'quick-actions' },
           React.createElement('h3', null, 'Quick Actions'),
           React.createElement('button', { onClick: () => handleCreateBackup(), disabled: loading }, 
-            '💾 Create Backup'),
+            React.createElement('i', { className: 'lni lni-cloud-upload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create Backup')
+          ),
           React.createElement('button', { onClick: () => fetchStats() }, 
-            '🔄 Refresh Stats')
+            React.createElement('i', { className: 'lni lni-reload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh Stats')
+          )
         ),
         // Migration Guide Section
         React.createElement('div', { className: 'migration-guide-section' },
-          React.createElement('h3', null, '📚 Docker Migration Guides'),
+          React.createElement('h3', null, 
+            React.createElement('i', { className: 'lni lni-book', style: { marginRight: '8px' } }),
+            'Docker Migration Guides'
+          ),
           React.createElement('div', { className: 'migration-cards' },
             // vDisk to Folder Guide
             React.createElement('div', { className: 'migration-card' },
-              React.createElement('h4', null, '🔄 vDisk → Folder Migration'),
+              React.createElement('h4', null, 
+                React.createElement('i', { className: 'lni lni-arrow-right', style: { marginRight: '8px' } }),
+                'vDisk → Folder Migration'
+              ),
               React.createElement('p', { className: 'migration-desc' }, 'Convert your Docker containers from vdisk.img to folder-based storage'),
               React.createElement('div', { className: 'pros-cons' },
                 React.createElement('div', { className: 'pros' },
@@ -807,11 +826,17 @@ function App() {
               React.createElement('button', {
                 className: 'migration-button',
                 onClick: () => window.open('https://wiki.unraid.net/Docker_Migration#From_vDisk_to_Folder', '_blank')
-              }, '📖 View Guide')
+              }, 
+                React.createElement('i', { className: 'lni lni-book' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'View Guide')
+              )
             ),
             // Folder to vDisk Guide
             React.createElement('div', { className: 'migration-card' },
-              React.createElement('h4', null, '🔄 Folder → vDisk Migration'),
+              React.createElement('h4', null, 
+                React.createElement('i', { className: 'lni lni-arrow-left', style: { marginRight: '8px' } }),
+                'Folder → vDisk Migration'
+              ),
               React.createElement('p', { className: 'migration-desc' }, 'Convert your Docker containers from folder-based to vdisk.img storage'),
               React.createElement('div', { className: 'pros-cons' },
                 React.createElement('div', { className: 'pros' },
@@ -835,7 +860,10 @@ function App() {
               React.createElement('button', {
                 className: 'migration-button',
                 onClick: () => window.open('https://wiki.unraid.net/Docker_Migration#From_Folder_to_vDisk', '_blank')
-              }, '📖 View Guide')
+              }, 
+                React.createElement('i', { className: 'lni lni-book' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'View Guide')
+              )
             )
           ),
           React.createElement('div', { className: 'migration-note' },
@@ -850,10 +878,14 @@ function App() {
             selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
               React.createElement('span', null, `${selectedTemplates.length} selected`),
               React.createElement('button', { onClick: handleDeleteSelected, disabled: loading }, 
-                '🗑️ Delete Selected')
+                React.createElement('i', { className: 'lni lni-trash-can' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete Selected')
+              )
             ),
             React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
-              '🧹 Clean Up Unused')
+              React.createElement('i', { className: 'lni lni-broom' }),
+              React.createElement('span', { style: { marginLeft: '4px' } }, 'Clean Up Unused')
+            )
           )
         ),
         // Search and Filter Bar
@@ -952,22 +984,34 @@ function App() {
                       className: 'btn-small btn-primary',
                       onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
                       title: 'View/Edit template'
-                    }, '👁️ View'),
+                    }, 
+                      React.createElement('i', { className: 'lni lni-eye' }),
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'View')
+                    ),
                     React.createElement('button', {
                       className: 'btn-small btn-secondary',
                       onClick: (e) => { e.stopPropagation(); handleRenameTemplate(template.filename); },
                       title: 'Rename template'
-                    }, '✏️ Rename'),
+                    }, 
+                      React.createElement('i', { className: 'lni lni-pencil' }),
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Rename')
+                    ),
                     React.createElement('button', {
                       className: 'btn-small btn-secondary',
                       onClick: (e) => { e.stopPropagation(); handleCloneTemplate(template.filename); },
                       title: 'Clone template'
-                    }, '📋 Clone'),
+                    }, 
+                      React.createElement('i', { className: 'lni lni-files' }),
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Clone')
+                    ),
                     React.createElement('button', {
                       className: 'btn-small btn-danger',
                       onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
                       title: 'Delete template'
-                    }, '🗑️ Delete')
+                    }, 
+                      React.createElement('i', { className: 'lni lni-trash-can' }),
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                    )
                   ) : null
                 )
               ))
@@ -977,7 +1021,10 @@ function App() {
       ) : null,
       activeTab === 'containers' ? React.createElement('div', { className: 'containers' },
         React.createElement('div', { className: 'section-header' },
-          React.createElement('button', { onClick: fetchContainers }, '🔄 Refresh')
+          React.createElement('button', { onClick: fetchContainers }, 
+            React.createElement('i', { className: 'lni lni-reload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh')
+          )
         ),
         React.createElement('div', { className: 'table-container' },
           React.createElement('table', null,
@@ -1020,19 +1067,28 @@ function App() {
                         onClick: () => handleContainerAction(container.name, 'stop'),
                         disabled: loading,
                         title: 'Stop container'
-                      }, '■ Stop'),
+                      }, 
+                        React.createElement('i', { className: 'lni lni-stop' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop')
+                      ),
                       React.createElement('button', {
                         className: 'btn-small btn-secondary',
                         onClick: () => handleContainerAction(container.name, 'restart'),
                         disabled: loading,
                         title: 'Restart container'
-                      }, '↻ Restart')
+                      }, 
+                        React.createElement('i', { className: 'lni lni-reload' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart')
+                      )
                     ) : React.createElement('button', {
                       className: 'btn-small btn-success',
                       onClick: () => handleContainerAction(container.name, 'start'),
                       disabled: loading,
                       title: 'Start container'
-                    }, '▶ Start')
+                    }, 
+                      React.createElement('i', { className: 'lni lni-play' }),
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Start')
+                    )
                   )
                 )
               ))
@@ -1043,7 +1099,9 @@ function App() {
       activeTab === 'backups' ? React.createElement('div', { className: 'backups' },
         React.createElement('div', { className: 'section-header' },
           React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
-            '💾 Create New Backup')
+            React.createElement('i', { className: 'lni lni-cloud-upload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create New Backup')
+          )
         ),
         backups.length === 0 ? 
           React.createElement('div', { className: 'empty-state' },
@@ -1079,12 +1137,18 @@ function App() {
                   className: 'btn-primary',
                   onClick: () => handleRestoreBackup(backup.name),
                   disabled: loading
-                }, '🔄 Restore'),
+                }, 
+                  React.createElement('i', { className: 'lni lni-reload' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
+                ),
                 React.createElement('button', { 
                   className: 'btn-danger',
                   onClick: () => handleDeleteBackup(backup.name),
                   disabled: loading
-                }, '🗑️ Delete')
+                }, 
+                  React.createElement('i', { className: 'lni lni-trash-can' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                )
               )
             ))
           )
