@@ -233,7 +233,7 @@ function App() {
   const handleViewTemplate = async (filename) => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
+            const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -970,7 +970,7 @@ function App() {
             React.createElement('button', {
               className: 'close-button',
               onClick: handleCloseEditor
-            }, '✕')
+          }, '✕')
           )
         ),
         React.createElement('div', { className: 'modal-body' },
@@ -1694,8 +1694,8 @@ function App() {
                     }, 
                         React.createElement('i', { className: 'lni lni-trash-can' }),
                       React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
-                      )
                     )
+                  )
                   ),
                   React.createElement('td', null, ''), // Empty container cell
                   React.createElement('td', null, ''), // Empty size cell
@@ -2015,29 +2015,29 @@ function App() {
                   ),
                   selectedBackupRow === backup.name && React.createElement('tr', { className: 'actions-row' },
                     React.createElement('td', { colSpan: 6, className: 'actions-cell' },
-                      React.createElement('div', { className: 'backup-actions' },
-                        React.createElement('button', { 
+              React.createElement('div', { className: 'backup-actions' },
+                React.createElement('button', { 
                           className: 'btn btn-primary',
-                          onClick: () => handleRestoreBackup(backup.name),
+                  onClick: () => handleRestoreBackup(backup.name),
                           disabled: loading,
                           title: 'Restore backup'
-                        }, 
-                          React.createElement('i', { className: 'lni lni-reload' }),
-                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
-                        ),
-                        React.createElement('button', { 
+                }, 
+                  React.createElement('i', { className: 'lni lni-reload' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
+                ),
+                React.createElement('button', { 
                           className: 'btn btn-danger',
-                          onClick: () => handleDeleteBackup(backup.name),
+                  onClick: () => handleDeleteBackup(backup.name),
                           disabled: loading,
                           title: 'Delete backup'
-                        }, 
-                          React.createElement('i', { className: 'lni lni-trash-can' }),
-                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                }, 
+                  React.createElement('i', { className: 'lni lni-trash-can' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
                         )
                       )
-                    )
-                  )
-                ))
+                )
+              )
+            ))
           )
         )
           )

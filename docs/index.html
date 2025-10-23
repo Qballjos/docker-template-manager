@@ -23,7 +23,10 @@
     <meta property="twitter:image" content="https://qballjos.github.io/docker-template-manager/assets/og-image.png">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://qballjos.github.io/docker-template-manager/assets/favicon.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    
+    <!-- Lineicons CSS -->
+    <link rel="stylesheet" href="https://cdn.lineicons.com/4.0/lineicons.css">
     
     <!-- Styles -->
     <style>
@@ -93,6 +96,13 @@
             font-size: 0.9rem;
             font-weight: 600;
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .badge i {
+            font-size: 1rem;
         }
 
         .cta-buttons {
@@ -166,6 +176,11 @@
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .feature-icon i {
+            font-size: 3rem;
         }
 
         .feature-card h3 {
@@ -328,10 +343,10 @@
             <p>Professional Docker template management for Unraid with modern web interface</p>
             
             <div class="badges">
-                <span class="badge">🚀 Easy Installation</span>
-                <span class="badge">🔒 Secure</span>
-                <span class="badge">📱 Mobile Ready</span>
-                <span class="badge">🎨 Modern UI</span>
+                <span class="badge"><i class="lni lni-rocket"></i> Easy Installation</span>
+                <span class="badge"><i class="lni lni-lock"></i> Secure</span>
+                <span class="badge"><i class="lni lni-mobile"></i> Mobile Ready</span>
+                <span class="badge"><i class="lni lni-palette"></i> Modern UI</span>
             </div>
             
             <div class="cta-buttons">
@@ -347,37 +362,37 @@
             <h2>✨ Why Docker Template Manager?</h2>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">🧹</div>
+                    <div class="feature-icon"><i class="lni lni-broom"></i></div>
                     <h3>Clean Up Clutter</h3>
                     <p>Identify and remove unused Docker templates automatically. Keep your Docker ecosystem clean and organized.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">📊</div>
+                    <div class="feature-icon"><i class="lni lni-dashboard"></i></div>
                     <h3>Professional Dashboard</h3>
                     <p>Get insights into your Docker environment at a glance with real-time statistics and metrics.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
+                    <div class="feature-icon"><i class="lni lni-docker"></i></div>
                     <h3>Container Management</h3>
                     <p>Start, stop, and restart containers with ease. Bulk operations for efficient management.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">💾</div>
+                    <div class="feature-icon"><i class="lni lni-cloud-upload"></i></div>
                     <h3>Backup & Restore</h3>
                     <p>Create and manage backups of your templates and containers. Never lose your configuration again.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
+                    <div class="feature-icon"><i class="lni lni-palette"></i></div>
                     <h3>Modern UI</h3>
                     <p>Professional interface with dark/light theme support. Beautiful, responsive design for all devices.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
+                    <div class="feature-icon"><i class="lni lni-lock"></i></div>
                     <h3>Secure</h3>
                     <p>API key authentication and secure file operations. Your data is protected with enterprise-grade security.</p>
                 </div>
