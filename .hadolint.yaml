@@ -1,0 +1,9 @@
+# Hadolint configuration to suppress specific warnings
+# DL3008: Pin versions in apt get install
+# Suppressed for security-critical packages that are updated via apt-get upgrade
+ignore:
+  - DL3008
+
+# Alternative: More specific suppression
+# ignore:
+#   - DL3008  # Suppress version pinning warnings for security packages

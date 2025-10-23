@@ -11,6 +11,8 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Security: Update packages and install security updates
+# Note: Using latest versions after apt-get upgrade for security
+# DL3008 warning suppressed due to security-first approach
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \

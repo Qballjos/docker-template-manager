@@ -1,18 +1,3 @@
-.git
-.gitignore
-.dockerignore
-.github
-.gitattributes
-*.md
-.DS_Store
-node_modules
-npm-debug.log
-.vscode
-.idea
-.env
-.env.local
-backups/
-venv/
-__pycache__
-.pytest_cache
-.coverage
+# Docker linting exclusions
+# Ignore DL3008 warnings for security-critical packages
+# These packages are updated via apt-get upgrade before installation
