@@ -645,12 +645,8 @@ function App() {
           React.createElement('img', { 
             src: '/static/png/logo.png', 
             alt: 'Docker Template Manager',
-            style: { width: '32px', height: '32px' }
+            style: { width: '48px', height: '48px' }
           })
-        ),
-        React.createElement('div', { className: 'sidebar-title' },
-          React.createElement('h1', null, 'Template Manager'),
-          React.createElement('p', null, 'for Unraid')
         )
       ),
       // Sidebar Navigation
