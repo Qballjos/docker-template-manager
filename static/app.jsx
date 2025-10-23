@@ -1263,7 +1263,7 @@ function App() {
             )
           )
         )
-      ) : null,
+      ),
       activeTab === 'backups' && React.createElement('div', { className: 'backups' },
         React.createElement('div', { className: 'section-header' },
           React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
