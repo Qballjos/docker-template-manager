@@ -1,3 +1,6 @@
+// API Configuration
+const API_URL = window.location.origin;
+
 function App() {
   const [activeTab, setActiveTab] = React.useState('dashboard');
   const [stats, setStats] = React.useState(null);
