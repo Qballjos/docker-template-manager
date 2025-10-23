@@ -1,5 +1,5 @@
 # Use specific version for security
-FROM python:3.11.7-slim-bookworm
+FROM python:3.14.0-slim-bookworm
 
 # Security: Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
