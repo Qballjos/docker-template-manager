@@ -1,77 +1,3 @@
-const API_URL = window.location.origin;
-
-// Define PieChart component before using it
-const PieChart = ({ matched, unmatched }) => {
-  const total = matched + unmatched;
-  if (total === 0) return null;
-  
-  const matchedPercent = (matched / total) * 100;
-  const unmatchedPercent = (unmatched / total) * 100;
-  
-  // Calculate pie chart segments
-  const matchedAngle = (matched / total) * 360;
-  const unmatchedAngle = (unmatched / total) * 360;
-  
-  const getCoordinatesForPercent = (percent) => {
-    const x = Math.cos(2 * Math.PI * percent);
-    const y = Math.sin(2 * Math.PI * percent);
-    return [x, y];
-  };
-  
-  const matchedPath = () => {
-    const [startX, startY] = getCoordinatesForPercent(0);
-    const [endX, endY] = getCoordinatesForPercent(matched / total);
-    const largeArcFlag = matched / total > 0.5 ? 1 : 0;
-    
-    return [
-      `M 0 0`,
-      `L ${startX} ${startY}`,
-      `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
-      `Z`
-    ].join(' ');
-  };
-  
-  const unmatchedPath = () => {
-    const [startX, startY] = getCoordinatesForPercent(matched / total);
-    const [endX, endY] = getCoordinatesForPercent(1);
-    const largeArcFlag = unmatched / total > 0.5 ? 1 : 0;
-    
-    return [
-      `M 0 0`,
-      `L ${startX} ${startY}`,
-      `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
-      `Z`
-    ].join(' ');
-  };
-  
-  return React.createElement('div', { className: 'pie-chart-container' },
-    React.createElement('svg', { viewBox: '-1 -1 2 2', className: 'pie-chart' },
-      React.createElement('path', {
-        d: matchedPath(),
-        fill: '#5cb85c',
-        stroke: '#1b1b1b',
-        strokeWidth: '0.02'
-      }),
-      React.createElement('path', {
-        d: unmatchedPath(),
-        fill: '#f0ad4e',
-        stroke: '#1b1b1b',
-        strokeWidth: '0.02'
-      })
-    ),
-    React.createElement('div', { className: 'chart-legend' },
-      React.createElement('div', { className: 'legend-item' },
-        React.createElement('span', { className: 'legend-color', style: { background: '#5cb85c' } }),
-        React.createElement('span', null, `Matched: ${matched} (${matchedPercent.toFixed(1)}%)`)
-      ),
-      React.createElement('div', { className: 'legend-item' },
-        React.createElement('span', { className: 'legend-color', style: { background: '#f0ad4e' } }),
-        React.createElement('span', null, `Unused: ${unmatched} (${unmatchedPercent.toFixed(1)}%)`)
-      )
-    )
-  );
-};
-
 function App() {
   const [activeTab, setActiveTab] = React.useState('dashboard');
   const [stats, setStats] = React.useState(null);
@@ -587,7 +513,31 @@ function App() {
     return filtered;
   };
 
-  return React.createElement('div', { className: 'app-container' },
+  // Create base elements
+  const modals = [
+    showApiKeyPrompt && React.createElement('div', { key: 'api-modal', className: 'modal-overlay' },
+      React.createElement('div', { className: 'modal' },
+        React.createElement('h2', null, '🔑 API Key Required'),
+        React.createElement('p', null, 'Enter your API key to access Docker Template Manager.'),
+        React.createElement('p', { className: 'text-small text-muted' }, 
+          'Find your API key in Docker logs: Docker tab → Container icon → Logs'),
+        React.createElement('form', { onSubmit: handleApiKeySubmit },
+          React.createElement('input', {
+            type: 'password',
+            name: 'apikey',
+            placeholder: 'Enter API key',
+            autoFocus: true,
+            required: true,
+            style: { width: '100%', padding: '10px', marginBottom: '10px', fontSize: '14px' }
+          }),
+          React.createElement('button', { type: 'submit', className: 'btn-primary' }, 'Submit')
+        )
+      )
+    )
+  ].filter(Boolean);
+
+  // Main app structure
+  const container = React.createElement('div', { className: 'app-container' },
     // API Key Prompt Modal
     showApiKeyPrompt && React.createElement('div', { className: 'modal-overlay' },
       React.createElement('div', { className: 'modal' },
@@ -807,14 +757,6 @@ function App() {
             React.createElement('h3', null, 'Backups'),
             React.createElement('div', { className: 'stat-value' }, stats.total_backups)
           )
-        ),
-        // Pie Chart
-        stats.total_templates > 0 && React.createElement('div', { className: 'chart-section' },
-          React.createElement('h3', null, 'Template Status Overview'),
-          React.createElement(PieChart, {
-            matched: stats.matched_templates,
-            unmatched: stats.unmatched_templates
-          })
         ),
         stats.unmatched_templates > 0 && React.createElement('div', { className: 'alert alert-warning' },
           React.createElement('strong', null, `⚠️ ${stats.unmatched_templates} unused templates detected`),
@@ -1325,14 +1267,16 @@ function App() {
       // Footer
       React.createElement('footer', { className: 'footer' },
         React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
-      )
+      ),
+      // Mobile Menu Button
+      !showApiKeyPrompt && React.createElement('button', {
+        className: 'mobile-menu-button',
+        onClick: () => setMobileMenuOpen(!mobileMenuOpen)
+      }, mobileMenuOpen ? '✕' : '☰')
     )
-  ),
-    // Mobile Menu Button
-    !showApiKeyPrompt && React.createElement('button', {
-      className: 'mobile-menu-button',
-      onClick: () => setMobileMenuOpen(!mobileMenuOpen)
-    }, mobileMenuOpen ? '✕' : '☰')
   );
-}// Export for global access
+  return container;
+}
+
+// Export for global access
 window.App = App;

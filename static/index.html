@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#FF8C00" />
     <meta name="description" content="Docker Template Manager for Unraid - Manage your Docker templates with ease" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.lineicons.com; font-src 'self' https://cdnjs.cloudflare.com https://cdn.lineicons.com; img-src 'self' data:;" />
     <link rel="icon" type="image/png" href="/static/png/favicon.png" />
     <link rel="apple-touch-icon" href="/static/png/logo.png" />
     <title>Docker Template Manager</title>
@@ -22,8 +23,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- Your App Component (plain JavaScript, no JSX) -->
-    <script type="text/javascript" src="/static/app.jsx"></script>
+        <!-- Your App Component (plain JavaScript) -->
+    <script src="/static/app.js"></script>
     
     <!-- Mount React App -->
     <script>
