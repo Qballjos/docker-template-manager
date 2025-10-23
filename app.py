@@ -26,7 +26,7 @@ mimetypes.add_type('application/javascript', '.js')
 app = Flask(__name__)
 
 # Security: Configure CORS properly - restrict to specific origins
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8080,http://localhost:5173').split(',')
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8080,http://localhost:5173,http://192.168.2.82:8889').split(',')
 CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
 # Security: API Key authentication

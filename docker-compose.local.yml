@@ -1,0 +1,28 @@
+# Local Development Docker Compose
+# This version doesn't require Unraid-specific paths
+
+services:
+  docker-template-manager:
+    build: .
+    container_name: docker-template-manager-local
+    ports:
+      - "8889:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./local-data/templates:/app/templates:rw
+      - ./local-data/backups:/app/backups:rw
+      - ./local-data/config:/app/config:rw
+    environment:
+      - API_KEY=${API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8080,http://192.168.2.82:8889}
+      - FLASK_DEBUG=${FLASK_DEBUG:-false}
+      - TZ=${TZ:-Europe/Amsterdam}
+      - TEMPLATE_DIR=/app/templates
+      - BACKUP_DIR=/app/backups
+      - CONFIG_DIR=/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
