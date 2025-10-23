@@ -1,0 +1,181 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.4.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install
+      
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION_NUMBER=${VERSION#v}" >> $GITHUB_OUTPUT
+          echo "Released version: $VERSION"
+      
+      - name: Update version in files
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION_NUMBER }}"
+          
+          # Update package.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+          
+          # Update README.md version
+          sed -i "s/Current Version: \*\*.*\*\*/Current Version: **$VERSION**/" readme.md
+          
+          # Update app.py version
+          sed -i "s/__version__ = \".*\"/__version__ = \"$VERSION\"/" app.py
+          
+          # Update unraid template version
+          sed -i "s/<Version>.*<\/Version>/<Version>$VERSION<\/Version>/" unraid-template.xml
+          
+          echo "Updated version to $VERSION in all files"
+      
+      - name: Build Docker image
+        run: |
+          docker build -t qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }} .
+          docker build -t qballjos/docker-template-manager:latest .
+      
+      - name: Push Docker image
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
+          docker push qballjos/docker-template-manager:latest
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: Docker Template Manager ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## 🚀 What's New in ${{ steps.version.outputs.VERSION }}
+            
+            ### ✨ New Features
+            - Professional UI with theme toggle
+            - Sortable tables across all sections
+            - Hybrid template editor (form + XML)
+            - Bulk operations for templates, containers, and backups
+            - Migration guides integration
+            - Mobile responsive design
+            
+            ### 🔧 Improvements
+            - Standardized look and feel across all sections
+            - Enhanced container management
+            - Improved backup system
+            - Better error handling and user feedback
+            
+            ### 🐛 Bug Fixes
+            - Fixed template editor form data loading
+            - Resolved logo sizing issues
+            - Improved modal layouts
+            - Enhanced button consistency
+            
+            ## 📦 Installation
+            
+            ### Docker Compose
+            ```yaml
+            services:
+              docker-template-manager:
+                image: qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
+                container_name: docker-template-manager
+                ports:
+                  - "8889:8889"
+                volumes:
+                  - /var/run/docker.sock:/var/run/docker.sock:ro
+                  - /boot/config/plugins/dockerMan/templates-user:/templates:rw
+                  - /mnt/user/appdata/docker-template-manager/backups:/backups:rw
+                  - /mnt/user/appdata/docker-template-manager/config:/config:rw
+                environment:
+                  - API_KEY=your-secure-api-key
+                  - TZ=Europe/Amsterdam
+                restart: unless-stopped
+            ```
+            
+            ### Docker Run
+            ```bash
+            docker run -d \
+              --name docker-template-manager \
+              -p 8889:8889 \
+              -v /var/run/docker.sock:/var/run/docker.sock:ro \
+              -v /boot/config/plugins/dockerMan/templates-user:/templates:rw \
+              -v /mnt/user/appdata/docker-template-manager/backups:/backups:rw \
+              -v /mnt/user/appdata/docker-template-manager/config:/config:rw \
+              -e API_KEY=your-secure-api-key \
+              -e TZ=Europe/Amsterdam \
+              --restart unless-stopped \
+              qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
+            ```
+            
+            ## 🔄 Update Instructions
+            
+            To update from a previous version:
+            1. Stop the current container: `docker stop docker-template-manager`
+            2. Remove the old container: `docker rm docker-template-manager`
+            3. Pull the new image: `docker pull qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}`
+            4. Start with the new image using the commands above
+            
+            ## 📋 Changelog
+            
+            See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
+            
+            ## 🆘 Support
+            
+            - 📖 [Documentation](https://github.com/qballjos/docker-template-manager#readme)
+            - 🐛 [Report Issues](https://github.com/qballjos/docker-template-manager/issues)
+            - 💬 [Discussions](https://github.com/qballjos/docker-template-manager/discussions)
+          files: |
+            README.md
+            CHANGELOG.md
+            unraid-template.xml
+            docker-compose.yml
+            docker-compose.local.yml
+          draft: false
+          prerelease: false
+      
+      - name: Update version in repository
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "chore: update version to ${{ steps.version.outputs.VERSION_NUMBER }}"
+          git push

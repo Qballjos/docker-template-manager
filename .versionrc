@@ -1,0 +1,80 @@
+{
+  "types": {
+    "feat": {
+      "section": "✨ Features",
+      "hidden": false
+    },
+    "fix": {
+      "section": "🐛 Bug Fixes", 
+      "hidden": false
+    },
+    "perf": {
+      "section": "⚡ Performance Improvements",
+      "hidden": false
+    },
+    "refactor": {
+      "section": "🔧 Refactoring",
+      "hidden": false
+    },
+    "docs": {
+      "section": "📚 Documentation",
+      "hidden": false
+    },
+    "style": {
+      "section": "🎨 Code Style",
+      "hidden": true
+    },
+    "test": {
+      "section": "🧪 Tests",
+      "hidden": false
+    },
+    "build": {
+      "section": "🏗️ Build System",
+      "hidden": false
+    },
+    "ci": {
+      "section": "🔄 CI/CD",
+      "hidden": false
+    },
+    "chore": {
+      "section": "🔧 Maintenance",
+      "hidden": true
+    },
+    "revert": {
+      "section": "⏪ Reverts",
+      "hidden": false
+    }
+  },
+  "commitUrlFormat": "https://github.com/qballjos/docker-template-manager/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/qballjos/docker-template-manager/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/qballjos/docker-template-manager/issues/{{id}}",
+  "userUrlFormat": "https://github.com/{{user}}",
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}}",
+  "bumpFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    },
+    {
+      "filename": "app.py",
+      "type": "python",
+      "updater": "version-updater.js"
+    },
+    {
+      "filename": "readme.md",
+      "type": "markdown",
+      "updater": "version-updater.js"
+    },
+    {
+      "filename": "unraid-template.xml",
+      "type": "xml",
+      "updater": "version-updater.js"
+    }
+  ],
+  "packageFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    }
+  ]
+}

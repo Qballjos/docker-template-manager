@@ -41,6 +41,9 @@ function App() {
   const [theme, setTheme] = React.useState(localStorage.getItem('theme') || 'dark');
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [selectedRow, setSelectedRow] = React.useState(null);
+  const [version, setVersion] = React.useState(null);
+  const [updateInfo, setUpdateInfo] = React.useState(null);
+  const [checkingUpdates, setCheckingUpdates] = React.useState(false);
 
   // Apply theme on mount and change
   React.useEffect(() => {
@@ -98,6 +101,11 @@ function App() {
     }
   }, [apiKey, showApiKeyPrompt]);
 
+  // Fetch version on mount
+  React.useEffect(() => {
+    fetchVersion();
+  }, []);
+
   const fetchStats = async () => {
     try {
       const response = await fetchWithAuth(`${API_URL}/api/stats`);
@@ -138,6 +146,28 @@ function App() {
     } catch (error) {
       console.error('Error fetching backups:', error);
     }
+  };
+
+  const fetchVersion = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/version`);
+      const data = await response.json();
+      setVersion(data);
+    } catch (error) {
+      console.error('Error fetching version:', error);
+    }
+  };
+
+  const checkForUpdates = async () => {
+    setCheckingUpdates(true);
+    try {
+      const response = await fetch(`${API_URL}/api/check-updates`);
+      const data = await response.json();
+      setUpdateInfo(data);
+    } catch (error) {
+      console.error('Error checking for updates:', error);
+    }
+    setCheckingUpdates(false);
   };
 
   const handleDeleteTemplate = async (filename) => {
@@ -2014,10 +2044,41 @@ function App() {
       ) : null
       ),
     // Close content-wrapper
-      React.createElement('footer', { className: 'footer' },
-        React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
-    )
-    // Close main-content
+      ),
+      // Footer
+      !showApiKeyPrompt && React.createElement('footer', { className: 'app-footer' },
+        React.createElement('div', { className: 'footer-content' },
+          React.createElement('div', { className: 'footer-left' },
+            React.createElement('span', { className: 'footer-text' }, 
+              'Docker Template Manager v', version?.version || 'Loading...'
+            )
+          ),
+          React.createElement('div', { className: 'footer-center' },
+            updateInfo?.update_available && React.createElement('div', { className: 'update-notification' },
+              React.createElement('i', { className: 'lni lni-arrow-up' }),
+              React.createElement('span', null, 'Update Available: v', updateInfo.latest_version),
+              React.createElement('button', {
+                className: 'btn btn-sm btn-primary',
+                onClick: () => window.open(updateInfo.release_url, '_blank')
+              }, 'View Release')
+            )
+          ),
+          React.createElement('div', { className: 'footer-right' },
+            React.createElement('button', {
+              className: 'btn btn-sm btn-secondary',
+              onClick: checkForUpdates,
+              disabled: checkingUpdates,
+              title: 'Check for updates'
+            },
+              checkingUpdates ? 
+                React.createElement('i', { className: 'lni lni-spinner-arrow' }) :
+                React.createElement('i', { className: 'lni lni-reload' }),
+              React.createElement('span', { style: { marginLeft: '4px' } }, 
+                checkingUpdates ? 'Checking...' : 'Check Updates'
+              )
+            )
+          )
+        )
       ),
       // Mobile Menu Button
       !showApiKeyPrompt && React.createElement('button', {

@@ -4,6 +4,10 @@ Docker Template Manager - Backend API
 Flask application for managing Unraid Docker templates
 """
 
+# Version information
+__version__ = "1.4.0"
+__version_info__ = (1, 4, 0)
+
 from flask import send_from_directory
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
@@ -337,6 +341,56 @@ def health_check():
         'template_dir': template_dir_exists,
         'timestamp': datetime.now().isoformat()
     })
+
+@app.route('/api/version', methods=['GET'])
+def get_version():
+    """Get current version information"""
+    return jsonify({
+        'version': __version__,
+        'version_info': __version_info__,
+        'build_date': datetime.now().isoformat()
+    })
+
+@app.route('/api/check-updates', methods=['GET'])
+def check_updates():
+    """Check for available updates"""
+    try:
+        # Get latest release from GitHub API
+        response = requests.get(
+            'https://api.github.com/repos/qballjos/docker-template-manager/releases/latest',
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            latest_release = response.json()
+            latest_version = latest_release['tag_name'].lstrip('v')
+            current_version = __version__
+            
+            # Simple version comparison (assuming semantic versioning)
+            latest_parts = [int(x) for x in latest_version.split('.')]
+            current_parts = [int(x) for x in current_version.split('.')]
+            
+            is_update_available = latest_parts > current_parts
+            
+            return jsonify({
+                'current_version': current_version,
+                'latest_version': latest_version,
+                'update_available': is_update_available,
+                'release_url': latest_release['html_url'],
+                'release_notes': latest_release.get('body', ''),
+                'published_at': latest_release['published_at']
+            })
+        else:
+            return jsonify({
+                'error': 'Failed to check for updates',
+                'current_version': __version__
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'error': f'Error checking for updates: {str(e)}',
+            'current_version': __version__
+        }), 500
 
 
 @app.route('/api/stats', methods=['GET'])
