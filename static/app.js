@@ -724,11 +724,25 @@ function App() {
           )
         ),
         React.createElement('div', { className: 'top-bar-actions' },
-          activeTab === 'templates' && React.createElement('button', {
+          activeTab === 'templates' && selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
+            React.createElement('span', { className: 'selection-count' }, `${selectedTemplates.length} selected`),
+            React.createElement('button', {
+              className: 'top-bar-button danger',
+              onClick: handleDeleteSelected,
+              disabled: loading
+            }, 
+              React.createElement('i', { className: 'lni lni-trash-can' }),
+              React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete Selected')
+            )
+          ),
+          activeTab === 'templates' && selectedTemplates.length === 0 && React.createElement('button', {
             className: 'top-bar-button primary',
             onClick: () => handleCleanupTemplates(true),
             disabled: loading
-          }, '🧹 Cleanup'),
+          }, 
+            React.createElement('i', { className: 'lni lni-broom' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Cleanup')
+          ),
           activeTab === 'backups' && React.createElement('button', {
             className: 'top-bar-button primary',
             onClick: handleCreateBackup,
@@ -864,17 +878,7 @@ function App() {
         )
       ) : null,
       activeTab === 'templates' ? React.createElement('div', { className: 'templates' },
-        React.createElement('div', { className: 'section-header' },
-          React.createElement('div', { className: 'actions' },
-            selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
-              React.createElement('span', null, `${selectedTemplates.length} selected`),
-              React.createElement('button', { onClick: handleDeleteSelected, disabled: loading }, 
-                '🗑️ Delete Selected')
-            ),
-            React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
-              '🧹 Clean Up Unused')
-          )
-        ),
+        // No section header - actions moved to top bar
         // Search and Filter Bar
         React.createElement('div', { className: 'filter-bar' },
           React.createElement('div', { className: 'search-box' },

@@ -1811,3 +1811,23 @@ tr:hover {
   width: auto;
   max-width: 200px;
 }
+
+/* Selection count styling */
+.selection-count {
+  color: var(--unraid-orange);
+  font-weight: 600;
+  margin-right: 12px;
+  font-size: 14px;
+}
+
+/* Danger button styling */
+.top-bar-button.danger {
+  background-color: var(--unraid-danger);
+  border-color: var(--unraid-danger);
+  color: white;
+}
+
+.top-bar-button.danger:hover {
+  background-color: var(--unraid-danger-dark);
+  border-color: var(--unraid-danger-dark);
+}
