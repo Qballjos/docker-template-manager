@@ -792,9 +792,7 @@ function App() {
           })
         ),
         stats.unmatched_templates > 0 && React.createElement('div', { className: 'alert alert-warning' },
-          React.createElement('strong', null, `⚠️ ${stats.unmatched_templates} unused templates detected`),
-          React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
-            'Clean Up Unused Templates')
+          React.createElement('strong', null, `⚠️ ${stats.unmatched_templates} unused templates detected`)
         ),
         React.createElement('div', { className: 'quick-actions' },
           React.createElement('h3', null, 'Quick Actions'),
@@ -943,55 +941,73 @@ function App() {
               )
             ),
             React.createElement('tbody', null,
-              getFilteredAndSortedTemplates().map(template => React.createElement('tr', { 
-                key: template.filename, 
-                className: `${template.matched ? '' : 'unused'} ${selectedRow === template.filename ? 'selected-row' : ''}`,
-                onClick: () => setSelectedRow(selectedRow === template.filename ? null : template.filename),
-                style: { cursor: 'pointer' }
-              },
-                React.createElement('td', { className: 'checkbox-cell' },
-                  React.createElement('input', {
-                    type: 'checkbox',
-                    checked: selectedTemplates.includes(template.filename),
-                    onChange: (e) => { e.stopPropagation(); toggleTemplateSelection(template.filename); }
-                  })
+              getFilteredAndSortedTemplates().map(template => React.createElement(React.Fragment, { key: template.filename },
+                // Main template row
+                React.createElement('tr', { 
+                  className: `${template.matched ? '' : 'unused'} ${selectedRow === template.filename ? 'selected-row' : ''}`,
+                  onClick: () => setSelectedRow(selectedRow === template.filename ? null : template.filename),
+                  style: { cursor: 'pointer' }
+                },
+                  React.createElement('td', { className: 'checkbox-cell' },
+                    React.createElement('input', {
+                      type: 'checkbox',
+                      checked: selectedTemplates.includes(template.filename),
+                      onChange: (e) => { e.stopPropagation(); toggleTemplateSelection(template.filename); }
+                    })
+                  ),
+                  React.createElement('td', null,
+                    template.matched ? 
+                      React.createElement('span', { className: 'status-badge status-matched' }, '✓ Matched') :
+                      React.createElement('span', { className: 'status-badge status-unused' }, '✗ Unused')
+                  ),
+                  React.createElement('td', null, React.createElement('strong', null, template.filename)),
+                  React.createElement('td', null,
+                    template.container ? 
+                      React.createElement('span', { className: 'container-name' }, template.container.name) :
+                      React.createElement('span', { className: 'text-muted' }, '-')
+                  ),
+                  React.createElement('td', null, formatBytes(template.size)),
+                  React.createElement('td', null, formatDate(template.modified)),
+                  React.createElement('td', null, '') // Empty actions column
                 ),
-                React.createElement('td', null,
-                  template.matched ? 
-                    React.createElement('span', { className: 'status-badge status-matched' }, '✓ Matched') :
-                    React.createElement('span', { className: 'status-badge status-unused' }, '✗ Unused')
-                ),
-                React.createElement('td', null, React.createElement('strong', null, template.filename)),
-                React.createElement('td', null,
-                  template.container ? 
-                    React.createElement('span', { className: 'container-name' }, template.container.name) :
-                    React.createElement('span', { className: 'text-muted' }, '-')
-                ),
-                React.createElement('td', null, formatBytes(template.size)),
-                React.createElement('td', null, formatDate(template.modified)),
-                React.createElement('td', null,
-                  selectedRow === template.filename ? React.createElement('div', { className: 'action-buttons' },
-                    React.createElement('button', { 
-                      className: 'btn-small btn-primary',
-                      onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
-                      title: 'View/Edit template'
-                    }, '👁️ View'),
-                    React.createElement('button', {
-                      className: 'btn-small btn-secondary',
-                      onClick: (e) => { e.stopPropagation(); handleRenameTemplate(template.filename); },
-                      title: 'Rename template'
-                    }, '✏️ Rename'),
-                    React.createElement('button', {
-                      className: 'btn-small btn-secondary',
-                      onClick: (e) => { e.stopPropagation(); handleCloneTemplate(template.filename); },
-                      title: 'Clone template'
-                    }, '📋 Clone'),
-                    React.createElement('button', {
-                      className: 'btn-small btn-danger',
-                      onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
-                      title: 'Delete template'
-                    }, '🗑️ Delete')
-                  ) : null
+                // Actions row (only when selected)
+                selectedRow === template.filename && React.createElement('tr', { className: 'actions-row' },
+                  React.createElement('td', { colSpan: 6, className: 'actions-cell' },
+                    React.createElement('div', { className: 'template-actions' },
+                      React.createElement('button', { 
+                        className: 'btn btn-primary',
+                        onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
+                        title: 'View/Edit template'
+                      }, 
+                        React.createElement('i', { className: 'lni lni-eye' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'View')
+                      ),
+                      React.createElement('button', {
+                        className: 'btn btn-secondary',
+                        onClick: (e) => { e.stopPropagation(); handleRenameTemplate(template.filename); },
+                        title: 'Rename template'
+                      }, 
+                        React.createElement('i', { className: 'lni lni-pencil' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Rename')
+                      ),
+                      React.createElement('button', {
+                        className: 'btn btn-secondary',
+                        onClick: (e) => { e.stopPropagation(); handleCloneTemplate(template.filename); },
+                        title: 'Clone template'
+                      }, 
+                        React.createElement('i', { className: 'lni lni-files' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Clone')
+                      ),
+                      React.createElement('button', {
+                        className: 'btn btn-danger',
+                        onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
+                        title: 'Delete template'
+                      }, 
+                        React.createElement('i', { className: 'lni lni-trash-can' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                      )
+                    )
+                  )
                 )
               ))
             )

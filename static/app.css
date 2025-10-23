@@ -1831,3 +1831,64 @@ tr:hover {
   background-color: var(--unraid-danger-dark);
   border-color: var(--unraid-danger-dark);
 }
+
+/* Template actions row styling */
+.actions-row {
+  background-color: var(--unraid-bg-tertiary);
+  border-top: 1px solid var(--unraid-border);
+}
+
+.actions-cell {
+  padding: 12px 16px;
+  background-color: var(--unraid-bg-tertiary);
+}
+
+.template-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.template-actions .btn {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.template-actions .btn-primary {
+  background-color: var(--unraid-orange);
+  border-color: var(--unraid-orange);
+  color: white;
+}
+
+.template-actions .btn-primary:hover {
+  background-color: var(--unraid-orange-hover);
+  border-color: var(--unraid-orange-hover);
+}
+
+.template-actions .btn-secondary {
+  background-color: var(--unraid-bg-secondary);
+  border-color: var(--unraid-border);
+  color: var(--unraid-text-primary);
+}
+
+.template-actions .btn-secondary:hover {
+  background-color: var(--unraid-bg-hover);
+  border-color: var(--unraid-border-light);
+}
+
+.template-actions .btn-danger {
+  background-color: var(--unraid-danger);
+  border-color: var(--unraid-danger);
+  color: white;
+}
+
+.template-actions .btn-danger:hover {
+  background-color: var(--unraid-danger-dark);
+  border-color: var(--unraid-danger-dark);
+}
