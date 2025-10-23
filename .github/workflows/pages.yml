@@ -27,12 +27,28 @@ jobs:
       
       - name: Build website
         run: |
+          # Debug: List available files
+          echo "📁 Available files:"
+          ls -la static/ || echo "static/ directory not found"
+          ls -la static/png/ || echo "static/png/ directory not found"
+          
           # Create assets directory
           mkdir -p docs/assets
           
-          # Copy favicon and logo
-          cp static/png/favicon.png docs/assets/favicon.png
-          cp static/png/logo.png docs/assets/logo.png
+          # Copy favicon and logo if they exist
+          if [ -f "static/png/favicon.png" ]; then
+            cp static/png/favicon.png docs/assets/favicon.png
+            echo "✅ Favicon copied"
+          else
+            echo "⚠️  Favicon not found, skipping"
+          fi
+          
+          if [ -f "static/png/logo.png" ]; then
+            cp static/png/logo.png docs/assets/logo.png
+            echo "✅ Logo copied"
+          else
+            echo "⚠️  Logo not found, skipping"
+          fi
           
           # Create a simple sitemap
           cat > docs/sitemap.xml << EOF
@@ -55,7 +71,12 @@ jobs:
           Sitemap: https://qballjos.github.io/docker-template-manager/sitemap.xml
           EOF
           
-          echo "Website built successfully"
+          # Verify docs directory structure
+          echo "📁 Final docs directory structure:"
+          ls -la docs/
+          echo "📄 docs/index.html exists: $([ -f docs/index.html ] && echo 'YES' || echo 'NO')"
+          
+          echo "✅ Website built successfully"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
