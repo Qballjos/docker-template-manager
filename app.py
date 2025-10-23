@@ -26,7 +26,7 @@ mimetypes.add_type('application/javascript', '.js')
 app = Flask(__name__)
 
 # Security: Configure CORS properly - restrict to specific origins
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8080,http://localhost:5173,http://192.168.2.82:8889').split(',')
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8080,http://localhost:5173').split(',')
 CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
 # Security: API Key authentication
@@ -42,7 +42,7 @@ def set_security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.lineicons.com; font-src 'self' https://cdnjs.cloudflare.com https://cdn.lineicons.com; connect-src 'self'"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src 'self'"
     return response
 
 # Security: Authentication decorator
