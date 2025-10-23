@@ -65,9 +65,16 @@ jobs:
           
           # Update app.py version
           sed -i "s/__version__ = \".*\"/__version__ = \"$VERSION\"/" app.py
+          sed -i "s/__version_info__ = ([0-9]+, [0-9]+, [0-9]+)/__version_info__ = (${VERSION//./, })/" app.py
           
-          # Update unraid template version
+          # Update unraid template version (multiple locations)
           sed -i "s/<Version>.*<\/Version>/<Version>$VERSION<\/Version>/" unraid-template.xml
+          sed -i -E "s/Docker Template Manager v[0-9]+\.[0-9]+\.[0-9]+/Docker Template Manager v$VERSION/" unraid-template.xml
+          sed -i -E "s/\*\*Version [0-9]+\.[0-9]+\.[0-9]+\*\*/**Version $VERSION**/" unraid-template.xml
+          
+          # Update HTML migration guides version
+          sed -i -E "s/<strong>Version:<\/strong> [0-9]+\.[0-9]+\.[0-9]+/<strong>Version:<\/strong> $VERSION/" static/folder-to-vdisk.html
+          sed -i -E "s/<strong>Version:<\/strong> [0-9]+\.[0-9]+\.[0-9]+/<strong>Version:<\/strong> $VERSION/" static/vdisk-to-folder.html
           
           echo "Updated version to $VERSION in all files"
       
@@ -186,8 +193,23 @@ jobs:
           draft: false
           prerelease: false
       
-      - name: Update version in repository
+      - name: Commit version updates to repository
         run: |
-          # Skip version updates for tag releases
-          # Version files are already updated in the repository
-          echo "Skipping version updates for tag release: ${{ steps.version.outputs.VERSION }}"
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Add all modified files
+          git add app.py package.json readme.md unraid-template.xml static/folder-to-vdisk.html static/vdisk-to-folder.html
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No version changes to commit"
+          else
+            # Commit the changes
+            git commit -m "chore: update version to ${{ steps.version.outputs.VERSION_NUMBER }} [skip ci]"
+            
+            # Push the changes
+            git push origin main
+            echo "Version updated to ${{ steps.version.outputs.VERSION_NUMBER }} and committed to repository"
+          fi
