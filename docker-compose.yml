@@ -16,7 +16,7 @@ services:
     build: .
     container_name: docker-template-manager
     ports:
-      - "8080:8080"
+      - "8889:8080"
     volumes:
       # Docker socket (read-only for security)
       - /var/run/docker.sock:/var/run/docker.sock:ro

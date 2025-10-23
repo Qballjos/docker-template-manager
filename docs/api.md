@@ -2,7 +2,7 @@
 
 Docker Template Manager REST API for Unraid.
 
-**Base URL:** `http://[YOUR-UNRAID-IP]:8080/api`
+**Base URL:** `http://[YOUR-UNRAID-IP]:8889/api`
 
 ---
 
@@ -300,19 +300,19 @@ POST /api/backups/{backup_name}/restore
 ### cURL
 ```bash
 # Get stats
-curl -H "X-API-Key: your-key" http://192.168.1.100:8080/api/stats
+curl -H "X-API-Key: your-key" http://192.168.1.100:8889/api/stats
 
 # Create backup
 curl -X POST -H "X-API-Key: your-key" \
   -H "Content-Type: application/json" \
   -d '{"name":"my-backup"}' \
-  http://192.168.1.100:8080/api/backups
+  http://192.168.1.100:8889/api/backups
 ```
 
 ### JavaScript
 ```javascript
 const API_KEY = 'your-key-here';
-const BASE_URL = 'http://192.168.1.100:8080/api';
+const BASE_URL = 'http://192.168.1.100:8889/api';
 
 // Get stats
 fetch(`${BASE_URL}/stats`, {
@@ -339,7 +339,7 @@ fetch(`${BASE_URL}/backups`, {
 import requests
 
 API_KEY = 'your-key-here'
-BASE_URL = 'http://192.168.1.100:8080/api'
+BASE_URL = 'http://192.168.1.100:8889/api'
 headers = {'X-API-Key': API_KEY}
 
 # Get stats

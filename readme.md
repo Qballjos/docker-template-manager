@@ -251,7 +251,7 @@ Your API key is required for security. You have two options:
 
 **Solution:**
 - Container running? (green dot in Docker tab)
-- Port 8080 free? (not used by another app)
+- Port 8889 free? (not used by another app)
 - API key correct?
 - Browser cache cleared?
 
