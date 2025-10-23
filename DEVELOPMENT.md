@@ -22,7 +22,7 @@ This guide will help you set up a development environment for Docker Template Ma
 2. **Start development environment:**
    ```bash
    # Using Docker (Recommended)
-   docker-compose -f docker-compose.local.yml up -d
+   docker-compose -f docker-compose.local.yml up -d --build
    
    # Or local development
    pip install -r requirements.txt
@@ -32,6 +32,22 @@ This guide will help you set up a development environment for Docker Template Ma
 3. **Access the application:**
    - Open http://localhost:8889
    - API Key: `docker-template-manager-2024-secure-key-12345` (default)
+
+## 🎨 Latest UI/UX Improvements (v1.4.3)
+
+### Enhanced User Experience
+- **🎨 Improved Form Styling** - Fixed white background with white text issues in form fields
+- **🎯 Better Button Colors** - Replaced bright orange selection buttons with subtle grey colors
+- **⌨️ Fixed Input Focus** - Form fields now maintain focus while typing (no more deselection)
+- **📜 Single Scrollbar** - Eliminated double scrollbars in the template editor
+- **👁️ Enhanced Readability** - Improved text contrast and visibility throughout the interface
+
+### Technical Improvements
+- **CSS Architecture** - Replaced inline styles with proper CSS classes using theme variables
+- **JavaScript Optimization** - Fixed variable name conflicts in form handlers
+- **Theme Consistency** - All UI elements now use consistent theme colors
+- **Accessibility** - Better color contrast and form field accessibility
+- **Performance** - Optimized form rendering and reduced unnecessary re-renders
 
 ## 📁 Project Structure
 
@@ -218,6 +234,141 @@ docker run --rm -p 8889:8889 docker-template-manager:test
 - [ ] **Theme toggle** - Dark/light mode switching
 - [ ] **Mobile responsiveness** - Test on different screen sizes
 - [ ] **API authentication** - Test with valid/invalid API keys
+
+## 🧪 Local Development Testing
+
+### Development Environment Setup
+
+```bash
+# Start local development with test templates
+docker-compose -f docker-compose.local.yml up -d --build
+
+# Access the application
+open http://localhost:8889
+```
+
+### Test Templates
+
+The local environment includes test templates for development:
+
+- **Location**: `/app/templates/` inside the container
+- **Test Template**: `test-template.xml` with sample configuration
+- **Purpose**: Testing template parsing, form population, and editor functionality
+
+### UI/UX Testing Checklist
+
+#### Form Functionality
+- [ ] **Input Focus** - Form fields maintain focus while typing (no deselection)
+- [ ] **Text Readability** - All text is clearly visible with proper contrast
+- [ ] **Form Styling** - No white background with white text issues
+- [ ] **Button Colors** - Selection buttons use subtle grey colors (not bright orange)
+- [ ] **Scrollbars** - Only one scrollbar appears in the editor (no double scrollbars)
+
+#### Template Editor Testing
+- [ ] **XML Parsing** - XML values load correctly into form fields
+- [ ] **Mode Switching** - Form ↔ XML mode switching works
+- [ ] **Save Functionality** - Template saving works correctly
+- [ ] **Form Population** - All fields populate with correct values
+- [ ] **Input Validation** - Form validation works as expected
+
+#### Theme Consistency
+- [ ] **Dark Mode** - All elements use proper dark theme colors
+- [ ] **Light Mode** - All elements use proper light theme colors
+- [ ] **Theme Toggle** - Switching between themes works correctly
+- [ ] **Color Contrast** - All text has sufficient contrast for readability
+
+### Development Commands
+
+```bash
+# Rebuild container with latest changes
+docker-compose -f docker-compose.local.yml up -d --build
+
+# View application logs
+docker-compose -f docker-compose.local.yml logs -f
+
+# Stop local development
+docker-compose -f docker-compose.local.yml down
+
+# Access container shell for debugging
+docker exec -it docker-template-manager-local /bin/bash
+
+# Check container status
+docker ps | grep docker-template-manager-local
+
+# View container logs
+docker logs docker-template-manager-local
+```
+
+### API Testing
+
+```bash
+# Test API endpoints
+curl -s http://localhost:8889/api/version
+curl -s http://localhost:8889/api/templates
+curl -s http://localhost:8889/api/containers
+
+# Test with authentication (replace with your API key)
+curl -H "X-API-Key: your-api-key" http://localhost:8889/api/templates
+```
+
+### File Operations Testing
+
+```bash
+# Copy test files to container
+docker cp local-file.txt docker-template-manager-local:/app/templates/
+
+# Copy files from container
+docker cp docker-template-manager-local:/app/templates/test-template.xml ./local-test.xml
+
+# Check container file system
+docker exec docker-template-manager-local find /app -name "*.xml"
+
+# Check file permissions
+docker exec docker-template-manager-local ls -la /app/templates/
+```
+
+### Troubleshooting Local Development
+
+#### Common Issues
+
+**Container Won't Start**
+```bash
+# Check if port is already in use
+lsof -i :8889
+
+# Kill process using the port
+sudo kill -9 $(lsof -t -i:8889)
+
+# Restart container
+docker-compose -f docker-compose.local.yml up -d
+```
+
+**Template Not Showing**
+```bash
+# Check template permissions
+docker exec docker-template-manager-local ls -la /app/templates/
+
+# Fix permissions if needed
+docker exec -u root docker-template-manager-local chown appuser:appuser /app/templates/test-template.xml
+```
+
+**API Key Issues**
+```bash
+# Check if API key is set
+docker exec docker-template-manager-local env | grep API_KEY
+
+# View application logs for API key
+docker logs docker-template-manager-local | grep -i "api"
+```
+
+**File Permission Issues**
+```bash
+# Check container user
+docker exec docker-template-manager-local whoami
+
+# Fix ownership
+docker exec -u root docker-template-manager-local chown -R appuser:appuser /app/templates/
+```
 
 ## 🚀 Building and Deployment
 

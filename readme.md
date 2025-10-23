@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Docker Template Manager](https://img.shields.io/badge/Docker%20Template%20Manager-v1.4.0-blue.svg)
+![Docker Template Manager](https://img.shields.io/badge/Docker%20Template%20Manager-v1.4.3-blue.svg)
 ![Unraid](https://img.shields.io/badge/Unraid-Compatible-orange.svg)
 ![Security](https://img.shields.io/badge/Security-Hardened-green.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
@@ -117,7 +117,44 @@ Docker Template Manager isn't just another Docker management tool - it's a **com
 
 **That's it!** 🎉
 
-### Method 2: Manual Docker Compose
+### Method 2: Local Development Setup
+
+For developers and contributors, you can run the application locally:
+
+```bash
+# Clone the repository
+git clone https://github.com/Qballjos/docker-template-manager.git
+cd docker-template-manager
+
+# Start local development environment
+docker-compose -f docker-compose.local.yml up -d --build
+
+# Access the application
+open http://localhost:8889
+```
+
+**Local Development Features:**
+- ✅ **Hot Reload**: Changes to CSS/JS are reflected immediately
+- ✅ **Test Templates**: Pre-configured test templates for development
+- ✅ **Debug Mode**: Enhanced logging and error reporting
+- ✅ **API Testing**: Full API access for testing features
+
+**Local Development Commands:**
+```bash
+# Rebuild container with latest changes
+docker-compose -f docker-compose.local.yml up -d --build
+
+# View application logs
+docker-compose -f docker-compose.local.yml logs -f
+
+# Stop local development
+docker-compose -f docker-compose.local.yml down
+
+# Access container shell for debugging
+docker exec -it docker-template-manager-local /bin/bash
+```
+
+### Method 4: Manual Docker Compose
 
 Create a `docker-compose.yml` file:
 
@@ -145,7 +182,7 @@ services:
     restart: unless-stopped
 ```
 
-### Method 3: Docker Run Command
+### Method 5: Docker Run Command
 
 ```bash
 docker run -d \
@@ -196,6 +233,22 @@ docker run -d \
 - **Automatic Naming** - Timestamped backup files
 - **Restore Functionality** - Restore templates from backups
 - **Backup Management** - List, delete, and restore backups
+
+### 🎨 **Latest UI/UX Improvements (v1.4.3)**
+
+#### **✨ Enhanced User Experience**
+- **🎨 Improved Form Styling** - Fixed white background with white text issues in form fields
+- **🎯 Better Button Colors** - Replaced bright orange selection buttons with subtle grey colors
+- **⌨️ Fixed Input Focus** - Form fields now maintain focus while typing (no more deselection)
+- **📜 Single Scrollbar** - Eliminated double scrollbars in the template editor
+- **👁️ Enhanced Readability** - Improved text contrast and visibility throughout the interface
+
+#### **🔧 Technical Improvements**
+- **CSS Architecture** - Replaced inline styles with proper CSS classes using theme variables
+- **JavaScript Optimization** - Fixed variable name conflicts in form handlers
+- **Theme Consistency** - All UI elements now use consistent theme colors
+- **Accessibility** - Better color contrast and form field accessibility
+- **Performance** - Optimized form rendering and reduced unnecessary re-renders
 
 #### 🎨 **User Interface**
 - **Professional Design** - *arr-style sidebar navigation
