@@ -190,11 +190,13 @@ function App() {
       const data = await response.json();
 
       if (response.ok) {
+        console.log('Template content loaded:', data.content);
         setEditingTemplate(filename);      
         setEditContent(data.content);
         setEditorMode('form');
         // Parse XML to form data
         const parsedData = parseXmlToFormData(data.content);
+        console.log('Parsed form data:', parsedData);
         setFormData(parsedData);
       } else {
         alert('Failed to load template');
@@ -209,8 +211,13 @@ function App() {
   // Parse XML content to form data
   const parseXmlToFormData = (xmlContent) => {
     try {
+      console.log('Parsing XML content:', xmlContent);
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+      
+      console.log('XML document parsed:', xmlDoc);
+      console.log('Name element:', xmlDoc.querySelector('Name'));
+      console.log('Repository element:', xmlDoc.querySelector('Repository'));
       
       const formData = {
         name: xmlDoc.querySelector('Name')?.textContent || '',
@@ -222,36 +229,48 @@ function App() {
         volumes: [],
         environment: []
       };
+      
+      console.log('Basic form data extracted:', formData);
 
       // Parse ports
       const portMappings = xmlDoc.querySelectorAll('Port');
+      console.log('Found ports:', portMappings.length);
       portMappings.forEach(port => {
-        formData.ports.push({
+        const portData = {
           host: port.getAttribute('HostPort') || '',
           container: port.getAttribute('ContainerPort') || '',
           protocol: port.getAttribute('Protocol') || 'tcp'
-        });
+        };
+        console.log('Port data:', portData);
+        formData.ports.push(portData);
       });
 
       // Parse volumes
       const volumeMappings = xmlDoc.querySelectorAll('Volume');
+      console.log('Found volumes:', volumeMappings.length);
       volumeMappings.forEach(volume => {
-        formData.volumes.push({
+        const volumeData = {
           host: volume.getAttribute('HostDir') || '',
           container: volume.getAttribute('ContainerDir') || '',
           mode: volume.getAttribute('Mode') || 'rw'
-        });
+        };
+        console.log('Volume data:', volumeData);
+        formData.volumes.push(volumeData);
       });
 
       // Parse environment variables
       const envVars = xmlDoc.querySelectorAll('Environment');
+      console.log('Found environment variables:', envVars.length);
       envVars.forEach(env => {
-        formData.environment.push({
+        const envData = {
           key: env.getAttribute('Name') || '',
           value: env.getAttribute('Value') || ''
-        });
+        };
+        console.log('Environment data:', envData);
+        formData.environment.push(envData);
       });
 
+      console.log('Final parsed form data:', formData);
       return formData;
     } catch (error) {
       console.error('Error parsing XML:', error);
@@ -300,7 +319,7 @@ function App() {
     return xml;
   };
 
-  const handleSaveTemplate = async () => {
+      const handleSaveTemplate = async () => {
     if (!editingTemplate) return;
 
     setLoading(true);
