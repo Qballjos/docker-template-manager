@@ -921,21 +921,27 @@ function App() {
     editingTemplate && React.createElement('div', { className: 'modal-overlay' },
       React.createElement('div', { className: 'modal modal-large' },
         React.createElement('div', { className: 'modal-header' },
-          React.createElement('h2', null, `✏️ Edit: ${editingTemplate}`),
-          React.createElement('div', { className: 'editor-mode-toggle' },
-            React.createElement('button', {
-              className: `mode-button ${editorMode === 'form' ? 'active' : ''}`,
-              onClick: () => setEditorMode('form')
-            }, 'Form Editor'),
-            React.createElement('button', {
-              className: `mode-button ${editorMode === 'xml' ? 'active' : ''}`,
-              onClick: () => setEditorMode('xml')
-            }, 'Raw XML')
+          React.createElement('div', { className: 'modal-header-left' },
+            React.createElement('h2', null, `✏️ Edit: ${editingTemplate}`)
           ),
-          React.createElement('button', {
-            className: 'close-button',
-            onClick: handleCloseEditor
-          }, '✕')
+          React.createElement('div', { className: 'modal-header-center' },
+            React.createElement('div', { className: 'editor-mode-toggle' },
+              React.createElement('button', {
+                className: `mode-button ${editorMode === 'form' ? 'active' : ''}`,
+                onClick: () => setEditorMode('form')
+              }, 'Form Editor'),
+              React.createElement('button', {
+                className: `mode-button ${editorMode === 'xml' ? 'active' : ''}`,
+                onClick: () => setEditorMode('xml')
+              }, 'Raw XML')
+            )
+          ),
+          React.createElement('div', { className: 'modal-header-right' },
+            React.createElement('button', {
+              className: 'close-button',
+              onClick: handleCloseEditor
+            }, '✕')
+          )
         ),
         React.createElement('div', { className: 'modal-body' },
           editorMode === 'form' ? 
