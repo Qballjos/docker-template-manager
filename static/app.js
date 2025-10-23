@@ -513,31 +513,8 @@ function App() {
     return filtered;
   };
 
-  // Create base elements
-  const modals = [
-    showApiKeyPrompt && React.createElement('div', { key: 'api-modal', className: 'modal-overlay' },
-      React.createElement('div', { className: 'modal' },
-        React.createElement('h2', null, '🔑 API Key Required'),
-        React.createElement('p', null, 'Enter your API key to access Docker Template Manager.'),
-        React.createElement('p', { className: 'text-small text-muted' }, 
-          'Find your API key in Docker logs: Docker tab → Container icon → Logs'),
-        React.createElement('form', { onSubmit: handleApiKeySubmit },
-          React.createElement('input', {
-            type: 'password',
-            name: 'apikey',
-            placeholder: 'Enter API key',
-            autoFocus: true,
-            required: true,
-            style: { width: '100%', padding: '10px', marginBottom: '10px', fontSize: '14px' }
-          }),
-          React.createElement('button', { type: 'submit', className: 'btn-primary' }, 'Submit')
-        )
-      )
-    )
-  ].filter(Boolean);
-
   // Main app structure
-  const container = React.createElement('div', { className: 'app-container' },
+  return React.createElement('div', { className: 'app-container' },
     // API Key Prompt Modal
     showApiKeyPrompt && React.createElement('div', { className: 'modal-overlay' },
       React.createElement('div', { className: 'modal' },
@@ -1275,7 +1252,7 @@ function App() {
       }, mobileMenuOpen ? '✕' : '☰')
     )
   );
-  return container;
+  );
 }
 
 // Export for global access
