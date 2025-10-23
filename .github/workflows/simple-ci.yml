@@ -1,0 +1,63 @@
+name: Simple CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  basic-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Basic Python syntax check
+        run: |
+          python -m py_compile app.py
+          echo "✅ Python syntax is valid"
+      
+      - name: Check for basic security issues
+        run: |
+          # Check for hardcoded secrets (basic check)
+          if grep -r -i "password\|secret\|key\|token" app.py | grep -v "API_KEY" | grep -v "X-API-Key"; then
+            echo "⚠️  Potential hardcoded secrets found"
+          else
+            echo "✅ No obvious hardcoded secrets found"
+          fi
+      
+      - name: Build Docker image
+        run: |
+          docker build -t docker-template-manager:test .
+          echo "✅ Docker image builds successfully"
+      
+      - name: Test Docker container
+        run: |
+          docker run --rm -d --name test-container -p 8889:8889 docker-template-manager:test
+          sleep 10
+          if curl -f http://localhost:8889/api/health; then
+            echo "✅ Container health check passed"
+          else
+            echo "❌ Container health check failed"
+            exit 1
+          fi
+          docker stop test-container
+      
+      - name: Check file sizes
+        run: |
+          # Check for very large files
+          find . -type f -size +50M -not -path "./.git/*" | while read file; do
+            echo "⚠️  Large file detected: $file"
+          done
+          echo "✅ File size check completed"
