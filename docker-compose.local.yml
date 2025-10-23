@@ -14,7 +14,7 @@ services:
       - ./local-data/config:/app/config:rw
     environment:
       - API_KEY=${API_KEY}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8889,http://192.168.2.82:8889}
+      - ALLOWED_ORIGINS=http://localhost:8889,http://192.168.2.82:8889
       - FLASK_DEBUG=${FLASK_DEBUG:-false}
       - TZ=${TZ:-Europe/Amsterdam}
       - TEMPLATE_DIR=/app/templates

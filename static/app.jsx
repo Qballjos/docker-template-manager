@@ -2040,11 +2040,7 @@ function App() {
             ))
           )
         )
-          )
-      ) : null
-      ),
-    // Close content-wrapper
-      ),
+      )) : null,
       // Footer
       !showApiKeyPrompt && React.createElement('footer', { className: 'app-footer' },
         React.createElement('div', { className: 'footer-content' },
@@ -2085,7 +2081,7 @@ function App() {
         className: 'mobile-menu-button',
         onClick: () => setMobileMenuOpen(!mobileMenuOpen)
       }, mobileMenuOpen ? '✕' : '☰')
-  );
+  )));
 }
 
 // Export for global access

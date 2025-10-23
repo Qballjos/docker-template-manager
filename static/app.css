@@ -174,7 +174,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
-}
   margin-bottom: 0.5rem;
 }
 
@@ -252,7 +251,6 @@ th {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
 }
 
 td {
@@ -1383,6 +1381,9 @@ button:disabled {
 /* Content Wrapper */
 .content-wrapper {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px); /* Subtract padding */
   padding: 30px;
   max-width: 1600px;
   width: 100%;
