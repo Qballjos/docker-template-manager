@@ -125,7 +125,7 @@ Create a `docker-compose.yml` file:
 version: '3.8'
 services:
   docker-template-manager:
-    image: qballjos/docker-template-manager:latest
+    image: ghcr.io/qballjos/docker-template-manager:latest
     container_name: docker-template-manager
     ports:
       - "8889:8889"
@@ -161,7 +161,7 @@ docker run -d \
   -e CONFIG_DIR=/config \
   -e API_KEY=your-secure-api-key-here \
   --restart unless-stopped \
-  qballjos/docker-template-manager:latest
+  ghcr.io/qballjos/docker-template-manager:latest
 ```
 
 ---

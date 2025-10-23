@@ -71,16 +71,30 @@ jobs:
           
           echo "Updated version to $VERSION in all files"
       
-      - name: Build Docker image
-        run: |
-          docker build -t qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }} .
-          docker build -t qballjos/docker-template-manager:latest .
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Push Docker image
-        run: |
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
-          docker push qballjos/docker-template-manager:latest
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest
+            type=raw,value=${{ steps.version.outputs.VERSION_NUMBER }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -116,7 +130,7 @@ jobs:
             ```yaml
             services:
               docker-template-manager:
-                image: qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
+                image: ghcr.io/qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
                 container_name: docker-template-manager
                 ports:
                   - "8889:8889"
@@ -143,7 +157,7 @@ jobs:
               -e API_KEY=your-secure-api-key \
               -e TZ=Europe/Amsterdam \
               --restart unless-stopped \
-              qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
+              ghcr.io/qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}
             ```
             
             ## 🔄 Update Instructions
@@ -151,7 +165,7 @@ jobs:
             To update from a previous version:
             1. Stop the current container: `docker stop docker-template-manager`
             2. Remove the old container: `docker rm docker-template-manager`
-            3. Pull the new image: `docker pull qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}`
+            3. Pull the new image: `docker pull ghcr.io/qballjos/docker-template-manager:${{ steps.version.outputs.VERSION_NUMBER }}`
             4. Start with the new image using the commands above
             
             ## 📋 Changelog

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>DockerTemplateManager</Name>
-  <Repository>yourusername/docker-template-manager:latest</Repository>
-  <Registry>https://hub.docker.com/r/yourusername/docker-template-manager/</Registry>
+  <Repository>ghcr.io/qballjos/docker-template-manager:latest</Repository>
+  <Registry>https://github.com/qballjos/docker-template-manager/pkgs/container/docker-template-manager</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
