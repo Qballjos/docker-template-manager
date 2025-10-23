@@ -655,28 +655,28 @@ function App() {
           className: `nav-item ${activeTab === 'dashboard' ? 'active' : ''}`,
           onClick: () => { setActiveTab('dashboard'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '📊'),
+          React.createElement('i', { className: 'lni lni-dashboard nav-icon' }),
           React.createElement('span', null, 'Dashboard')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'templates' ? 'active' : ''}`,
           onClick: () => { setActiveTab('templates'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '📄'),
+          React.createElement('i', { className: 'lni lni-files nav-icon' }),
           React.createElement('span', null, 'Templates')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'containers' ? 'active' : ''}`,
           onClick: () => { setActiveTab('containers'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '📦'),
+          React.createElement('i', { className: 'lni lni-docker nav-icon' }),
           React.createElement('span', null, 'Containers')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'backups' ? 'active' : ''}`,
           onClick: () => { setActiveTab('backups'); setMobileMenuOpen(false); }
         },
-          React.createElement('span', { className: 'nav-icon' }, '💾'),
+          React.createElement('i', { className: 'lni lni-cloud-upload nav-icon' }),
           React.createElement('span', null, 'Backups')
         )
       ),
@@ -684,7 +684,7 @@ function App() {
       React.createElement('div', { className: 'sidebar-footer' },
         React.createElement('div', { className: 'theme-toggle', onClick: toggleTheme },
           React.createElement('span', { className: 'theme-label' },
-            React.createElement('span', null, theme === 'dark' ? '🌙' : '☀️'),
+            React.createElement('i', { className: `lni ${theme === 'dark' ? 'lni-moon' : 'lni-sun'}` }),
             React.createElement('span', null, theme === 'dark' ? 'Dark' : 'Light')
           ),
           React.createElement('div', { className: `theme-switch ${theme === 'dark' ? 'active' : ''}` },
@@ -733,7 +733,10 @@ function App() {
             className: 'top-bar-button primary',
             onClick: handleCreateBackup,
             disabled: loading
-          }, '💾 Create Backup')
+          }, 
+            React.createElement('i', { className: 'lni lni-cloud-upload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create Backup')
+          )
         )
       ),
       // Content Wrapper
@@ -773,13 +776,20 @@ function App() {
         React.createElement('div', { className: 'quick-actions' },
           React.createElement('h3', null, 'Quick Actions'),
           React.createElement('button', { onClick: () => handleCreateBackup(), disabled: loading }, 
-            '💾 Create Backup'),
+            React.createElement('i', { className: 'lni lni-cloud-upload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Create Backup')
+          ),
           React.createElement('button', { onClick: () => fetchStats() }, 
-            '🔄 Refresh Stats')
+            React.createElement('i', { className: 'lni lni-reload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh Stats')
+          )
         ),
         // Migration Guide Section
         React.createElement('div', { className: 'migration-guide-section' },
-          React.createElement('h3', null, '📚 Docker Migration Guides'),
+          React.createElement('h3', null, 
+            React.createElement('i', { className: 'lni lni-book', style: { marginRight: '8px' } }),
+            'Docker Migration Guides'
+          ),
           React.createElement('div', { className: 'migration-cards' },
             // vDisk to Folder Guide
             React.createElement('div', { className: 'migration-card' },

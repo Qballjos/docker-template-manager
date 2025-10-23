@@ -1753,3 +1753,38 @@ tr:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Lineicons Styling */
+.lni {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+}
+
+.nav-icon.lni {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.btn i.lni {
+  margin-right: 4px;
+}
+
+.btn i.lni:only-child {
+  margin-right: 0;
+}
+
+/* Icon sizing for different contexts */
+.lni-sm {
+  font-size: 14px;
+}
+
+.lni-lg {
+  font-size: 18px;
+}
+
+.lni-xl {
+  font-size: 24px;
+}
