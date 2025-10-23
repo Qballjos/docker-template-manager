@@ -14,6 +14,8 @@ function App() {
   const [templateSortOrder, setTemplateSortOrder] = React.useState('asc');
   const [containerSortBy, setContainerSortBy] = React.useState('name');
   const [containerSortOrder, setContainerSortOrder] = React.useState('asc');
+  const [backupSortBy, setBackupSortBy] = React.useState('name');
+  const [backupSortOrder, setBackupSortOrder] = React.useState('desc');
   const [apiKey, setApiKey] = React.useState(localStorage.getItem('apiKey') || '');
   const [showApiKeyPrompt, setShowApiKeyPrompt] = React.useState(!localStorage.getItem('apiKey'));
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -463,6 +465,15 @@ function App() {
     }
   };
 
+  const handleBackupSort = (column) => {
+    if (backupSortBy === column) {
+      setBackupSortOrder(backupSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setBackupSortBy(column);
+      setBackupSortOrder('desc'); // Default to newest first for backups
+    }
+  };
+
   const getSortIcon = (currentSortBy, sortBy, sortOrder) => {
     if (currentSortBy !== sortBy) return '↕️';
     return sortOrder === 'asc' ? '↑' : '↓';
@@ -799,6 +810,30 @@ function App() {
         result = a.state.localeCompare(b.state);
       }
       return containerSortOrder === 'desc' ? -result : result;
+    });
+
+    return filtered;
+  };
+
+  // Filter and sort backups
+  const getFilteredAndSortedBackups = () => {
+    let filtered = backups;
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let result = 0;
+      if (backupSortBy === 'name') {
+        result = a.name.localeCompare(b.name);
+      } else if (backupSortBy === 'size') {
+        result = b.size - a.size;
+      } else if (backupSortBy === 'date') {
+        result = new Date(b.created) - new Date(a.created);
+      } else if (backupSortBy === 'containers') {
+        result = (b.container_count || 0) - (a.container_count || 0);
+      } else if (backupSortBy === 'templates') {
+        result = (b.template_count || 0) - (a.template_count || 0);
+      }
+      return backupSortOrder === 'desc' ? -result : result;
     });
 
     return filtered;
@@ -1682,52 +1717,111 @@ function App() {
           )
       ) : null,
       activeTab === 'backups' ? React.createElement('div', { className: 'backups' },
-        React.createElement('div', { className: 'section-header' },
-          React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
-            '💾 Create New Backup')
-        ),
+        // No section header - actions moved to top bar
+        loading ? React.createElement('div', { className: 'loading' }, 'Loading...') : 
         backups.length === 0 ? 
           React.createElement('div', { className: 'empty-state' },
             React.createElement('p', null, 'No backups yet. Create your first backup to get started.'),
-            React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
-              'Create Backup')
+            React.createElement('button', { 
+              className: 'btn btn-primary',
+              onClick: handleCreateBackup, 
+              disabled: loading 
+            }, 
+              React.createElement('i', { className: 'lni lni-cloud-upload' }),
+              React.createElement('span', { style: { marginLeft: '4px' } }, 'Create Backup')
+            )
           ) :
-          React.createElement('div', { className: 'backup-list' },
-            backups.map(backup => React.createElement('div', { key: backup.name, className: 'backup-card' },
-              React.createElement('div', { className: 'backup-header' },
-                React.createElement('h3', null, backup.name)
-              ),
-              React.createElement('div', { className: 'backup-details' },
-                React.createElement('div', { className: 'backup-detail' },
-                  React.createElement('span', { className: 'label' }, 'Created:'),
-                  React.createElement('span', null, formatDate(backup.created))
-                ),
-                React.createElement('div', { className: 'backup-detail' },
-                  React.createElement('span', { className: 'label' }, 'Size:'),
-                  React.createElement('span', null, formatBytes(backup.size))
-                ),
-                backup.container_count && React.createElement('div', { className: 'backup-detail' },
-                  React.createElement('span', { className: 'label' }, 'Containers:'),
-                  React.createElement('span', null, backup.container_count)
-                ),
-                backup.template_count && React.createElement('div', { className: 'backup-detail' },
-                  React.createElement('span', { className: 'label' }, 'Templates:'),
-                  React.createElement('span', null, backup.template_count)
+          React.createElement('div', { className: 'table-container' },
+            React.createElement('table', null,
+              React.createElement('thead', null,
+                React.createElement('tr', null,
+                  React.createElement('th', { 
+                    className: 'sortable',
+                    onClick: () => handleBackupSort('name'),
+                    style: { cursor: 'pointer' }
+                  }, 
+                    'Backup Name ',
+                    React.createElement('span', { className: 'sort-icon' }, 
+                      getSortIcon(backupSortBy, 'name', backupSortOrder)
+                    )
+                  ),
+                  React.createElement('th', { 
+                    className: 'sortable',
+                    onClick: () => handleBackupSort('date'),
+                    style: { cursor: 'pointer' }
+                  }, 
+                    'Created ',
+                    React.createElement('span', { className: 'sort-icon' }, 
+                      getSortIcon(backupSortBy, 'date', backupSortOrder)
+                    )
+                  ),
+                  React.createElement('th', { 
+                    className: 'sortable',
+                    onClick: () => handleBackupSort('size'),
+                    style: { cursor: 'pointer' }
+                  }, 
+                    'Size ',
+                    React.createElement('span', { className: 'sort-icon' }, 
+                      getSortIcon(backupSortBy, 'size', backupSortOrder)
+                    )
+                  ),
+                  React.createElement('th', { 
+                    className: 'sortable',
+                    onClick: () => handleBackupSort('containers'),
+                    style: { cursor: 'pointer' }
+                  }, 
+                    'Containers ',
+                    React.createElement('span', { className: 'sort-icon' }, 
+                      getSortIcon(backupSortBy, 'containers', backupSortOrder)
+                    )
+                  ),
+                  React.createElement('th', { 
+                    className: 'sortable',
+                    onClick: () => handleBackupSort('templates'),
+                    style: { cursor: 'pointer' }
+                  }, 
+                    'Templates ',
+                    React.createElement('span', { className: 'sort-icon' }, 
+                      getSortIcon(backupSortBy, 'templates', backupSortOrder)
+                    )
+                  ),
+                  React.createElement('th', null, 'Actions')
                 )
               ),
+              React.createElement('tbody', null,
+                getFilteredAndSortedBackups().map(backup => React.createElement('tr', { key: backup.name },
+                  React.createElement('td', null,
+                    React.createElement('strong', null, backup.name)
+                  ),
+                  React.createElement('td', null, formatDate(backup.created)),
+                  React.createElement('td', null, formatBytes(backup.size)),
+                  React.createElement('td', null, backup.container_count || 0),
+                  React.createElement('td', null, backup.template_count || 0),
+                  React.createElement('td', null,
               React.createElement('div', { className: 'backup-actions' },
                 React.createElement('button', { 
-                  className: 'btn-primary',
+                        className: 'btn btn-primary',
                   onClick: () => handleRestoreBackup(backup.name),
-                  disabled: loading
-                }, '🔄 Restore'),
+                        disabled: loading,
+                        title: 'Restore backup'
+                }, 
+                  React.createElement('i', { className: 'lni lni-reload' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
+                ),
                 React.createElement('button', { 
-                  className: 'btn-danger',
+                        className: 'btn btn-danger',
                   onClick: () => handleDeleteBackup(backup.name),
-                  disabled: loading
-                }, '🗑️ Delete')
+                        disabled: loading,
+                        title: 'Delete backup'
+                }, 
+                  React.createElement('i', { className: 'lni lni-trash-can' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                      )
+                )
               )
             ))
+          )
+        )
           )
       ) : null
       ),

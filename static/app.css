@@ -2095,3 +2095,45 @@ tr:hover {
   font-size: 12px;
   color: var(--unraid-text-secondary);
 }
+
+/* Backup actions styling - match other sections */
+.backup-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.backup-actions .btn {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.backup-actions .btn-primary {
+  background-color: var(--unraid-primary);
+  border-color: var(--unraid-primary);
+  color: white;
+}
+
+.backup-actions .btn-primary:hover {
+  background-color: var(--unraid-primary-dark);
+  border-color: var(--unraid-primary-dark);
+}
+
+.backup-actions .btn-danger {
+  background-color: var(--unraid-danger);
+  border-color: var(--unraid-danger);
+  color: white;
+}
+
+.backup-actions .btn-danger:hover {
+  background-color: var(--unraid-danger-dark);
+  border-color: var(--unraid-danger-dark);
+}
