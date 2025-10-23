@@ -60,19 +60,19 @@ function App() {
     const headers = {
       'X-API-Key': apiKey,
       'Content-Type': 'application/json',
-          ...options.headers
+      ...options.headers
     };
-
+    
     const response = await fetch(url, { ...options, headers });
-
+    
     if (response.status === 401) {
-      setShowApiKeyPrompt(true);    
+      setShowApiKeyPrompt(true);
       localStorage.removeItem('apiKey');
-          throw new Error('Unauthorized - Invalid API key');
+      throw new Error('Unauthorized - Invalid API key');
     }
-
+    
     return response;
-  };    
+  };
 
   const handleApiKeySubmit = (e) => {
     e.preventDefault();
@@ -177,11 +177,11 @@ function App() {
 
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`, {
-              method: 'DELETE'
+        method: 'DELETE'
       });
-
+      
       if (response.ok) {
-        alert('Template deleted successfully');      
+        alert('Template deleted successfully');
         fetchTemplates();
         fetchStats();
       } else {
@@ -202,22 +202,22 @@ function App() {
     if (!newName) return; // Cancelled
     
     const trimmedName = newName.trim();
-    if (!trimmedName) {    
+    if (!trimmedName) {
       alert('Template name cannot be empty');
-          return;
+      return;
     }
     
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}/clone`, {
         method: 'POST',
-              body: JSON.stringify({ new_name: trimmedName })
+        body: JSON.stringify({ new_name: trimmedName })
       });
-
+      
       const data = await response.json();
-
+      
       if (response.ok) {
-        alert(data.message || `Template cloned as ${data.filename}`);      
+        alert(data.message || `Template cloned as ${data.filename}`);
         fetchTemplates();
         fetchStats();
       } else {
@@ -235,10 +235,10 @@ function App() {
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
       const data = await response.json();
-
+      
       if (response.ok) {
         console.log('Template content loaded:', data.content);
-        setEditingTemplate(filename);      
+        setEditingTemplate(filename);
         setEditContent(data.content);
         setEditorMode('form');
         
@@ -371,9 +371,9 @@ function App() {
     return xml;
   };
 
-      const handleSaveTemplate = async () => {
+  const handleSaveTemplate = async () => {
     if (!editingTemplate) return;
-
+    
     setLoading(true);
     try {
       // Use form data or raw XML based on editor mode
@@ -383,11 +383,11 @@ function App() {
         method: 'PUT',
         body: JSON.stringify({ content: content })
       });
-
+      
       const data = await response.json();
-
+      
       if (response.ok) {
-        alert(data.message || 'Template saved successfully');      
+        alert(data.message || 'Template saved successfully');
         setEditingTemplate(null);
         setEditContent('');
         setFormData({});
@@ -533,18 +533,18 @@ function App() {
 
   const handleSaveRename = async () => {
     if (!renamingTemplate || !newTemplateName.trim()) return;
-
+    
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/${renamingTemplate}/rename`, {
         method: 'PATCH',
-              body: JSON.stringify({ new_name: newTemplateName.trim() })
+        body: JSON.stringify({ new_name: newTemplateName.trim() })
       });
-
+      
       const data = await response.json();
-
+      
       if (response.ok) {
-        alert(data.message || 'Template renamed successfully');      
+        alert(data.message || 'Template renamed successfully');
         setRenamingTemplate(null);
         setNewTemplateName('');
         fetchTemplates();
@@ -563,13 +563,13 @@ function App() {
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/containers/${containerName}/${action}`, {
-              method: 'POST'
+        method: 'POST'
       });
-
+      
       const data = await response.json();
-
+      
       if (response.ok) {
-        alert(data.message || `Container ${action}ed successfully`);      
+        alert(data.message || `Container ${action}ed successfully`);
         fetchContainers();
       } else {
         alert(data.error || `Failed to ${action} container`);
@@ -596,13 +596,13 @@ function App() {
     try {
       const response = await fetchWithAuth(`${API_URL}/api/templates/cleanup`, {
         method: 'POST',
-              body: JSON.stringify({ dry_run: dryRun })
+        body: JSON.stringify({ dry_run: dryRun })
       });
-
+      
       const data = await response.json();
-
+      
       if (dryRun) {
-        const unusedCount = data.unused_templates.length;      
+        const unusedCount = data.unused_templates.length;
         if (unusedCount > 0) {
           if (window.confirm(`Found ${unusedCount} unused templates. Delete them?`)) {
             handleCleanupTemplates(false);
@@ -627,11 +627,11 @@ function App() {
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups`, {
         method: 'POST',
-              body: JSON.stringify({})
+        body: JSON.stringify({})
       });
-
+      
       const data = await response.json();
-      if (data.success) {      
+      if (data.success) {
         alert(`Backup created: ${data.backup_name}`);
         fetchBackups();
       }
@@ -649,11 +649,11 @@ function App() {
 
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups/${backupName}`, {
-              method: 'DELETE'
+        method: 'DELETE'
       });
-
+      
       if (response.ok) {
-        alert('Backup deleted');      
+        alert('Backup deleted');
         fetchBackups();
       }
     } catch (error) {
@@ -711,13 +711,13 @@ function App() {
     setLoading(true);
     try {
       const response = await fetchWithAuth(`${API_URL}/api/backups/${backupName}/restore`, {
-              method: 'POST'
+        method: 'POST'
       });
-
+      
       const data = await response.json();
-
+      
       if (response.ok) {
-        alert(data.message || 'Backup restored successfully');      
+        alert(data.message || 'Backup restored successfully');
         fetchTemplates();
         fetchStats();
       } else {
@@ -967,10 +967,10 @@ function App() {
             )
           ),
           React.createElement('div', { className: 'modal-header-right' },
-            React.createElement('button', {
-              className: 'close-button',
-              onClick: handleCloseEditor
-            }, '✕')
+          React.createElement('button', {
+            className: 'close-button',
+            onClick: handleCloseEditor
+          }, '✕')
           )
         ),
         React.createElement('div', { className: 'modal-body' },
@@ -1189,13 +1189,13 @@ function App() {
               )
             ) :
             // Raw XML editor
-            React.createElement('textarea', {
-              className: 'code-editor',
-              value: editContent,
-              onChange: (e) => setEditContent(e.target.value),
-              spellCheck: false,
-              rows: 20
-            })
+          React.createElement('textarea', {
+            className: 'code-editor',
+            value: editContent,
+            onChange: (e) => setEditContent(e.target.value),
+            spellCheck: false,
+            rows: 20
+          })
         ),
         React.createElement('div', { className: 'modal-footer' },
           React.createElement('button', {
@@ -1449,7 +1449,7 @@ function App() {
             React.createElement('i', { className: 'lni lni-reload' }),
             React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh Stats')
           ),
-            ),
+        ),
         // Migration Guide Section
         React.createElement('div', { className: 'migration-guide-section' },
           React.createElement('h3', null, 
@@ -1694,8 +1694,8 @@ function App() {
                     }, 
                         React.createElement('i', { className: 'lni lni-trash-can' }),
                       React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
-                      )
                     )
+                  )
                   ),
                   React.createElement('td', null, ''), // Empty container cell
                   React.createElement('td', null, ''), // Empty size cell
@@ -2015,29 +2015,29 @@ function App() {
                   ),
                   selectedBackupRow === backup.name && React.createElement('tr', { className: 'actions-row' },
                     React.createElement('td', { colSpan: 6, className: 'actions-cell' },
-                      React.createElement('div', { className: 'backup-actions' },
-                        React.createElement('button', { 
+              React.createElement('div', { className: 'backup-actions' },
+                React.createElement('button', { 
                           className: 'btn btn-primary',
-                          onClick: () => handleRestoreBackup(backup.name),
+                  onClick: () => handleRestoreBackup(backup.name),
                           disabled: loading,
                           title: 'Restore backup'
-                        }, 
-                          React.createElement('i', { className: 'lni lni-reload' }),
-                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
-                        ),
-                        React.createElement('button', { 
+                }, 
+                  React.createElement('i', { className: 'lni lni-reload' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
+                ),
+                React.createElement('button', { 
                           className: 'btn btn-danger',
-                          onClick: () => handleDeleteBackup(backup.name),
+                  onClick: () => handleDeleteBackup(backup.name),
                           disabled: loading,
                           title: 'Delete backup'
-                        }, 
-                          React.createElement('i', { className: 'lni lni-trash-can' }),
-                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                }, 
+                  React.createElement('i', { className: 'lni lni-trash-can' }),
+                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
                         )
                       )
-                    )
-                  )
-                ))
+                )
+              )
+            ))
           )
         )
           )
