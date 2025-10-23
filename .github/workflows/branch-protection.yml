@@ -1,107 +1,11 @@
 name: Branch Protection
 
-# Temporarily disabled until properly configured
+# This workflow is temporarily disabled
+# It will be re-enabled when branch protection rules are properly configured
 # on:
 #   push:
 #     branches: [ main, develop ]
 #   pull_request:
 #     branches: [ main, develop ]
 
-jobs:
-  branch-protection:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Check PR requirements
-        run: |
-          # Check if PR has a description
-          if [ -z "${{ github.event.pull_request.body }}" ]; then
-            echo "❌ PR description is required"
-            exit 1
-          fi
-          
-          # Check if PR is not a draft
-          if [ "${{ github.event.pull_request.draft }}" = "true" ]; then
-            echo "❌ Draft PRs are not allowed"
-            exit 1
-          fi
-          
-          # Check if PR is not from a fork (optional)
-          if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
-            echo "⚠️  PR is from a fork - additional review may be required"
-          fi
-          
-          echo "✅ PR meets basic requirements"
-      
-      - name: Check commit messages
-        run: |
-          # Get commit messages from the PR
-          COMMITS=$(git log --oneline ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
-          
-          echo "Checking commit messages:"
-          echo "$COMMITS"
-          
-          # Check if commits follow conventional commit format (warning only, not failure)
-          if ! echo "$COMMITS" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"; then
-            echo "⚠️  Some commits don't follow conventional commit format"
-            echo "Recommended format: type(scope): description"
-            echo "Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
-            echo "This is a warning only, not a failure"
-          else
-            echo "✅ Commit messages follow conventional format"
-          fi
-      
-      - name: Check file changes
-        run: |
-          # Get changed files
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
-          
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-          
-          # Check for sensitive files
-          if echo "$CHANGED_FILES" | grep -qE "\.(env|key|pem|p12|pfx)$"; then
-            echo "❌ Sensitive files detected in changes"
-            exit 1
-          fi
-          
-          # Check for large files (warning only)
-          LARGE_FILES=$(git diff --name-only --diff-filter=A ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | xargs -I {} sh -c 'if [ -f "{}" ] && [ $(stat -c%s "{}") -gt 10485760 ]; then echo "{}"; fi' 2>/dev/null || true)
-          if [ -n "$LARGE_FILES" ]; then
-            echo "⚠️  Large files detected (>10MB):"
-            echo "$LARGE_FILES"
-            echo "Consider using Git LFS for large files"
-          fi
-          
-          echo "✅ File changes look good"
-      
-      - name: Check for TODO/FIXME
-        run: |
-          # Check for TODO/FIXME comments in code
-          TODO_COUNT=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -c "TODO\|FIXME\|XXX\|HACK" || true)
-          
-          if [ "$TODO_COUNT" -gt 0 ]; then
-            echo "⚠️  Found $TODO_COUNT TODO/FIXME comments in changes"
-            echo "Consider addressing these before merging"
-          else
-            echo "✅ No TODO/FIXME comments found"
-          fi
-      
-      - name: Security scan
-        run: |
-          # Check for potential security issues
-          SECURITY_ISSUES=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -iE "(password|secret|key|token|api_key)" || true)
-          
-          if [ -n "$SECURITY_ISSUES" ]; then
-            echo "⚠️  Potential security issues detected:"
-            echo "$SECURITY_ISSUES"
-            echo "Please review for hardcoded credentials"
-          else
-            echo "✅ No obvious security issues detected"
-          fi
+# No jobs defined - workflow is completely disabled
