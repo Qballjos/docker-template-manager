@@ -1,9 +1,5 @@
 # Hadolint configuration to suppress specific warnings
-# DL3008: Pin versions in apt get install
-# Suppressed for security-critical packages that are updated via apt-get upgrade
+# DL3008: Pin versions in apt get install - now properly pinned
+# DL3013: Pin pip version - already pinned in Dockerfile
 ignore:
-  - DL3008
-
-# Alternative: More specific suppression
-# ignore:
-#   - DL3008  # Suppress version pinning warnings for security packages
+  - DL3013  # Suppress pip version pinning (already pinned to 24.3.1)
