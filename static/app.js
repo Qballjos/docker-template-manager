@@ -2041,8 +2041,7 @@ function App() {
           )
         )
           )
-      ) : null
-      ),
+      ) : null,
       // Footer
       !showApiKeyPrompt && React.createElement('footer', { className: 'app-footer' },
         React.createElement('div', { className: 'footer-content' },
