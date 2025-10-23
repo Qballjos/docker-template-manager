@@ -15,6 +15,8 @@ function App() {
   const [sortBy, setSortBy] = React.useState('name'); // name, size, date
   const [editingTemplate, setEditingTemplate] = React.useState(null);
   const [editContent, setEditContent] = React.useState('');
+  const [editorMode, setEditorMode] = React.useState('form'); // 'form' or 'xml'
+  const [formData, setFormData] = React.useState({});
   const [renamingTemplate, setRenamingTemplate] = React.useState(null);
   const [newTemplateName, setNewTemplateName] = React.useState('');
   const [theme, setTheme] = React.useState(localStorage.getItem('theme') || 'dark');
@@ -188,6 +190,10 @@ function App() {
       if (response.ok) {
         setEditingTemplate(filename);      
         setEditContent(data.content);
+        setEditorMode('form');
+        // Parse XML to form data
+        const parsedData = parseXmlToFormData(data.content);
+        setFormData(parsedData);
       } else {
         alert('Failed to load template');
       }
@@ -198,14 +204,111 @@ function App() {
     setLoading(false);
   };
 
+  // Parse XML content to form data
+  const parseXmlToFormData = (xmlContent) => {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+      
+      const formData = {
+        name: xmlDoc.querySelector('Name')?.textContent || '',
+        repository: xmlDoc.querySelector('Repository')?.textContent || '',
+        tag: xmlDoc.querySelector('Tag')?.textContent || '',
+        network: xmlDoc.querySelector('Network')?.textContent || 'bridge',
+        restart: xmlDoc.querySelector('RestartPolicy')?.textContent || 'unless-stopped',
+        ports: [],
+        volumes: [],
+        environment: []
+      };
+
+      // Parse ports
+      const portMappings = xmlDoc.querySelectorAll('Port');
+      portMappings.forEach(port => {
+        formData.ports.push({
+          host: port.getAttribute('HostPort') || '',
+          container: port.getAttribute('ContainerPort') || '',
+          protocol: port.getAttribute('Protocol') || 'tcp'
+        });
+      });
+
+      // Parse volumes
+      const volumeMappings = xmlDoc.querySelectorAll('Volume');
+      volumeMappings.forEach(volume => {
+        formData.volumes.push({
+          host: volume.getAttribute('HostDir') || '',
+          container: volume.getAttribute('ContainerDir') || '',
+          mode: volume.getAttribute('Mode') || 'rw'
+        });
+      });
+
+      // Parse environment variables
+      const envVars = xmlDoc.querySelectorAll('Environment');
+      envVars.forEach(env => {
+        formData.environment.push({
+          key: env.getAttribute('Name') || '',
+          value: env.getAttribute('Value') || ''
+        });
+      });
+
+      return formData;
+    } catch (error) {
+      console.error('Error parsing XML:', error);
+      return {};
+    }
+  };
+
+  // Convert form data back to XML
+  const formDataToXml = (formData) => {
+    let xml = `<?xml version="1.0"?>
+<Container version="2">
+  <Name>${formData.name || ''}</Name>
+  <Repository>${formData.repository || ''}</Repository>
+  <Tag>${formData.tag || 'latest'}</Tag>
+  <Network>${formData.network || 'bridge'}</Network>
+  <RestartPolicy>${formData.restart || 'unless-stopped'}</RestartPolicy>`;
+
+    // Add ports
+    if (formData.ports && formData.ports.length > 0) {
+      formData.ports.forEach(port => {
+        if (port.host && port.container) {
+          xml += `\n  <Port HostPort="${port.host}" ContainerPort="${port.container}" Protocol="${port.protocol || 'tcp'}"/>`;
+        }
+      });
+    }
+
+    // Add volumes
+    if (formData.volumes && formData.volumes.length > 0) {
+      formData.volumes.forEach(volume => {
+        if (volume.host && volume.container) {
+          xml += `\n  <Volume HostDir="${volume.host}" ContainerDir="${volume.container}" Mode="${volume.mode || 'rw'}"/>`;
+        }
+      });
+    }
+
+    // Add environment variables
+    if (formData.environment && formData.environment.length > 0) {
+      formData.environment.forEach(env => {
+        if (env.key && env.value) {
+          xml += `\n  <Environment Name="${env.key}" Value="${env.value}"/>`;
+        }
+      });
+    }
+
+    xml += '\n</Container>';
+    return xml;
+  };
+
   const handleSaveTemplate = async () => {
     if (!editingTemplate) return;
 
     setLoading(true);
     try {
+      // Use form data or raw XML based on editor mode
+      const content = editorMode === 'form' ? formDataToXml(formData) : editContent;
+      
       const response = await fetchWithAuth(`${API_URL}/api/templates/${editingTemplate}/edit`, {
         method: 'PUT',
-              body: JSON.stringify({ content: editContent })
+        body: JSON.stringify({ content: content })
       });
 
       const data = await response.json();
@@ -214,6 +317,8 @@ function App() {
         alert(data.message || 'Template saved successfully');      
         setEditingTemplate(null);
         setEditContent('');
+        setFormData({});
+        setEditorMode('form');
         fetchTemplates();
       } else {
         alert(data.error || 'Failed to save template');
@@ -229,10 +334,57 @@ function App() {
     if (editContent && window.confirm('You have unsaved changes. Close anyway?')) {
       setEditingTemplate(null);
       setEditContent('');
+      setFormData({});
+      setEditorMode('form');
     } else if (!editContent) {
       setEditingTemplate(null);
       setEditContent('');
+      setFormData({});
+      setEditorMode('form');
     }
+  };
+
+  // Form helper functions
+  const addPort = () => {
+    setFormData(prev => ({
+      ...prev,
+      ports: [...(prev.ports || []), { host: '', container: '', protocol: 'tcp' }]
+    }));
+  };
+
+  const removePort = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      ports: prev.ports.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addVolume = () => {
+    setFormData(prev => ({
+      ...prev,
+      volumes: [...(prev.volumes || []), { host: '', container: '', mode: 'rw' }]
+    }));
+  };
+
+  const removeVolume = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      volumes: prev.volumes.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addEnvironment = () => {
+    setFormData(prev => ({
+      ...prev,
+      environment: [...(prev.environment || []), { key: '', value: '' }]
+    }));
+  };
+
+  const removeEnvironment = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      environment: prev.environment.filter((_, i) => i !== index)
+    }));
   };
 
   const handleRenameTemplate = (filename) => {
@@ -576,19 +728,231 @@ function App() {
       React.createElement('div', { className: 'modal modal-large' },
         React.createElement('div', { className: 'modal-header' },
           React.createElement('h2', null, `✏️ Edit: ${editingTemplate}`),
+          React.createElement('div', { className: 'editor-mode-toggle' },
+            React.createElement('button', {
+              className: `mode-button ${editorMode === 'form' ? 'active' : ''}`,
+              onClick: () => setEditorMode('form')
+            }, 'Form Editor'),
+            React.createElement('button', {
+              className: `mode-button ${editorMode === 'xml' ? 'active' : ''}`,
+              onClick: () => setEditorMode('xml')
+            }, 'Raw XML')
+          ),
           React.createElement('button', {
             className: 'close-button',
             onClick: handleCloseEditor
           }, '✕')
         ),
         React.createElement('div', { className: 'modal-body' },
-          React.createElement('textarea', {
-            className: 'code-editor',
-            value: editContent,
-            onChange: (e) => setEditContent(e.target.value),
-            spellCheck: false,
-            rows: 20
-          })
+          editorMode === 'form' ? 
+            // Form-based editor
+            React.createElement('div', { className: 'form-editor' },
+              // Basic Information
+              React.createElement('div', { className: 'form-section' },
+                React.createElement('h3', null, 'Basic Information'),
+                React.createElement('div', { className: 'form-row' },
+                  React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, 'Container Name'),
+                    React.createElement('input', {
+                      type: 'text',
+                      value: formData.name || '',
+                      onChange: (e) => setFormData(prev => ({ ...prev, name: e.target.value })),
+                      placeholder: 'my-container'
+                    })
+                  ),
+                  React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, 'Repository'),
+                    React.createElement('input', {
+                      type: 'text',
+                      value: formData.repository || '',
+                      onChange: (e) => setFormData(prev => ({ ...prev, repository: e.target.value })),
+                      placeholder: 'nginx'
+                    })
+                  )
+                ),
+                React.createElement('div', { className: 'form-row' },
+                  React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, 'Tag'),
+                    React.createElement('input', {
+                      type: 'text',
+                      value: formData.tag || '',
+                      onChange: (e) => setFormData(prev => ({ ...prev, tag: e.target.value })),
+                      placeholder: 'latest'
+                    })
+                  ),
+                  React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, 'Network'),
+                    React.createElement('select', {
+                      value: formData.network || 'bridge',
+                      onChange: (e) => setFormData(prev => ({ ...prev, network: e.target.value }))
+                    },
+                      React.createElement('option', { value: 'bridge' }, 'Bridge'),
+                      React.createElement('option', { value: 'host' }, 'Host'),
+                      React.createElement('option', { value: 'none' }, 'None')
+                    )
+                  )
+                ),
+                React.createElement('div', { className: 'form-row' },
+                  React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, 'Restart Policy'),
+                    React.createElement('select', {
+                      value: formData.restart || 'unless-stopped',
+                      onChange: (e) => setFormData(prev => ({ ...prev, restart: e.target.value }))
+                    },
+                      React.createElement('option', { value: 'no' }, 'No'),
+                      React.createElement('option', { value: 'always' }, 'Always'),
+                      React.createElement('option', { value: 'unless-stopped' }, 'Unless Stopped'),
+                      React.createElement('option', { value: 'on-failure' }, 'On Failure')
+                    )
+                  )
+                )
+              ),
+              // Port Mappings
+              React.createElement('div', { className: 'form-section' },
+                React.createElement('div', { className: 'section-header' },
+                  React.createElement('h3', null, 'Port Mappings'),
+                  React.createElement('button', { 
+                    type: 'button', 
+                    className: 'btn btn-secondary btn-small',
+                    onClick: addPort
+                  }, '+ Add Port')
+                ),
+                React.createElement('div', { className: 'ports-list' },
+                  (formData.ports || []).map((port, index) => React.createElement('div', { key: index, className: 'port-item' },
+                    React.createElement('input', {
+                      type: 'text',
+                      placeholder: 'Host Port',
+                      value: port.host,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        ports: prev.ports.map((p, i) => i === index ? { ...p, host: e.target.value } : p)
+                      }))
+                    }),
+                    React.createElement('span', null, ':'),
+                    React.createElement('input', {
+                      type: 'text',
+                      placeholder: 'Container Port',
+                      value: port.container,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        ports: prev.ports.map((p, i) => i === index ? { ...p, container: e.target.value } : p)
+                      }))
+                    }),
+                    React.createElement('select', {
+                      value: port.protocol,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        ports: prev.ports.map((p, i) => i === index ? { ...p, protocol: e.target.value } : p)
+                      }))
+                    },
+                      React.createElement('option', { value: 'tcp' }, 'TCP'),
+                      React.createElement('option', { value: 'udp' }, 'UDP')
+                    ),
+                    React.createElement('button', {
+                      type: 'button',
+                      className: 'btn btn-danger btn-small',
+                      onClick: () => removePort(index)
+                    }, '×')
+                  ))
+                )
+              ),
+              // Volume Mappings
+              React.createElement('div', { className: 'form-section' },
+                React.createElement('div', { className: 'section-header' },
+                  React.createElement('h3', null, 'Volume Mappings'),
+                  React.createElement('button', { 
+                    type: 'button', 
+                    className: 'btn btn-secondary btn-small',
+                    onClick: addVolume
+                  }, '+ Add Volume')
+                ),
+                React.createElement('div', { className: 'volumes-list' },
+                  (formData.volumes || []).map((volume, index) => React.createElement('div', { key: index, className: 'volume-item' },
+                    React.createElement('input', {
+                      type: 'text',
+                      placeholder: 'Host Directory',
+                      value: volume.host,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        volumes: prev.volumes.map((v, i) => i === index ? { ...v, host: e.target.value } : v)
+                      }))
+                    }),
+                    React.createElement('span', null, ':'),
+                    React.createElement('input', {
+                      type: 'text',
+                      placeholder: 'Container Directory',
+                      value: volume.container,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        volumes: prev.volumes.map((v, i) => i === index ? { ...v, container: e.target.value } : v)
+                      }))
+                    }),
+                    React.createElement('select', {
+                      value: volume.mode,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        volumes: prev.volumes.map((v, i) => i === index ? { ...v, mode: e.target.value } : v)
+                      }))
+                    },
+                      React.createElement('option', { value: 'rw' }, 'Read/Write'),
+                      React.createElement('option', { value: 'ro' }, 'Read Only')
+                    ),
+                    React.createElement('button', {
+                      type: 'button',
+                      className: 'btn btn-danger btn-small',
+                      onClick: () => removeVolume(index)
+                    }, '×')
+                  ))
+                )
+              ),
+              // Environment Variables
+              React.createElement('div', { className: 'form-section' },
+                React.createElement('div', { className: 'section-header' },
+                  React.createElement('h3', null, 'Environment Variables'),
+                  React.createElement('button', { 
+                    type: 'button', 
+                    className: 'btn btn-secondary btn-small',
+                    onClick: addEnvironment
+                  }, '+ Add Variable')
+                ),
+                React.createElement('div', { className: 'environment-list' },
+                  (formData.environment || []).map((env, index) => React.createElement('div', { key: index, className: 'env-item' },
+                    React.createElement('input', {
+                      type: 'text',
+                      placeholder: 'Variable Name',
+                      value: env.key,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        environment: prev.environment.map((e, i) => i === index ? { ...e, key: e.target.value } : e)
+                      }))
+                    }),
+                    React.createElement('span', null, '='),
+                    React.createElement('input', {
+                      type: 'text',
+                      placeholder: 'Value',
+                      value: env.value,
+                      onChange: (e) => setFormData(prev => ({
+                        ...prev,
+                        environment: prev.environment.map((e, i) => i === index ? { ...e, value: e.target.value } : e)
+                      }))
+                    }),
+                    React.createElement('button', {
+                      type: 'button',
+                      className: 'btn btn-danger btn-small',
+                      onClick: () => removeEnvironment(index)
+                    }, '×')
+                  ))
+                )
+              )
+            ) :
+            // Raw XML editor
+            React.createElement('textarea', {
+              className: 'code-editor',
+              value: editContent,
+              onChange: (e) => setEditContent(e.target.value),
+              spellCheck: false,
+              rows: 20
+            })
         ),
         React.createElement('div', { className: 'modal-footer' },
           React.createElement('button', {
@@ -943,67 +1307,67 @@ function App() {
               getFilteredAndSortedTemplates().map(template => React.createElement(React.Fragment, { key: template.filename },
                 // Main template row
                 React.createElement('tr', { 
-                  className: `${template.matched ? '' : 'unused'} ${selectedRow === template.filename ? 'selected-row' : ''}`,
-                  onClick: () => setSelectedRow(selectedRow === template.filename ? null : template.filename),
-                  style: { cursor: 'pointer' }
-                },
-                  React.createElement('td', { className: 'checkbox-cell' },
-                    React.createElement('input', {
-                      type: 'checkbox',
-                      checked: selectedTemplates.includes(template.filename),
-                      onChange: (e) => { e.stopPropagation(); toggleTemplateSelection(template.filename); }
-                    })
-                  ),
-                  React.createElement('td', null,
-                    template.matched ? 
-                      React.createElement('span', { className: 'status-badge status-matched' }, '✓ Matched') :
-                      React.createElement('span', { className: 'status-badge status-unused' }, '✗ Unused')
-                  ),
-                  React.createElement('td', null, React.createElement('strong', null, template.filename)),
-                  React.createElement('td', null,
-                    template.container ? 
-                      React.createElement('span', { className: 'container-name' }, template.container.name) :
-                      React.createElement('span', { className: 'text-muted' }, '-')
-                  ),
-                  React.createElement('td', null, formatBytes(template.size)),
-                  React.createElement('td', null, formatDate(template.modified))
+                className: `${template.matched ? '' : 'unused'} ${selectedRow === template.filename ? 'selected-row' : ''}`,
+                onClick: () => setSelectedRow(selectedRow === template.filename ? null : template.filename),
+                style: { cursor: 'pointer' }
+              },
+                React.createElement('td', { className: 'checkbox-cell' },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: selectedTemplates.includes(template.filename),
+                    onChange: (e) => { e.stopPropagation(); toggleTemplateSelection(template.filename); }
+                  })
+                ),
+                React.createElement('td', null,
+                  template.matched ? 
+                    React.createElement('span', { className: 'status-badge status-matched' }, '✓ Matched') :
+                    React.createElement('span', { className: 'status-badge status-unused' }, '✗ Unused')
+                ),
+                React.createElement('td', null, React.createElement('strong', null, template.filename)),
+                React.createElement('td', null,
+                  template.container ? 
+                    React.createElement('span', { className: 'container-name' }, template.container.name) :
+                    React.createElement('span', { className: 'text-muted' }, '-')
+                ),
+                React.createElement('td', null, formatBytes(template.size)),
+                React.createElement('td', null, formatDate(template.modified))
                 ),
                 // Actions row (only when selected)
                 selectedRow === template.filename && React.createElement('tr', { className: 'actions-row' },
                   React.createElement('td', { className: 'checkbox-cell' }, ''), // Empty checkbox cell
                   React.createElement('td', { className: 'actions-cell' },
-                    React.createElement('div', { className: 'template-actions' },
-                      React.createElement('button', { 
+                React.createElement('div', { className: 'template-actions' },
+                    React.createElement('button', { 
                         className: 'btn btn-primary',
                         onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
-                        title: 'View/Edit template'
-                      }, 
+                      title: 'View/Edit template'
+                    }, 
                         React.createElement('i', { className: 'lni lni-eye' }),
                         React.createElement('span', { style: { marginLeft: '4px' } }, 'View')
-                      ),
-                      React.createElement('button', {
+                    ),
+                    React.createElement('button', {
                         className: 'btn btn-secondary',
                         onClick: (e) => { e.stopPropagation(); handleRenameTemplate(template.filename); },
-                        title: 'Rename template'
-                      }, 
+                      title: 'Rename template'
+                    }, 
                         React.createElement('i', { className: 'lni lni-pencil' }),
-                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Rename')
-                      ),
-                      React.createElement('button', {
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Rename')
+                    ),
+                    React.createElement('button', {
                         className: 'btn btn-secondary',
                         onClick: (e) => { e.stopPropagation(); handleCloneTemplate(template.filename); },
-                        title: 'Clone template'
-                      }, 
+                      title: 'Clone template'
+                    }, 
                         React.createElement('i', { className: 'lni lni-files' }),
-                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Clone')
-                      ),
-                      React.createElement('button', {
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Clone')
+                    ),
+                    React.createElement('button', {
                         className: 'btn btn-danger',
                         onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
-                        title: 'Delete template'
-                      }, 
+                      title: 'Delete template'
+                    }, 
                         React.createElement('i', { className: 'lni lni-trash-can' }),
-                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
                       )
                     )
                   ),

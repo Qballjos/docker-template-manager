@@ -1880,3 +1880,149 @@ tr:hover {
   border-color: var(--unraid-danger);
   color: white;
 }
+
+/* Form Editor Styles */
+.editor-mode-toggle {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.mode-button {
+  padding: 6px 12px;
+  border: 1px solid var(--unraid-border);
+  background-color: var(--unraid-bg-secondary);
+  color: var(--unraid-text-primary);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.mode-button.active {
+  background-color: var(--unraid-orange);
+  border-color: var(--unraid-orange);
+  color: white;
+}
+
+.mode-button:hover:not(.active) {
+  background-color: var(--unraid-bg-hover);
+  border-color: var(--unraid-border-light);
+}
+
+.form-editor {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.form-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: var(--unraid-bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--unraid-border);
+}
+
+.form-section h3 {
+  margin: 0 0 16px 0;
+  color: var(--unraid-orange);
+  font-size: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--unraid-text-primary);
+  font-size: 13px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px 12px;
+  border: 1px solid var(--unraid-border);
+  background-color: var(--unraid-bg-primary);
+  color: var(--unraid-text-primary);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--unraid-orange);
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+}
+
+.ports-list,
+.volumes-list,
+.environment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.port-item,
+.volume-item,
+.env-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: var(--unraid-bg-primary);
+  border: 1px solid var(--unraid-border);
+  border-radius: 4px;
+}
+
+.port-item input,
+.volume-item input,
+.env-item input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--unraid-border);
+  background-color: var(--unraid-bg-secondary);
+  color: var(--unraid-text-primary);
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.port-item select,
+.volume-item select {
+  padding: 6px 8px;
+  border: 1px solid var(--unraid-border);
+  background-color: var(--unraid-bg-secondary);
+  color: var(--unraid-text-primary);
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.port-item span,
+.volume-item span,
+.env-item span {
+  color: var(--unraid-text-secondary);
+  font-weight: 600;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 11px;
+  min-width: auto;
+}
