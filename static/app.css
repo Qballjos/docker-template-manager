@@ -1851,6 +1851,7 @@ tr:hover {
   margin-top: auto;
   position: relative;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 .footer-content {

@@ -2043,8 +2043,6 @@ function App() {
           )
       ) : null
       ),
-    // Close content-wrapper
-      ),
       // Footer
       !showApiKeyPrompt && React.createElement('footer', { className: 'app-footer' },
         React.createElement('div', { className: 'footer-content' },
@@ -2079,6 +2077,7 @@ function App() {
             )
           )
         )
+      )
       ),
       // Mobile Menu Button
       !showApiKeyPrompt && React.createElement('button', {
