@@ -68,6 +68,20 @@
             text-align: center;
         }
 
+        .header-logo {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .header-logo .logo {
+            height: 80px;
+            width: auto;
+            max-width: 300px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        
         .header h1 {
             font-size: 3.5rem;
             font-weight: 700;
@@ -315,6 +329,11 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .header-logo .logo {
+                height: 60px;
+                max-width: 250px;
+            }
+            
             .header h1 {
                 font-size: 2.5rem;
             }
@@ -339,7 +358,10 @@
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <h1>🐳 Docker Template Manager</h1>
+            <div class="header-logo">
+                <img src="assets/logo.png" alt="Docker Template Manager" class="logo">
+            </div>
+            <h1>Docker Template Manager</h1>
             <p>Professional Docker template management for Unraid with modern web interface</p>
             
             <div class="badges">
