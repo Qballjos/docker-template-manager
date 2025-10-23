@@ -878,17 +878,35 @@ function App() {
         )
       ) : null,
       activeTab === 'templates' ? React.createElement('div', { className: 'templates' },
+        // Bulk Actions Bar (only when templates are selected)
+        selectedTemplates.length > 0 && React.createElement('div', { className: 'bulk-actions-bar' },
+          React.createElement('div', { className: 'bulk-actions-content' },
+            React.createElement('span', { className: 'selected-count' }, 
+              `${selectedTemplates.length} template${selectedTemplates.length > 1 ? 's' : ''} selected`
+            ),
+            React.createElement('div', { className: 'bulk-actions-buttons' },
+              React.createElement('button', { 
+                className: 'btn-danger',
+                onClick: handleDeleteSelected, 
+                disabled: loading 
+              }, 
+                React.createElement('i', { className: 'fas fa-trash' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete Selected')
+              ),
+              React.createElement('button', { 
+                className: 'btn-secondary',
+                onClick: () => setSelectedTemplates([])
+              }, 
+                React.createElement('i', { className: 'fas fa-times' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'Clear Selection')
+              )
+            )
+          )
+        ),
         React.createElement('div', { className: 'section-header' },
           React.createElement('div', { className: 'actions' },
-            selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
-              React.createElement('span', null, `${selectedTemplates.length} selected`),
-              React.createElement('button', { onClick: handleDeleteSelected, disabled: loading }, 
-                React.createElement('i', { className: 'lni lni-trash-can' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete Selected')
-              )
-            ),
             React.createElement('button', { onClick: () => handleCleanupTemplates(true), disabled: loading }, 
-              React.createElement('i', { className: 'lni lni-broom' }),
+              React.createElement('i', { className: 'fas fa-broom' }),
               React.createElement('span', { style: { marginLeft: '4px' } }, 'Clean Up Unused')
             )
           )
@@ -952,8 +970,7 @@ function App() {
                 React.createElement('th', null, 'Template'),
                 React.createElement('th', null, 'Container'),
                 React.createElement('th', null, 'Size'),
-                React.createElement('th', null, 'Modified'),
-                React.createElement('th', null, 'Actions')
+                React.createElement('th', null, 'Modified')
               )
             ),
             React.createElement('tbody', null,
@@ -982,44 +999,62 @@ function App() {
                     React.createElement('span', { className: 'text-muted' }, '-')
                 ),
                 React.createElement('td', null, formatBytes(template.size)),
-                React.createElement('td', null, formatDate(template.modified)),
-                React.createElement('td', null,
-                  selectedRow === template.filename ? React.createElement('div', { className: 'action-buttons' },
+                React.createElement('td', null, formatDate(template.modified))
+              )),
+            // Individual Template Actions (appears below selected template)
+            selectedRow && React.createElement('tr', { key: `${selectedRow}-actions`, className: 'template-actions-row' },
+              React.createElement('td', { colSpan: 6, className: 'template-actions-cell' },
+                React.createElement('div', { className: 'template-actions' },
+                  React.createElement('div', { className: 'template-actions-header' },
+                    React.createElement('span', { className: 'template-name' }, selectedRow),
+                    React.createElement('button', { 
+                      className: 'btn-close',
+                      onClick: () => setSelectedRow(null)
+                    }, 
+                      React.createElement('i', { className: 'fas fa-times' })
+                    )
+                  ),
+                  React.createElement('div', { className: 'template-actions-buttons' },
                     React.createElement('button', {
-                      className: 'btn-small btn-primary',
-                      onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
+                      className: 'btn-primary',
+                      onClick: () => { handleViewTemplate(selectedRow); setSelectedRow(null); },
                       title: 'View/Edit template'
                     }, 
-                      React.createElement('i', { className: 'lni lni-eye' }),
-                      React.createElement('span', { style: { marginLeft: '4px' } }, 'View')
+                      React.createElement('i', { className: 'fas fa-eye' }),
+                      React.createElement('span', { style: { marginLeft: '4px' } }, 'View/Edit')
                     ),
                     React.createElement('button', {
-                      className: 'btn-small btn-secondary',
-                      onClick: (e) => { e.stopPropagation(); handleRenameTemplate(template.filename); },
+                      className: 'btn-secondary',
+                      onClick: () => { handleRenameTemplate(selectedRow); setSelectedRow(null); },
                       title: 'Rename template'
                     }, 
-                      React.createElement('i', { className: 'lni lni-pencil' }),
+                      React.createElement('i', { className: 'fas fa-pencil-alt' }),
                       React.createElement('span', { style: { marginLeft: '4px' } }, 'Rename')
                     ),
                     React.createElement('button', {
-                      className: 'btn-small btn-secondary',
-                      onClick: (e) => { e.stopPropagation(); handleCloneTemplate(template.filename); },
+                      className: 'btn-secondary',
+                      onClick: () => { handleCloneTemplate(selectedRow); setSelectedRow(null); },
                       title: 'Clone template'
                     }, 
-                      React.createElement('i', { className: 'lni lni-files' }),
+                      React.createElement('i', { className: 'fas fa-copy' }),
                       React.createElement('span', { style: { marginLeft: '4px' } }, 'Clone')
                     ),
                     React.createElement('button', {
-                      className: 'btn-small btn-danger',
-                      onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
+                      className: 'btn-danger',
+                      onClick: () => { 
+                        if (window.confirm(`Delete template "${selectedRow}"?`)) {
+                          handleDeleteTemplate(selectedRow);
+                          setSelectedRow(null);
+                        }
+                      },
                       title: 'Delete template'
                     }, 
-                      React.createElement('i', { className: 'lni lni-trash-can' }),
+                      React.createElement('i', { className: 'fas fa-trash' }),
                       React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
                     )
-                  ) : null
+                  )
                 )
-              ))
+              )
             )
           )
         )
