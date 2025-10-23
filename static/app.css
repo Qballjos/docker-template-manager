@@ -101,15 +101,15 @@ body {
 }
 
 .tabs button:hover {
-  color: var(--unraid-orange);
-  background: rgba(255, 140, 0, 0.1);
+  color: var(--unraid-text-primary);
+  background: var(--unraid-bg-hover);
 }
 
 .tabs button.active {
-  color: var(--unraid-orange);
-  border-bottom-color: var(--unraid-orange);
+  color: var(--unraid-text-primary);
+  border-bottom-color: var(--unraid-border-light);
   font-weight: 600;
-  background: rgba(255, 140, 0, 0.05);
+  background: var(--unraid-bg-tertiary);
 }
 
 .content {
@@ -256,10 +256,23 @@ th {
 td {
   padding: 1rem;
   border-bottom: 1px solid var(--unraid-border);
+  color: var(--unraid-text-primary) !important;
 }
 
 tr:last-child td {
   border-bottom: none;
+}
+
+/* Ensure all table content is readable */
+table td,
+table td *,
+table td strong,
+table td span,
+.table-container td,
+.table-container td *,
+.table-container td strong,
+.table-container td span {
+  color: var(--unraid-text-primary) !important;
 }
 
 tr:hover {
@@ -294,7 +307,7 @@ tr.unused {
 }
 
 .container-name {
-  color: #667eea;
+  color: var(--unraid-text-primary) !important;
   font-weight: 500;
 }
 
@@ -1218,8 +1231,8 @@ button:disabled {
 
 .nav-item.active {
   background: var(--unraid-bg-tertiary);
-  color: var(--unraid-orange);
-  border-left-color: var(--unraid-orange);
+  color: var(--unraid-text-primary);
+  border-left-color: var(--unraid-border-light);
 }
 
 .nav-icon {
@@ -2035,9 +2048,9 @@ tr:hover {
 }
 
 .mode-button.active {
-  background-color: var(--unraid-orange);
-  border-color: var(--unraid-orange);
-  color: white;
+  background-color: var(--unraid-bg-tertiary);
+  border-color: var(--unraid-border-light);
+  color: var(--unraid-text-primary);
 }
 
 .mode-button:hover:not(.active) {
@@ -2047,7 +2060,28 @@ tr:hover {
 
 .form-editor {
   max-height: 70vh;
-  overflow-y: auto;
+  overflow-y: visible;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: var(--unraid-bg-primary);
+  border: 1px solid var(--unraid-border);
+  border-radius: 4px;
+  color: var(--unraid-text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--unraid-orange);
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+}
+
+.form-input::placeholder {
+  color: var(--unraid-text-muted);
 }
 
 .form-section {

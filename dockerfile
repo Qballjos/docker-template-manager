@@ -11,13 +11,12 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Security: Update packages and install security updates
-# Note: Using latest versions after apt-get upgrade for security
-# DL3008 warning suppressed due to security-first approach
+# Pin package versions for reproducible builds and security
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-        curl \
-        ca-certificates && \
+        curl=7.88.1-10+deb12u14 \
+        ca-certificates=20230311+deb12u1 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

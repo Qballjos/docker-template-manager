@@ -233,7 +233,7 @@ function App() {
   const handleViewTemplate = async (filename) => {
     setLoading(true);
     try {
-            const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
+      const response = await fetchWithAuth(`${API_URL}/api/templates/${filename}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -246,9 +246,14 @@ function App() {
         const parsedData = parseXmlToFormData(data.content);
         console.log('Parsed form data:', parsedData);
         
-        // Set form data immediately
+        // Set form data immediately and force re-render
         setFormData(parsedData);
         console.log('FormData state set with:', parsedData);
+        
+        // Force a re-render by updating the editor mode
+        setTimeout(() => {
+          setEditorMode('form');
+        }, 100);
         
       } else {
         alert('Failed to load template');
@@ -267,16 +272,21 @@ function App() {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
       
-      console.log('XML document parsed:', xmlDoc);
-      console.log('Name element:', xmlDoc.querySelector('Name'));
-      console.log('Repository element:', xmlDoc.querySelector('Repository'));
+      // Check for XML parsing errors
+      const parseError = xmlDoc.querySelector('parsererror');
+      if (parseError) {
+        console.error('XML parsing error:', parseError.textContent);
+        return {};
+      }
+      
+      console.log('XML document parsed successfully');
       
       const formData = {
-        name: xmlDoc.querySelector('Name')?.textContent || '',
-        repository: xmlDoc.querySelector('Repository')?.textContent || '',
-        tag: xmlDoc.querySelector('Tag')?.textContent || '',
-        network: xmlDoc.querySelector('Network')?.textContent || 'bridge',
-        restart: xmlDoc.querySelector('RestartPolicy')?.textContent || 'unless-stopped',
+        name: xmlDoc.querySelector('Name')?.textContent?.trim() || '',
+        repository: xmlDoc.querySelector('Repository')?.textContent?.trim() || '',
+        tag: xmlDoc.querySelector('Tag')?.textContent?.trim() || '',
+        network: xmlDoc.querySelector('Network')?.textContent?.trim() || 'bridge',
+        restart: xmlDoc.querySelector('RestartPolicy')?.textContent?.trim() || 'unless-stopped',
         ports: [],
         volumes: [],
         environment: []
@@ -326,7 +336,16 @@ function App() {
       return formData;
     } catch (error) {
       console.error('Error parsing XML:', error);
-      return {};
+      return {
+        name: '',
+        repository: '',
+        tag: '',
+        network: 'bridge',
+        restart: 'unless-stopped',
+        ports: [],
+        volumes: [],
+        environment: []
+      };
     }
   };
 
@@ -371,7 +390,7 @@ function App() {
     return xml;
   };
 
-      const handleSaveTemplate = async () => {
+  const handleSaveTemplate = async () => {
     if (!editingTemplate) return;
 
     setLoading(true);
@@ -976,7 +995,10 @@ function App() {
         React.createElement('div', { className: 'modal-body' },
           editorMode === 'form' ? 
             // Form-based editor
-            React.createElement('div', { className: 'form-editor' },
+            React.createElement('div', { 
+              className: 'form-editor',
+              key: `form-${editingTemplate}`
+            },
               // Debug: Log formData when form is rendered
               console.log('FormData when rendering form:', formData),
               // Basic Information
@@ -993,10 +1015,7 @@ function App() {
                         setFormData(prev => ({ ...prev, name: e.target.value }));
                       },
                       placeholder: 'my-container',
-                      style: { 
-                        backgroundColor: formData.name ? '#f0f8ff' : '#fff',
-                        border: formData.name ? '2px solid #4CAF50' : '1px solid #ddd'
-                      }
+                      className: 'form-input'
                     })
                   ),
                   React.createElement('div', { className: 'form-group' },
@@ -1006,10 +1025,7 @@ function App() {
                       value: formData.repository || '',
                       onChange: (e) => setFormData(prev => ({ ...prev, repository: e.target.value })),
                       placeholder: 'nginx',
-                      style: { 
-                        backgroundColor: formData.repository ? '#f0f8ff' : '#fff',
-                        border: formData.repository ? '2px solid #4CAF50' : '1px solid #ddd'
-                      }
+                      className: 'form-input'
                     })
                   )
                 ),
@@ -1166,7 +1182,7 @@ function App() {
                       value: env.key,
                       onChange: (e) => setFormData(prev => ({
                         ...prev,
-                        environment: prev.environment.map((e, i) => i === index ? { ...e, key: e.target.value } : e)
+                        environment: prev.environment.map((env, i) => i === index ? { ...env, key: e.target.value } : env)
                       }))
                     }),
                     React.createElement('span', null, '='),
@@ -1176,7 +1192,7 @@ function App() {
                       value: env.value,
                       onChange: (e) => setFormData(prev => ({
                         ...prev,
-                        environment: prev.environment.map((e, i) => i === index ? { ...e, value: e.target.value } : e)
+                        environment: prev.environment.map((env, i) => i === index ? { ...env, value: e.target.value } : env)
                       }))
                     }),
                     React.createElement('button', {
