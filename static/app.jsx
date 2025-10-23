@@ -1263,18 +1263,19 @@ function App() {
             ))
           )
         )
-      ),
-      // Footer
-      React.createElement('footer', { className: 'footer' },
-        React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
-      ),
-      // Mobile Menu Button
-      !showApiKeyPrompt && React.createElement('button', {
-        className: 'mobile-menu-button',
-        onClick: () => setMobileMenuOpen(!mobileMenuOpen)
-      }, mobileMenuOpen ? '✕' : '☰')
-    )
-  );
+      )
+    ), // Closing main-content
+    // Footer
+    !showApiKeyPrompt && React.createElement('footer', { className: 'footer' },
+      React.createElement('p', null, 'Docker Template Manager v1.3.0 | Made for Unraid')
+    ),
+    // Mobile Menu Button
+    !showApiKeyPrompt && React.createElement('button', {
+      className: 'mobile-menu-button',
+      onClick: () => setMobileMenuOpen(!mobileMenuOpen)
+    }, mobileMenuOpen ? '✕' : '☰')
+  ))); // Closing app-container div
+  
   return container;
 }
 
