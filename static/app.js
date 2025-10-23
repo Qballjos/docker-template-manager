@@ -900,6 +900,20 @@ function App() {
             React.createElement('div', { className: 'form-editor' },
               // Debug: Log formData when form is rendered
               console.log('FormData when rendering form:', formData),
+              // Debug: Show current formData values
+              React.createElement('div', { 
+                style: { 
+                  background: '#f0f0f0', 
+                  padding: '10px', 
+                  margin: '10px 0', 
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontFamily: 'monospace'
+                } 
+              }, 
+                React.createElement('strong', null, 'DEBUG - Current formData:'),
+                React.createElement('pre', null, JSON.stringify(formData, null, 2))
+              ),
               // Basic Information
               React.createElement('div', { className: 'form-section' },
                 React.createElement('h3', null, 'Basic Information'),
@@ -1351,13 +1365,43 @@ function App() {
             React.createElement('i', { className: 'lni lni-reload' }),
             React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh Stats')
           ),
-              React.createElement('button', {
+          React.createElement('button', { 
             onClick: () => window.open('/static/guide.html', '_blank'),
             style: { backgroundColor: 'var(--unraid-success)', borderColor: 'var(--unraid-success)' }
-              }, 
-                React.createElement('i', { className: 'lni lni-book' }),
-                React.createElement('span', { style: { marginLeft: '4px' } }, 'View Guide')
-              )
+          }, 
+            React.createElement('i', { className: 'lni lni-book' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'View Guide')
+          ),
+          React.createElement('button', { 
+            onClick: () => {
+              console.log('=== TEMPLATE EDITOR DEBUG TEST ===');
+              console.log('Current formData state:', formData);
+              console.log('Current editingTemplate:', editingTemplate);
+              console.log('Current editorMode:', editorMode);
+              console.log('Current editContent:', editContent);
+              
+              // Test with sample XML
+              const sampleXml = `<?xml version="1.0"?>
+<Container version="2">
+  <Name>test-container</Name>
+  <Repository>nginx</Repository>
+  <Tag>latest</Tag>
+  <Network>bridge</Network>
+  <RestartPolicy>unless-stopped</RestartPolicy>
+  <Port HostPort="8080" ContainerPort="80" Protocol="tcp"/>
+  <Volume HostDir="/mnt/user/appdata/test" ContainerDir="/app" Mode="rw"/>
+  <Environment Name="TEST_VAR" Value="test_value"/>
+</Container>`;
+              
+              console.log('Testing with sample XML:', sampleXml);
+              const testParsed = parseXmlToFormData(sampleXml);
+              console.log('Sample XML parsed result:', testParsed);
+            },
+            style: { backgroundColor: 'var(--unraid-warning)', borderColor: 'var(--unraid-warning)' }
+          }, 
+            React.createElement('i', { className: 'lni lni-bug' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Debug Template Editor')
+          )
             ),
         // Migration Guide Section
         React.createElement('div', { className: 'migration-guide-section' },
