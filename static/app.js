@@ -1479,7 +1479,6 @@ function App() {
                     checked: selectedContainers.length === containers.length && containers.length > 0
                   })
                 ),
-                React.createElement('th', null, 'Status'),
                 React.createElement('th', null, 'Name'),
                 React.createElement('th', null, 'Image'),
                 React.createElement('th', null, 'State'),
@@ -1494,41 +1493,39 @@ function App() {
                   onClick: () => setSelectedContainerRow(selectedContainerRow === container.id ? null : container.id),
                   style: { cursor: 'pointer' }
               },
-                React.createElement('td', { className: 'checkbox-cell' },
-                  React.createElement('input', {
-                    type: 'checkbox',
+                  React.createElement('td', { className: 'checkbox-cell' },
+                    React.createElement('input', {
+                      type: 'checkbox',
                       checked: selectedContainers.includes(container.id),
                       onChange: (e) => { e.stopPropagation(); toggleContainerSelection(container.id); }
-                  })
-                ),
-                React.createElement('td', null,
-                  React.createElement('span', { className: `status-indicator status-${container.state}` },
-                    container.state === 'running' ? '🟢' : '🔴')
-                ),
-                React.createElement('td', null,
-                  React.createElement('strong', null, container.name),
-                  React.createElement('div', { className: 'text-small text-muted' }, container.id)
-                ),
-                React.createElement('td', { className: 'text-small' }, container.image),
-                React.createElement('td', null,
-                  React.createElement('span', { className: `badge badge-${container.state}` }, container.status)
-                ),
-                React.createElement('td', null,
-                  container.has_template ? 
-                    React.createElement('span', { className: 'status-badge status-matched' }, 
-                      `✓ ${container.template.filename}`) :
-                    React.createElement('span', { className: 'status-badge status-warning' }, 
-                      '⚠️ No template')
-                )
+                    })
+                  ),
+                  React.createElement('td', null,
+                    React.createElement('strong', null, container.name),
+                    React.createElement('div', { className: 'text-small text-muted' }, container.id)
+                  ),
+                  React.createElement('td', { className: 'text-small' }, container.image),
+                  React.createElement('td', null,
+                    React.createElement('span', { className: `badge badge-${container.state}` }, container.status)
+                  ),
+                  React.createElement('td', null,
+                    container.has_template ? 
+                      React.createElement('span', { className: 'status-badge status-matched' }, 
+                        `✓ ${container.template.filename}`) :
+                      React.createElement('span', { className: 'status-badge status-warning' }, 
+                        '⚠️ No template')
+                  )
                 ),
                 // Actions row (only when selected)
                 selectedContainerRow === container.id && React.createElement('tr', { className: 'actions-row' },
                   React.createElement('td', { colSpan: 1, className: 'actions-cell' }, ''), // Empty checkbox cell
+                  React.createElement('td', null, ''), // Empty name cell
+                  React.createElement('td', null, ''), // Empty image cell
                   React.createElement('td', { className: 'actions-cell' },
-                React.createElement('div', { className: 'container-actions' },
+                    React.createElement('div', { className: 'container-actions' },
                       container.state === 'running' ? React.createElement(React.Fragment, null,
-                    React.createElement('button', { 
-                          className: 'btn btn-danger',
+                        React.createElement('button', {
+                          className: 'btn btn-primary',
                           onClick: (e) => { e.stopPropagation(); handleContainerAction(container.name, 'stop'); },
                           disabled: loading,
                           title: 'Stop container'
@@ -1554,10 +1551,8 @@ function App() {
                         React.createElement('i', { className: 'lni lni-play' }),
                         React.createElement('span', { style: { marginLeft: '4px' } }, 'Start')
                       )
-                  )
+                    )
                   ),
-                  React.createElement('td', null, ''), // Empty image cell
-                  React.createElement('td', null, ''), // Empty state cell
                   React.createElement('td', null, '')  // Empty template cell
                 )
               ))

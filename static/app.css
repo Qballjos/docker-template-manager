@@ -2027,7 +2027,7 @@ tr:hover {
   min-width: auto;
 }
 
-/* Container actions styling */
+/* Container actions styling - match templates section */
 .container-actions {
   display: flex;
   gap: 8px;
@@ -2043,6 +2043,19 @@ tr:hover {
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.container-actions .btn-primary {
+  background-color: var(--unraid-primary);
+  border-color: var(--unraid-primary);
+  color: white;
+}
+
+.container-actions .btn-primary:hover {
+  background-color: var(--unraid-primary-dark);
+  border-color: var(--unraid-primary-dark);
 }
 
 .container-actions .btn-success {
@@ -2054,17 +2067,6 @@ tr:hover {
 .container-actions .btn-success:hover {
   background-color: var(--unraid-success-dark);
   border-color: var(--unraid-success-dark);
-}
-
-.container-actions .btn-danger {
-  background-color: var(--unraid-danger);
-  border-color: var(--unraid-danger);
-  color: white;
-}
-
-.container-actions .btn-danger:hover {
-  background-color: var(--unraid-danger-dark);
-  border-color: var(--unraid-danger-dark);
 }
 
 .container-actions .btn-secondary {
