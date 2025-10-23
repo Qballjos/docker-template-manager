@@ -1071,7 +1071,7 @@ function App() {
           )
         )
       ),
-      activeTab === 'containers' && React.createElement('div', { className: 'containers' },
+      activeTab === 'containers' && (console.log('Rendering containers tab with', containers.length, 'containers'), React.createElement('div', { className: 'containers' },
         // Bulk Actions Bar (only when containers are selected)
         selectedContainers.length > 0 && React.createElement('div', { className: 'bulk-actions-bar' },
           React.createElement('div', { className: 'bulk-actions-content' },
@@ -1245,7 +1245,7 @@ function App() {
           )
         )
       ),
-      activeTab === 'backups' && React.createElement('div', { className: 'backups' },
+      activeTab === 'backups' && (console.log('Rendering backups tab with', backups.length, 'backups'), React.createElement('div', { className: 'backups' },
         React.createElement('div', { className: 'section-header' },
           React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
             React.createElement('i', { className: 'lni lni-cloud-upload' }),
