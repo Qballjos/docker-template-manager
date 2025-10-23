@@ -87,12 +87,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: auto-update dependencies
-
-- Update Python packages to latest versions
-- Test compatibility with updated dependencies
-- Generate update report with changes
-- Maintain security and stability"
+            git commit -m "chore: auto-update dependencies" -m "- Update Python packages to latest versions" -m "- Test compatibility with updated dependencies" -m "- Generate update report with changes" -m "- Maintain security and stability"
             git push
           fi
       
