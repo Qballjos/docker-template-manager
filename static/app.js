@@ -8,6 +8,8 @@ function App() {
   const [backups, setBackups] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
+  const [selectedContainers, setSelectedContainers] = React.useState([]);
+  const [selectedContainerRow, setSelectedContainerRow] = React.useState(null);
   const [apiKey, setApiKey] = React.useState(localStorage.getItem('apiKey') || '');
   const [showApiKeyPrompt, setShowApiKeyPrompt] = React.useState(!localStorage.getItem('apiKey'));
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -385,6 +387,38 @@ function App() {
       ...prev,
       environment: prev.environment.filter((_, i) => i !== index)
     }));
+  };
+
+  // Container selection helpers
+  const toggleContainerSelection = (containerId) => {
+    setSelectedContainers(prev => 
+      prev.includes(containerId) 
+        ? prev.filter(id => id !== containerId)
+        : [...prev, containerId]
+    );
+  };
+
+  const handleBulkContainerAction = async (action) => {
+    if (selectedContainers.length === 0) {
+      alert('No containers selected');
+      return;
+    }
+
+    if (!window.confirm(`Perform ${action} on ${selectedContainers.length} containers?`)) {
+      return;
+    }
+
+    setLoading(true);
+    for (const containerId of selectedContainers) {
+      try {
+        await handleContainerAction(containerId, action);
+      } catch (error) {
+        console.error(`Error ${action}ing container ${containerId}:`, error);
+      }
+    }
+    setSelectedContainers([]);
+    setLoading(false);
+    alert(`Performed ${action} on ${selectedContainers.length} containers`);
   };
 
   const handleRenameTemplate = (filename) => {
@@ -1107,6 +1141,33 @@ function App() {
             React.createElement('i', { className: 'lni lni-broom' }),
             React.createElement('span', { style: { marginLeft: '4px' } }, 'Cleanup')
           ),
+          activeTab === 'containers' && selectedContainers.length > 0 && React.createElement(React.Fragment, null,
+            React.createElement('span', { className: 'selection-count' }, `${selectedContainers.length} selected`),
+            React.createElement('button', {
+              className: 'top-bar-button danger',
+              onClick: () => handleBulkContainerAction('stop'),
+              disabled: loading
+            }, 
+              React.createElement('i', { className: 'lni lni-stop' }),
+              React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop Selected')
+            ),
+            React.createElement('button', {
+              className: 'top-bar-button secondary',
+              onClick: () => handleBulkContainerAction('restart'),
+              disabled: loading
+            }, 
+              React.createElement('i', { className: 'lni lni-reload' }),
+              React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart Selected')
+            )
+          ),
+          activeTab === 'containers' && selectedContainers.length === 0 && React.createElement('button', {
+            className: 'top-bar-button primary',
+            onClick: fetchContainers,
+            disabled: loading
+          }, 
+            React.createElement('i', { className: 'lni lni-reload' }),
+            React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh')
+          ),
           activeTab === 'backups' && React.createElement('button', {
             className: 'top-bar-button primary',
             onClick: handleCreateBackup,
@@ -1381,23 +1442,46 @@ function App() {
         )
       ) : null,
       activeTab === 'containers' ? React.createElement('div', { className: 'containers' },
-        React.createElement('div', { className: 'section-header' },
-          React.createElement('button', { onClick: fetchContainers }, '🔄 Refresh')
-        ),
+        // No section header - actions moved to top bar
         React.createElement('div', { className: 'table-container' },
           React.createElement('table', null,
             React.createElement('thead', null,
               React.createElement('tr', null,
+                React.createElement('th', null, 
+                  React.createElement('input', { 
+                    type: 'checkbox',
+                    onChange: (e) => {
+                      if (e.target.checked) {
+                        setSelectedContainers(containers.map(c => c.id));
+                      } else {
+                        setSelectedContainers([]);
+                      }
+                    },
+                    checked: selectedContainers.length === containers.length && containers.length > 0
+                  })
+                ),
                 React.createElement('th', null, 'Status'),
                 React.createElement('th', null, 'Name'),
                 React.createElement('th', null, 'Image'),
                 React.createElement('th', null, 'State'),
-                React.createElement('th', null, 'Template'),
-                React.createElement('th', null, 'Actions')
+                React.createElement('th', null, 'Template')
               )
             ),
             React.createElement('tbody', null,
-              containers.map(container => React.createElement('tr', { key: container.id },
+              containers.map(container => React.createElement(React.Fragment, { key: container.id },
+                // Main container row
+                React.createElement('tr', { 
+                  className: `${selectedContainerRow === container.id ? 'selected-row' : ''}`,
+                  onClick: () => setSelectedContainerRow(selectedContainerRow === container.id ? null : container.id),
+                  style: { cursor: 'pointer' }
+              },
+                React.createElement('td', { className: 'checkbox-cell' },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                      checked: selectedContainers.includes(container.id),
+                      onChange: (e) => { e.stopPropagation(); toggleContainerSelection(container.id); }
+                  })
+                ),
                 React.createElement('td', null,
                   React.createElement('span', { className: `status-indicator status-${container.state}` },
                     container.state === 'running' ? '🟢' : '🔴')
@@ -1416,34 +1500,51 @@ function App() {
                       `✓ ${container.template.filename}`) :
                     React.createElement('span', { className: 'status-badge status-warning' }, 
                       '⚠️ No template')
+                )
                 ),
-                React.createElement('td', null,
-                  React.createElement('div', { className: 'action-buttons' },
-                    container.state === 'running' ? React.createElement(React.Fragment, null,
-                        React.createElement('button', {
-                        className: 'btn-small btn-danger',
-                        onClick: () => handleContainerAction(container.name, 'stop'),
+                // Actions row (only when selected)
+                selectedContainerRow === container.id && React.createElement('tr', { className: 'actions-row' },
+                  React.createElement('td', { colSpan: 1, className: 'actions-cell' }, ''), // Empty checkbox cell
+                  React.createElement('td', { className: 'actions-cell' },
+                React.createElement('div', { className: 'container-actions' },
+                      container.state === 'running' ? React.createElement(React.Fragment, null,
+                    React.createElement('button', { 
+                          className: 'btn btn-danger',
+                          onClick: (e) => { e.stopPropagation(); handleContainerAction(container.name, 'stop'); },
                           disabled: loading,
                           title: 'Stop container'
-                      }, '■ Stop'),
+                        }, 
+                          React.createElement('i', { className: 'lni lni-stop' }),
+                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Stop')
+                        ),
                         React.createElement('button', {
-                        className: 'btn-small btn-secondary',
-                        onClick: () => handleContainerAction(container.name, 'restart'),
+                          className: 'btn btn-secondary',
+                          onClick: (e) => { e.stopPropagation(); handleContainerAction(container.name, 'restart'); },
                           disabled: loading,
                           title: 'Restart container'
-                      }, '↻ Restart')
-                    ) : React.createElement('button', {
-                      className: 'btn-small btn-success',
-                      onClick: () => handleContainerAction(container.name, 'start'),
+                        }, 
+                          React.createElement('i', { className: 'lni lni-reload' }),
+                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Restart')
+                        )
+                      ) : React.createElement('button', {
+                        className: 'btn btn-success',
+                        onClick: (e) => { e.stopPropagation(); handleContainerAction(container.name, 'start'); },
                         disabled: loading,
                         title: 'Start container'
-                    }, '▶ Start')
+                      }, 
+                        React.createElement('i', { className: 'lni lni-play' }),
+                        React.createElement('span', { style: { marginLeft: '4px' } }, 'Start')
+                      )
                   )
+                  ),
+                  React.createElement('td', null, ''), // Empty image cell
+                  React.createElement('td', null, ''), // Empty state cell
+                  React.createElement('td', null, '')  // Empty template cell
                 )
               ))
+              )
             )
           )
-        )
       ) : null,
       activeTab === 'backups' ? React.createElement('div', { className: 'backups' },
         React.createElement('div', { className: 'section-header' },

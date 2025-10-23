@@ -2026,3 +2026,54 @@ tr:hover {
   font-size: 11px;
   min-width: auto;
 }
+
+/* Container actions styling */
+.container-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.container-actions .btn {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.container-actions .btn-success {
+  background-color: var(--unraid-success);
+  border-color: var(--unraid-success);
+  color: white;
+}
+
+.container-actions .btn-success:hover {
+  background-color: var(--unraid-success-dark);
+  border-color: var(--unraid-success-dark);
+}
+
+.container-actions .btn-danger {
+  background-color: var(--unraid-danger);
+  border-color: var(--unraid-danger);
+  color: white;
+}
+
+.container-actions .btn-danger:hover {
+  background-color: var(--unraid-danger-dark);
+  border-color: var(--unraid-danger-dark);
+}
+
+.container-actions .btn-secondary {
+  background-color: var(--unraid-bg-secondary);
+  border-color: var(--unraid-border);
+  color: var(--unraid-text-primary);
+}
+
+.container-actions .btn-secondary:hover {
+  background-color: var(--unraid-bg-hover);
+  border-color: var(--unraid-border-light);
+}
