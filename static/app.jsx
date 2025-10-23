@@ -970,7 +970,7 @@ function App() {
                       onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
                       title: 'Delete template'
                     }, '🗑️ Delete')
-                  )
+                  ) : null
                 )
               ))
             )
