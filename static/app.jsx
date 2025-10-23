@@ -641,7 +641,13 @@ function App() {
     },
       // Sidebar Header
       React.createElement('div', { className: 'sidebar-header' },
-        React.createElement('div', { className: 'sidebar-logo' }, '🐳'),
+        React.createElement('div', { className: 'sidebar-logo' }, 
+          React.createElement('img', { 
+            src: '/static/png/logo.png', 
+            alt: 'Docker Template Manager',
+            style: { width: '32px', height: '32px' }
+          })
+        ),
         React.createElement('div', { className: 'sidebar-title' },
           React.createElement('h1', null, 'Template Manager'),
           React.createElement('p', null, 'for Unraid')
@@ -922,11 +928,11 @@ function App() {
                 onClick: () => setSelectedRow(selectedRow === template.filename ? null : template.filename),
                 style: { cursor: 'pointer' }
               },
-                React.createElement('td', null,
+                React.createElement('td', { className: 'checkbox-cell' },
                   React.createElement('input', {
                     type: 'checkbox',
                     checked: selectedTemplates.includes(template.filename),
-                    onChange: () => toggleTemplateSelection(template.filename)
+                    onChange: (e) => { e.stopPropagation(); toggleTemplateSelection(template.filename); }
                   })
                 ),
                 React.createElement('td', null,
@@ -943,7 +949,7 @@ function App() {
                 React.createElement('td', null, formatBytes(template.size)),
                 React.createElement('td', null, formatDate(template.modified)),
                 React.createElement('td', null,
-                  selectedRow === template.filename && React.createElement('div', { className: 'action-buttons' },
+                  selectedRow === template.filename ? React.createElement('div', { className: 'action-buttons' },
                     React.createElement('button', {
                       className: 'btn-small btn-primary',
                       onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },

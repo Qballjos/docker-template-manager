@@ -1603,3 +1603,129 @@ tr:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Checkbox cell styling */
+.checkbox-cell {
+  padding: 8px 12px !important;
+  width: 40px;
+  text-align: center;
+}
+
+.checkbox-cell input[type="checkbox"] {
+  margin: 0;
+  transform: scale(1.2);
+}
+
+/* Migration guide styles */
+.migration-guide-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--unraid-bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--unraid-border);
+}
+
+.migration-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.migration-card {
+  background: var(--unraid-bg-tertiary);
+  border: 1px solid var(--unraid-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all var(--transition-base);
+}
+
+.migration-card:hover {
+  border-color: var(--unraid-orange);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.migration-card h4 {
+  color: var(--unraid-orange);
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.migration-desc {
+  color: var(--unraid-text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.pros-cons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pros, .cons {
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.pros {
+  background: rgba(92, 184, 92, 0.1);
+  border: 1px solid rgba(92, 184, 92, 0.3);
+}
+
+.cons {
+  background: rgba(240, 173, 78, 0.1);
+  border: 1px solid rgba(240, 173, 78, 0.3);
+}
+
+.pros strong, .cons strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.pros ul, .cons ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.pros li, .cons li {
+  margin-bottom: 0.3rem;
+}
+
+.migration-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.migration-buttons button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--unraid-orange);
+  background: transparent;
+  color: var(--unraid-orange);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all var(--transition-fast);
+}
+
+.migration-buttons button:hover {
+  background: var(--unraid-orange);
+  color: var(--unraid-bg-primary);
+}
+
+@media (max-width: 768px) {
+  .pros-cons {
+    grid-template-columns: 1fr;
+  }
+  
+  .migration-cards {
+    grid-template-columns: 1fr;
+  }
+}

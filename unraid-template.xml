@@ -7,8 +7,8 @@
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/yourusername/docker-template-manager/issues</Support>
-  <Project>https://github.com/yourusername/docker-template-manager</Project>
+  <Support>https://github.com/Qballjos/docker-template-manager/issues</Support>
+  <Project>https://github.com/Qballjos/docker-template-manager</Project>
   <Overview>
     Docker Template Manager - Secure web interface for managing Unraid Docker templates.
     
@@ -35,8 +35,8 @@
   </Overview>
   <Category>Tools:Utilities</Category>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
-  <TemplateURL>https://raw.githubusercontent.com/yourusername/docker-template-manager/master/unraid-template.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/yourusername/docker-template-manager/master/icon.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/Qballjos/docker-template-manager/main/unraid-template.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/Qballjos/docker-template-manager/master/static/png/logo.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>

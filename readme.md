@@ -3,7 +3,7 @@
 Clean up unused Docker templates and manage your Unraid templates with a modern web interface.
 
 ![Unraid](https://img.shields.io/badge/Unraid-Compatible-orange.svg)
-![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-1.3.0-blue.svg)
 ![Security](https://img.shields.io/badge/Security-Hardened-green.svg)
 
 ---
@@ -33,12 +33,14 @@ Clean up unused Docker templates and manage your Unraid templates with a modern 
 - **💾 One-Click Backups** - Backup all containers & templates
 - **🔐 Secure** - API key authentication, all vulnerabilities fixed
 
-### New in v1.2.0
-- **Search Bar** - Real-time template search
-- **Filter by Status** - All/Matched/Unused
-- **Sort Options** - By name, size, or date
-- **Pie Chart** - Visual dashboard overview
-- **Better UX** - Improved layout and responsiveness
+### New in v1.3.0
+- **🎨 Professional UI** - *arr-style sidebar navigation
+- **🌓 Theme Toggle** - Dark/Light mode with persistence
+- **🎮 Container Controls** - Start/Stop/Restart containers directly
+- **📱 Mobile Responsive** - Hamburger menu and touch-friendly
+- **📚 Migration Guides** - Docker vDisk to folder conversion guides
+- **🔍 Enhanced Search** - Real-time template search and filtering
+- **📊 Visual Dashboard** - Pie chart and comprehensive stats
 
 ---
 
@@ -185,7 +187,8 @@ Your API key is required for security. You have two options:
 
 ### Version History
 
-- **v1.2.0** (Current) - Search/filter, pie chart, improved UX
+- **v1.3.0** (Current) - Professional UI, theme toggle, container controls, migration guides
+- **v1.2.0** - Search/filter, pie chart, improved UX
 - **v1.1.0** - Security hardening, API authentication
 - **v1.0.0** - Initial release
 
@@ -264,7 +267,7 @@ Built for the Unraid community to make Docker template management easier and saf
 
 ---
 
-**Current Version:** 1.2.0  
+**Current Version:** 1.3.0  
 **Unraid Tested:** 6.11+  
 **Status:** ✅ Production Ready  
 **Security:** ✅ All vulnerabilities fixed
