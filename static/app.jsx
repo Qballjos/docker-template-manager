@@ -913,7 +913,7 @@ function App() {
             required: true,
             style: { width: '100%', padding: '10px', marginBottom: '10px', fontSize: '14px' }
           }),
-          React.createElement('button', { type: 'submit', className: 'btn-primary' }, 'Submit')
+          React.createElement('button', { type: 'submit', className: 'btn btn-primary' }, 'Submit')
         )
       )
     ),
@@ -1169,11 +1169,11 @@ function App() {
         ),
         React.createElement('div', { className: 'modal-footer' },
           React.createElement('button', {
-            className: 'btn-secondary',
+            className: 'btn btn-secondary',
             onClick: handleCloseEditor
           }, 'Cancel'),
           React.createElement('button', {
-            className: 'btn-primary',
+            className: 'btn btn-primary',
             onClick: handleSaveTemplate,
             disabled: loading
           }, loading ? 'Saving...' : 'Save Changes')
@@ -1198,14 +1198,14 @@ function App() {
         ),
         React.createElement('div', { className: 'modal-footer' },
           React.createElement('button', {
-            className: 'btn-secondary',
+            className: 'btn btn-secondary',
             onClick: () => {
               setRenamingTemplate(null);
               setNewTemplateName('');
             }
           }, 'Cancel'),
           React.createElement('button', {
-            className: 'btn-primary',
+            className: 'btn btn-primary',
             onClick: handleSaveRename,
             disabled: loading || !newTemplateName.trim()
           }, loading ? 'Renaming...' : 'Rename')
@@ -1678,6 +1678,44 @@ function App() {
       ) : null,
       activeTab === 'containers' ? React.createElement('div', { className: 'containers' },
         // No section header - actions moved to top bar
+        // Search and Filter Bar
+        React.createElement('div', { className: 'filter-bar' },
+          React.createElement('div', { className: 'search-box' },
+            React.createElement('input', {
+              type: 'text',
+              placeholder: '🔍 Search containers...',
+              value: searchTerm,
+              onChange: (e) => setSearchTerm(e.target.value),
+              className: 'search-input'
+            }),
+            searchTerm && React.createElement('button', {
+              onClick: () => setSearchTerm(''),
+              className: 'clear-search',
+              title: 'Clear search'
+            }, '✕')
+          ),
+          React.createElement('div', { className: 'filter-controls' },
+            React.createElement('select', {
+              value: filterStatus,
+              onChange: (e) => setFilterStatus(e.target.value),
+              className: 'filter-select'
+            },
+              React.createElement('option', { value: 'all' }, 'All Containers'),
+              React.createElement('option', { value: 'running' }, '🟢 Running Only'),
+              React.createElement('option', { value: 'stopped' }, '🔴 Stopped Only')
+            ),
+            React.createElement('select', {
+              value: containerSortBy,
+              onChange: (e) => setContainerSortBy(e.target.value),
+              className: 'filter-select'
+            },
+              React.createElement('option', { value: 'name' }, 'Sort: Name'),
+              React.createElement('option', { value: 'image' }, 'Sort: Image'),
+              React.createElement('option', { value: 'state' }, 'Sort: State')
+            )
+          )
+        ),
+        loading ? React.createElement('div', { className: 'loading' }, 'Loading...') : 
         React.createElement('div', { className: 'table-container' },
           React.createElement('table', null,
             React.createElement('thead', null,
@@ -1805,6 +1843,43 @@ function App() {
       ) : null,
       activeTab === 'backups' ? React.createElement('div', { className: 'backups' },
         // No section header - actions moved to top bar
+        // Search and Filter Bar
+        React.createElement('div', { className: 'filter-bar' },
+          React.createElement('div', { className: 'search-box' },
+            React.createElement('input', {
+              type: 'text',
+              placeholder: '🔍 Search backups...',
+              value: searchTerm,
+              onChange: (e) => setSearchTerm(e.target.value),
+              className: 'search-input'
+            }),
+            searchTerm && React.createElement('button', {
+              onClick: () => setSearchTerm(''),
+              className: 'clear-search',
+              title: 'Clear search'
+            }, '✕')
+          ),
+          React.createElement('div', { className: 'filter-controls' },
+            React.createElement('select', {
+              value: filterStatus,
+              onChange: (e) => setFilterStatus(e.target.value),
+              className: 'filter-select'
+            },
+              React.createElement('option', { value: 'all' }, 'All Backups'),
+              React.createElement('option', { value: 'recent' }, '📅 Recent Only'),
+              React.createElement('option', { value: 'large' }, '📦 Large Only')
+            ),
+            React.createElement('select', {
+              value: backupSortBy,
+              onChange: (e) => setBackupSortBy(e.target.value),
+              className: 'filter-select'
+            },
+              React.createElement('option', { value: 'name' }, 'Sort: Name'),
+              React.createElement('option', { value: 'date' }, 'Sort: Date'),
+              React.createElement('option', { value: 'size' }, 'Sort: Size')
+            )
+          )
+        ),
         loading ? React.createElement('div', { className: 'loading' }, 'Loading...') : 
         backups.length === 0 ? 
           React.createElement('div', { className: 'empty-state' },
