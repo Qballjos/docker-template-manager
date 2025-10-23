@@ -1288,9 +1288,33 @@ button:disabled {
 }
 
 .top-bar-title h2 {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--unraid-text-primary);
+  margin: 0;
+}
+
+/* Breadcrumb styling */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.breadcrumb-item {
+  color: var(--unraid-text-secondary);
+  font-weight: 500;
+}
+
+.breadcrumb-separator {
+  color: var(--unraid-text-muted);
+  font-weight: 300;
+}
+
+.breadcrumb-current {
+  color: var(--unraid-text-primary);
+  font-weight: 600;
 }
 
 .top-bar-actions {

@@ -294,9 +294,9 @@ function App() {
   const getPageTitle = () => {
     const titles = {
       'dashboard': 'Dashboard',
-      'templates': 'Templates',
-      'containers': 'Containers',
-      'backups': 'Backups'
+      'templates': `Templates (${getFilteredAndSortedTemplates().length}/${templates.length})`,
+      'containers': `Containers (${containers.length})`,
+      'backups': `Backups (${backups.length})`
     };
     return titles[activeTab] || 'Dashboard';
   };
@@ -717,7 +717,11 @@ function App() {
       // Top Bar
       React.createElement('div', { className: 'top-bar' },
         React.createElement('div', { className: 'top-bar-title' },
-          React.createElement('h2', null, getPageTitle())
+          React.createElement('div', { className: 'breadcrumb' },
+            React.createElement('span', { className: 'breadcrumb-item' }, 'Docker Template Manager'),
+            React.createElement('span', { className: 'breadcrumb-separator' }, '›'),
+            React.createElement('span', { className: 'breadcrumb-current' }, getPageTitle())
+          )
         ),
         React.createElement('div', { className: 'top-bar-actions' },
           activeTab === 'templates' && React.createElement('button', {
@@ -735,7 +739,6 @@ function App() {
       // Content Wrapper
       React.createElement('div', { className: 'content-wrapper' },
       activeTab === 'dashboard' && stats ? React.createElement('div', { className: 'dashboard' },
-        React.createElement('h2', null, 'Dashboard'),
         React.createElement('div', { className: 'stats-grid' },
           React.createElement('div', { className: 'stat-card' },
             React.createElement('h3', null, 'Templates'),
@@ -843,7 +846,6 @@ function App() {
       ) : null,
       activeTab === 'templates' ? React.createElement('div', { className: 'templates' },
         React.createElement('div', { className: 'section-header' },
-          React.createElement('h2', null, `Templates (${getFilteredAndSortedTemplates().length}/${templates.length})`),
           React.createElement('div', { className: 'actions' },
             selectedTemplates.length > 0 && React.createElement(React.Fragment, null,
               React.createElement('span', null, `${selectedTemplates.length} selected`),
@@ -975,7 +977,6 @@ function App() {
       ) : null,
       activeTab === 'containers' ? React.createElement('div', { className: 'containers' },
         React.createElement('div', { className: 'section-header' },
-          React.createElement('h2', null, `Containers (${containers.length})`),
           React.createElement('button', { onClick: fetchContainers }, '🔄 Refresh')
         ),
         React.createElement('div', { className: 'table-container' },
@@ -1041,7 +1042,6 @@ function App() {
       ) : null,
       activeTab === 'backups' ? React.createElement('div', { className: 'backups' },
         React.createElement('div', { className: 'section-header' },
-          React.createElement('h2', null, `Backups (${backups.length})`),
           React.createElement('button', { onClick: handleCreateBackup, disabled: loading }, 
             '💾 Create New Backup')
         ),
