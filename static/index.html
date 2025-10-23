@@ -5,53 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#FF8C00" />
     <meta name="description" content="Docker Template Manager for Unraid - Manage your Docker templates with ease" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.lineicons.com; font-src 'self' https://cdnjs.cloudflare.com https://cdn.lineicons.com; img-src 'self' data:;" />
     <link rel="icon" type="image/png" href="/static/png/favicon.png" />
     <link rel="apple-touch-icon" href="/static/png/logo.png" />
     <title>Docker Template Manager</title>
     <link rel="stylesheet" href="/static/app.css" />
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <!-- Line Icons -->
-    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
-    <!-- React and ReactDOM from CDN (Development versions for better error messages) -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- React and ReactDOM from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-        <!-- Your App Component (plain JavaScript) -->
-    <script src="/static/app.jsx?v=20251023-3"></script>
+    <!-- Your App Component (plain JavaScript, no JSX) -->
+    <script type="text/javascript" src="/static/app.jsx?v=20251023-4"></script>
     
     <!-- Mount React App -->
     <script>
-      window.addEventListener('DOMContentLoaded', () => {
-        try {
-          // Make sure App component is defined
-          if (typeof window.App !== 'function') {
-            throw new Error('App component not found. Check that app.jsx is loaded correctly.');
-          }
-
-          const { createRoot } = ReactDOM;
-          const container = document.getElementById('root');
-          if (!container) throw new Error('Root element not found');
-          
-          const root = createRoot(container);
-          const app = React.createElement(window.App);
-          root.render(app);
-        } catch (error) {
-          console.error('Error mounting React app:', error);
-          document.getElementById('root').innerHTML = `
-            <div style="color: red; padding: 20px;">
-              <h2>Error Loading Application</h2>
-              <pre>${error.message}</pre>
-            </div>
-          `;
-        }
-      });
+      const { createRoot } = ReactDOM;
+      const root = createRoot(document.getElementById('root'));
+      root.render(React.createElement(window.App));
     </script>
   </body>
 </html>
