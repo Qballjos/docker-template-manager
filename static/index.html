@@ -27,15 +27,28 @@
     
     <!-- Mount React App -->
     <script>
-      window.addEventListener('load', () => {
+      window.addEventListener('DOMContentLoaded', () => {
         try {
+          // Make sure App component is defined
+          if (typeof window.App !== 'function') {
+            throw new Error('App component not found. Check that app.jsx is loaded correctly.');
+          }
+
           const { createRoot } = ReactDOM;
           const container = document.getElementById('root');
           if (!container) throw new Error('Root element not found');
+          
           const root = createRoot(container);
-          root.render(React.createElement(window.App));
+          const app = React.createElement(window.App);
+          root.render(app);
         } catch (error) {
           console.error('Error mounting React app:', error);
+          document.getElementById('root').innerHTML = `
+            <div style="color: red; padding: 20px;">
+              <h2>Error Loading Application</h2>
+              <pre>${error.message}</pre>
+            </div>
+          `;
         }
       });
     </script>
