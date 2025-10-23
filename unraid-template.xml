@@ -10,7 +10,7 @@
   <Support>https://github.com/Qballjos/docker-template-manager/issues</Support>
   <Project>https://github.com/Qballjos/docker-template-manager</Project>
   <Overview>
-    Docker Template Manager v1.4.0 - Professional Docker template management system for Unraid with modern web interface.
+    Docker Template Manager v1.4.3 - Professional Docker template management system for Unraid with modern web interface.
     
     🎯 **Core Capabilities:**
     • 📊 **Dashboard & Analytics** - Visual statistics with pie charts and real-time data
@@ -49,7 +49,7 @@
     • Organizing your Docker ecosystem
     • Professional template editing
     
-    **Version 1.4.0** - Latest with sortable tables, hybrid editor, and bulk operations!
+    **Version 1.4.3** - Latest with UI/UX improvements, form fixes, and enhanced user experience!
   </Overview>
   <Category>Tools:Utilities</Category>
   <WebUI>http://[IP]:[PORT:8889]</WebUI>

@@ -5,8 +5,8 @@ Flask application for managing Unraid Docker templates
 """
 
 # Version information
-__version__ = "1.4.0"
-__version_info__ = (1, 4, 0)
+__version__ = "1.4.3"
+__version_info__ = (1, 4, 3)
 
 from flask import send_from_directory
 from flask import Flask, jsonify, request, send_file
