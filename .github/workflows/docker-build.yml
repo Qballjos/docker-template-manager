@@ -2,9 +2,23 @@ name: Docker Build Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
+    paths:
+      - 'app.py'
+      - 'requirements.txt'
+      - 'dockerfile'
+      - 'static/**'
+      - 'docker-compose.yml'
+      - 'docker-compose.local.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'app.py'
+      - 'requirements.txt'
+      - 'dockerfile'
+      - 'static/**'
+      - 'docker-compose.yml'
+      - 'docker-compose.local.yml'
 
 jobs:
   build:

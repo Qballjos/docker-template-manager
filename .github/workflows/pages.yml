@@ -3,6 +3,15 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'readme.md'
+      - 'CHANGELOG.md'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'DEVELOPMENT.md'
+      - 'static/png/**'
   workflow_dispatch:
 
 permissions:
