@@ -19,6 +19,7 @@ function App() {
   const [newTemplateName, setNewTemplateName] = React.useState('');
   const [theme, setTheme] = React.useState(localStorage.getItem('theme') || 'dark');
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [selectedRow, setSelectedRow] = React.useState(null);
 
   // Apply theme on mount and change
   React.useEffect(() => {
@@ -770,6 +771,72 @@ function App() {
             '💾 Create Backup'),
           React.createElement('button', { onClick: () => fetchStats() }, 
             '🔄 Refresh Stats')
+        ),
+        // Migration Guide Section
+        React.createElement('div', { className: 'migration-guide-section' },
+          React.createElement('h3', null, '📚 Docker Migration Guides'),
+          React.createElement('div', { className: 'migration-cards' },
+            // vDisk to Folder Guide
+            React.createElement('div', { className: 'migration-card' },
+              React.createElement('h4', null, '🔄 vDisk → Folder Migration'),
+              React.createElement('p', { className: 'migration-desc' }, 'Convert your Docker containers from vdisk.img to folder-based storage'),
+              React.createElement('div', { className: 'pros-cons' },
+                React.createElement('div', { className: 'pros' },
+                  React.createElement('strong', null, '✅ Pros:'),
+                  React.createElement('ul', null,
+                    React.createElement('li', null, 'Better performance'),
+                    React.createElement('li', null, 'Easier backups'),
+                    React.createElement('li', null, 'No size limits'),
+                    React.createElement('li', null, 'Direct file access')
+                  )
+                ),
+                React.createElement('div', { className: 'cons' },
+                  React.createElement('strong', null, '⚠️ Cons:'),
+                  React.createElement('ul', null,
+                    React.createElement('li', null, 'Requires migration time'),
+                    React.createElement('li', null, 'Need free space'),
+                    React.createElement('li', null, 'Risk if not backed up')
+                  )
+                )
+              ),
+              React.createElement('button', {
+                className: 'migration-button',
+                onClick: () => window.open('https://wiki.unraid.net/Docker_Migration#From_vDisk_to_Folder', '_blank')
+              }, '📖 View Guide')
+            ),
+            // Folder to vDisk Guide
+            React.createElement('div', { className: 'migration-card' },
+              React.createElement('h4', null, '🔄 Folder → vDisk Migration'),
+              React.createElement('p', { className: 'migration-desc' }, 'Convert your Docker containers from folder-based to vdisk.img storage'),
+              React.createElement('div', { className: 'pros-cons' },
+                React.createElement('div', { className: 'pros' },
+                  React.createElement('strong', null, '✅ Pros:'),
+                  React.createElement('ul', null,
+                    React.createElement('li', null, 'Single file simplicity'),
+                    React.createElement('li', null, 'Easier to move'),
+                    React.createElement('li', null, 'Contained environment')
+                  )
+                ),
+                React.createElement('div', { className: 'cons' },
+                  React.createElement('strong', null, '⚠️ Cons:'),
+                  React.createElement('ul', null,
+                    React.createElement('li', null, 'Size limitations'),
+                    React.createElement('li', null, 'Slower performance'),
+                    React.createElement('li', null, 'Harder to backup'),
+                    React.createElement('li', null, 'No direct file access')
+                  )
+                )
+              ),
+              React.createElement('button', {
+                className: 'migration-button',
+                onClick: () => window.open('https://wiki.unraid.net/Docker_Migration#From_Folder_to_vDisk', '_blank')
+              }, '📖 View Guide')
+            )
+          ),
+          React.createElement('div', { className: 'migration-note' },
+            React.createElement('strong', null, '💡 Tip: '),
+            React.createElement('span', null, 'Always create a backup before migrating! Use the backup feature above.')
+          )
         )
       ) : null,
       activeTab === 'templates' ? React.createElement('div', { className: 'templates' },
@@ -851,7 +918,9 @@ function App() {
             React.createElement('tbody', null,
               getFilteredAndSortedTemplates().map(template => React.createElement('tr', { 
                 key: template.filename, 
-                className: template.matched ? '' : 'unused' 
+                className: `${template.matched ? '' : 'unused'} ${selectedRow === template.filename ? 'selected-row' : ''}`,
+                onClick: () => setSelectedRow(selectedRow === template.filename ? null : template.filename),
+                style: { cursor: 'pointer' }
               },
                 React.createElement('td', null,
                   React.createElement('input', {
@@ -874,25 +943,25 @@ function App() {
                 React.createElement('td', null, formatBytes(template.size)),
                 React.createElement('td', null, formatDate(template.modified)),
                 React.createElement('td', null,
-                  React.createElement('div', { className: 'action-buttons' },
+                  selectedRow === template.filename && React.createElement('div', { className: 'action-buttons' },
                     React.createElement('button', {
                       className: 'btn-small btn-primary',
-                      onClick: () => handleViewTemplate(template.filename),
+                      onClick: (e) => { e.stopPropagation(); handleViewTemplate(template.filename); },
                       title: 'View/Edit template'
                     }, '👁️ View'),
                     React.createElement('button', {
                       className: 'btn-small btn-secondary',
-                      onClick: () => handleRenameTemplate(template.filename),
+                      onClick: (e) => { e.stopPropagation(); handleRenameTemplate(template.filename); },
                       title: 'Rename template'
                     }, '✏️ Rename'),
                     React.createElement('button', {
                       className: 'btn-small btn-secondary',
-                      onClick: () => handleCloneTemplate(template.filename),
+                      onClick: (e) => { e.stopPropagation(); handleCloneTemplate(template.filename); },
                       title: 'Clone template'
                     }, '📋 Clone'),
                     React.createElement('button', {
                       className: 'btn-small btn-danger',
-                      onClick: () => handleDeleteTemplate(template.filename),
+                      onClick: (e) => { e.stopPropagation(); handleDeleteTemplate(template.filename); },
                       title: 'Delete template'
                     }, '🗑️ Delete')
                   )

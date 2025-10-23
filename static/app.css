@@ -1450,3 +1450,156 @@ button:disabled {
 .btn-small.btn-success:hover:not(:disabled) {
   background: var(--unraid-success-dark);
 }
+
+
+/* Fix checkbox alignment */
+table td input[type="checkbox"],
+table th input[type="checkbox"] {
+  margin: 0 8px 0 0;
+  vertical-align: middle;
+}
+
+table td:first-child,
+table th:first-child {
+  padding-left: 20px;
+}
+
+/* Highlight selected row */
+tr.selected-row {
+  background: var(--unraid-bg-hover) !important;
+  border-left: 3px solid var(--unraid-orange);
+}
+
+tr:hover {
+  background: var(--unraid-bg-hover);
+}
+
+
+/* Migration Guide Section */
+.migration-guide-section {
+  margin-top: 30px;
+  background: var(--unraid-bg-secondary);
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid var(--unraid-border);
+}
+
+.migration-guide-section h3 {
+  margin-bottom: 20px;
+  color: var(--unraid-text-primary);
+  font-size: 20px;
+}
+
+.migration-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.migration-card {
+  background: var(--unraid-bg-tertiary);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--unraid-border);
+}
+
+.migration-card h4 {
+  color: var(--unraid-orange);
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.migration-desc {
+  color: var(--unraid-text-secondary);
+  font-size: 14px;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.pros-cons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.pros, .cons {
+  font-size: 13px;
+}
+
+.pros strong {
+  color: var(--unraid-success);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.cons strong {
+  color: var(--unraid-warning);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.pros ul, .cons ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.pros li, .cons li {
+  padding: 4px 0;
+  color: var(--unraid-text-secondary);
+  font-size: 13px;
+}
+
+.pros li::before {
+  content: "• ";
+  color: var(--unraid-success);
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.cons li::before {
+  content: "• ";
+  color: var(--unraid-warning);
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.migration-button {
+  background: var(--unraid-orange);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: var(--transition-fast);
+}
+
+.migration-button:hover {
+  background: var(--unraid-orange-hover);
+}
+
+.migration-note {
+  background: var(--unraid-bg-primary);
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid var(--unraid-info);
+  font-size: 14px;
+  color: var(--unraid-text-secondary);
+}
+
+.migration-note strong {
+  color: var(--unraid-info);
+}
+
+@media (max-width: 768px) {
+  .migration-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .pros-cons {
+    grid-template-columns: 1fr;
+  }
+}
