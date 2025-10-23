@@ -1,19 +1,20 @@
 # Docker Template Manager for Unraid
 
-Clean up unused Docker templates and manage your Unraid templates with a modern web interface.
+A comprehensive Docker template management system for Unraid with a modern web interface. Clean up unused templates, manage containers, create backups, and organize your Docker ecosystem with professional tools.
 
 ![Unraid](https://img.shields.io/badge/Unraid-Compatible-orange.svg)
-![Version](https://img.shields.io/badge/Version-1.3.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-1.4.0-blue.svg)
 ![Security](https://img.shields.io/badge/Security-Hardened-green.svg)
+![Features](https://img.shields.io/badge/Features-Professional%20UI%20%7C%20Sortable%20Tables%20%7C%20Container%20Controls-blue.svg)
 
 ---
 
 ## 🚀 Installation
 
-### Quick Install (2 minutes)
+### Method 1: Unraid Community Applications (Recommended)
 
-1. **Apps** → Search **"Docker Template Manager"** → **Install**
-2. Leave all default settings (they're correct!)
+1. **Apps** → **Community Applications** → Search **"Docker Template Manager"**
+2. **Install** → Leave all default settings (they're correct!)
 3. **Set your API Key** in environment variables (or leave empty for auto-generate)
 4. **Click Apply**
 5. Check **Docker logs** for your API key if auto-generated
@@ -21,26 +22,101 @@ Clean up unused Docker templates and manage your Unraid templates with a modern 
 
 **That's it!** 🎉
 
+### Method 2: Manual Docker Compose
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  docker-template-manager:
+    image: qballjos/docker-template-manager:latest
+    container_name: docker-template-manager
+    ports:
+      - "8889:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /boot/config/plugins/dockerMan/templates-user:/templates:rw
+      - /mnt/user/appdata/docker-template-manager/backups:/backups:rw
+      - /mnt/user/appdata/docker-template-manager/config:/config:rw
+    environment:
+      - TZ=Europe/Amsterdam
+      - TEMPLATE_DIR=/templates
+      - BACKUP_DIR=/backups
+      - CONFIG_DIR=/config
+      - BACKUP_RETENTION_DAYS=30
+      - AUTO_CLEANUP_ENABLED=false
+      - API_KEY=your-secure-api-key-here
+    restart: unless-stopped
+```
+
+### Method 3: Docker Run Command
+
+```bash
+docker run -d \
+  --name docker-template-manager \
+  -p 8889:8080 \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -v /boot/config/plugins/dockerMan/templates-user:/templates:rw \
+  -v /mnt/user/appdata/docker-template-manager/backups:/backups:rw \
+  -v /mnt/user/appdata/docker-template-manager/config:/config:rw \
+  -e TZ=Europe/Amsterdam \
+  -e TEMPLATE_DIR=/templates \
+  -e BACKUP_DIR=/backups \
+  -e CONFIG_DIR=/config \
+  -e API_KEY=your-secure-api-key-here \
+  --restart unless-stopped \
+  qballjos/docker-template-manager:latest
+```
+
 ---
 
 ## ✨ Features
 
-### Core Features
-- **📊 Dashboard** - Visual stats with pie chart
-- **🔍 Search & Filter** - Find templates instantly  
-- **Smart Matching** - Auto-matches templates to containers  
-- **Template Cleanup** - Remove unused templates safely
-- **💾 One-Click Backups** - Backup all containers & templates
-- **🔐 Secure** - API key authentication, all vulnerabilities fixed
+### 🎯 Core Capabilities
 
-### New in v1.3.0
-- **🎨 Professional UI** - *arr-style sidebar navigation
-- **🌓 Theme Toggle** - Dark/Light mode with persistence
-- **🎮 Container Controls** - Start/Stop/Restart containers directly
-- **📱 Mobile Responsive** - Hamburger menu and touch-friendly
-- **📚 Migration Guides** - Docker vDisk to folder conversion guides
-- **🔍 Enhanced Search** - Real-time template search and filtering
-- **📊 Visual Dashboard** - Pie chart and comprehensive stats
+#### 📊 **Dashboard & Analytics**
+- **Visual Statistics** - Comprehensive overview with pie charts
+- **Real-time Data** - Live container and template counts
+- **Health Monitoring** - Template usage and container status
+- **Quick Actions** - One-click navigation to all sections
+
+#### 🔍 **Template Management**
+- **Smart Search & Filter** - Find templates instantly with real-time search
+- **Sortable Tables** - Click column headers to sort by name, size, date, status
+- **Template Editor** - Hybrid form-based and raw XML editing
+- **Bulk Operations** - Select multiple templates for batch actions
+- **Cleanup Tools** - Safely remove unused templates with backup
+- **Template Matching** - Auto-detect which templates are in use
+
+#### 🐳 **Container Management**
+- **Container Controls** - Start, stop, restart containers directly
+- **Sortable Container List** - Sort by name, image, state
+- **Bulk Container Actions** - Stop/restart multiple containers
+- **Container Status** - Real-time running/stopped status
+- **Template Association** - See which containers have templates
+
+#### 💾 **Backup & Restore**
+- **One-Click Backups** - Backup all templates and container configs
+- **Automatic Naming** - Timestamped backup files
+- **Restore Functionality** - Restore templates from backups
+- **Backup Management** - List, delete, and restore backups
+
+#### 🎨 **User Interface**
+- **Professional Design** - *arr-style sidebar navigation
+- **Theme Toggle** - Dark/Light mode with persistence
+- **Mobile Responsive** - Hamburger menu and touch-friendly design
+- **Sortable Tables** - Click any column header to sort
+- **Visual Indicators** - Clear status badges and icons
+- **Keyboard Shortcuts** - Power user navigation
+
+### 🆕 **New in v1.4.0**
+- **Sortable Tables** - Click any column header to sort data
+- **Hybrid Template Editor** - Form-based editing with XML toggle
+- **Bulk Operations** - Select multiple items for batch actions
+- **Professional Button Styling** - Consistent UI across all sections
+- **Enhanced Container Management** - Direct container controls
+- **Improved Navigation** - Clickable dashboard cards
 
 ---
 
@@ -69,43 +145,62 @@ Your API key is required for security. You have two options:
 
 ## 📋 Usage
 
-### Search & Filter Templates
+### 🏠 **Dashboard Overview**
+
+**Visual Statistics:**
+- **Template Health** - Pie chart showing matched vs unused templates
+- **Container Status** - Running vs stopped containers
+- **Backup Count** - Total backups available
+- **Quick Navigation** - Click any stat card to jump to that section
+
+### 🔍 **Template Management**
 
 **Templates Tab:**
-1. Use search box to find templates by name
-2. Filter dropdown: All/Matched/Unused
-3. Sort dropdown: Name/Size/Date
-4. Clear with ✕ button
+1. **Search** - Real-time search by template name or container name
+2. **Filter** - All/Matched/Unused templates
+3. **Sort** - Click column headers to sort by:
+   - **Status** - Matched/Unused
+   - **Template** - Filename (A-Z)
+   - **Container** - Associated container name
+   - **Size** - File size (largest first)
+   - **Modified** - Date (newest first)
+4. **Bulk Actions** - Select multiple templates for batch operations
+5. **Individual Actions** - Click template row to see actions underneath
 
-### Dashboard Overview
+**Template Editor:**
+- **Form Mode** - User-friendly form fields for easy editing
+- **Raw XML Mode** - Toggle to edit XML directly
+- **Port Management** - Add/remove port mappings
+- **Volume Management** - Add/remove volume mounts
+- **Environment Variables** - Add/remove environment settings
 
-**Visual Stats:**
-- Template count with matched/unused breakdown
-- Container count with running status
-- Backup count
-- **Pie Chart** showing template health
+### 🐳 **Container Management**
 
-### Cleanup Unused Templates
+**Containers Tab:**
+1. **Sort** - Click column headers to sort by:
+   - **Name** - Container name (A-Z)
+   - **Image** - Docker image name
+   - **State** - Running/Stopped status
+2. **Individual Actions** - Click container row to see actions underneath
+3. **Bulk Actions** - Select multiple containers for batch operations
+4. **Container Controls** - Start, stop, restart containers directly
 
-1. **Templates** tab → **Cleanup Unused**
-2. Review list (templates without containers)
-3. Click **Confirm** or **Cancel**
-4. Auto-backed up to `/backups/deleted-templates/`
+### 💾 **Backup & Restore**
 
-### Create Backup
-
+**Create Backup:**
 1. **Backups** tab → **Create Backup**
-2. Optional: Custom name
-3. Includes:
-   - All template XML files
-   - Container configurations (JSON)
-   - Template-to-container mapping
+2. Automatic timestamped naming
+3. Includes all templates and container configurations
 
-### Restore Backup
-
+**Restore Backup:**
 1. **Backups** tab → Find your backup
 2. Click **Restore**
-3. Templates copied back to templates directory
+3. Templates restored to original location
+
+**Backup Management:**
+- **List Backups** - See all available backups
+- **Delete Backups** - Remove old backups
+- **Restore** - Restore from any backup
 
 ---
 
@@ -187,7 +282,8 @@ Your API key is required for security. You have two options:
 
 ### Version History
 
-- **v1.3.0** (Current) - Professional UI, theme toggle, container controls, migration guides
+- **v1.4.0** (Current) - Sortable tables, hybrid template editor, bulk operations, professional styling
+- **v1.3.0** - Professional UI, theme toggle, container controls, migration guides
 - **v1.2.0** - Search/filter, pie chart, improved UX
 - **v1.1.0** - Security hardening, API authentication
 - **v1.0.0** - Initial release
@@ -245,11 +341,13 @@ Your API key is required for security. You have two options:
 ## 🎉 What's Next?
 
 Upcoming features being considered:
-- Template preview/edit
-- Clone/copy templates
-- Scheduled backups
-- Export/import
-- Container actions (start/stop)
+- **Scheduled Backups** - Automated backup scheduling
+- **Template Cloning** - Copy and modify existing templates
+- **Advanced Search** - Search within template content
+- **Export/Import** - Share templates between systems
+- **Container Logs** - View container logs directly
+- **Template Validation** - Validate XML before saving
+- **Bulk Template Operations** - Mass edit multiple templates
 
 ---
 
@@ -267,7 +365,8 @@ Built for the Unraid community to make Docker template management easier and saf
 
 ---
 
-**Current Version:** 1.3.0  
+**Current Version:** 1.4.0  
 **Unraid Tested:** 6.11+  
 **Status:** ✅ Production Ready  
-**Security:** ✅ All vulnerabilities fixed
+**Security:** ✅ All vulnerabilities fixed  
+**Features:** ✅ Sortable Tables | Hybrid Editor | Bulk Operations
