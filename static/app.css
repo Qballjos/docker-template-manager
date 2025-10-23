@@ -1166,14 +1166,14 @@ button:disabled {
 }
 
 .sidebar-logo {
-  width: 40px;
-  height: 40px;
+  width: auto;
+  height: auto;
   border-radius: 8px;
-  background: var(--unraid-orange);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  padding: 8px;
 }
 
 .sidebar-title {
@@ -1834,10 +1834,12 @@ tr:hover {
 
 /* Logo size fix */
 .logo {
-  height: 40px;
+  height: 32px;
   width: auto;
-  max-width: 200px;
+  max-width: 150px;
   object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
 
 /* Selection count styling */
