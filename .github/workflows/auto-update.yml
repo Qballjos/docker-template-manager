@@ -1,9 +1,10 @@
 name: Auto-Update Dependencies
 
-on:
-  schedule:
-    - cron: '0 3 * * 0'  # Run every Sunday at 3 AM
-  workflow_dispatch:
+# Disabled auto-update workflow to prevent permission issues
+# on:
+#   schedule:
+#     - cron: '0 3 * * 0'  # Run every Sunday at 3 AM
+#   workflow_dispatch:
 
 jobs:
   update-dependencies:
