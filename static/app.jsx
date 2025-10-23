@@ -1350,8 +1350,15 @@ function App() {
           React.createElement('button', { onClick: () => fetchStats() }, 
             React.createElement('i', { className: 'lni lni-reload' }),
             React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh Stats')
-          )
-        ),
+          ),
+              React.createElement('button', {
+            onClick: () => window.open('/static/guide.html', '_blank'),
+            style: { backgroundColor: 'var(--unraid-success)', borderColor: 'var(--unraid-success)' }
+              }, 
+                React.createElement('i', { className: 'lni lni-book' }),
+                React.createElement('span', { style: { marginLeft: '4px' } }, 'View Guide')
+              )
+            ),
         // Migration Guide Section
         React.createElement('div', { className: 'migration-guide-section' },
           React.createElement('h3', null, 
@@ -1384,7 +1391,7 @@ function App() {
               ),
               React.createElement('button', {
                 className: 'migration-button',
-                onClick: () => window.open('https://wiki.unraid.net/Docker_Migration#From_vDisk_to_Folder', '_blank')
+                onClick: () => window.open('/static/guide.html', '_blank')
               }, '📖 View Guide')
             ),
             // Folder to vDisk Guide
