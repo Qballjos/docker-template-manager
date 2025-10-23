@@ -188,8 +188,6 @@ jobs:
       
       - name: Update version in repository
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "chore: update version to ${{ steps.version.outputs.VERSION_NUMBER }}"
-          git push
+          # Skip version updates for tag releases
+          # Version files are already updated in the repository
+          echo "Skipping version updates for tag release: ${{ steps.version.outputs.VERSION }}"
