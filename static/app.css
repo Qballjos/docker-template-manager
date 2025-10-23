@@ -1754,45 +1754,65 @@ tr:hover {
   }
 }
 
-/* Lineicons styling */
-.lni {
+/* Logo styling */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.sidebar-logo img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* Font Awesome styling */
+.fas, .fab, .far {
   font-size: 16px;
   line-height: 1;
   vertical-align: middle;
+  display: inline-block;
 }
 
-.nav-icon.lni {
+.nav-icon {
   font-size: 18px;
   margin-right: 8px;
+  width: 20px;
+  text-align: center;
 }
 
-.theme-icon.lni {
+.theme-icon {
   font-size: 16px;
   margin-right: 6px;
 }
 
 /* Button icons */
-.btn-small i.lni,
-.btn-primary i.lni,
-.btn-secondary i.lni,
-.btn-danger i.lni,
-.btn-success i.lni {
+.btn-small i,
+.btn-primary i,
+.btn-secondary i,
+.btn-danger i,
+.btn-success i {
   font-size: 14px;
+  margin-right: 4px;
 }
 
 /* Top bar button icons */
-.top-bar-button i.lni {
+.top-bar-button i {
   font-size: 14px;
   margin-right: 4px;
 }
 
 /* Migration guide icons */
-.migration-card h4 i.lni {
+.migration-card h4 i {
   font-size: 16px;
   color: var(--unraid-orange);
+  margin-right: 8px;
 }
 
-.migration-card h3 i.lni {
+.migration-card h3 i {
   font-size: 18px;
   color: var(--unraid-orange);
+  margin-right: 8px;
 }

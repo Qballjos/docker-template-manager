@@ -645,7 +645,12 @@ function App() {
           React.createElement('img', { 
             src: '/static/png/logo.png', 
             alt: 'Docker Template Manager',
-            style: { width: '48px', height: '48px' }
+            style: { 
+              width: '40px', 
+              height: '40px',
+              objectFit: 'contain',
+              display: 'block'
+            }
           })
         )
       ),
@@ -655,28 +660,28 @@ function App() {
           className: `nav-item ${activeTab === 'dashboard' ? 'active' : ''}`,
           onClick: () => { setActiveTab('dashboard'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'lni lni-dashboard nav-icon' }),
+          React.createElement('i', { className: 'fas fa-tachometer-alt nav-icon' }),
           React.createElement('span', null, 'Dashboard')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'templates' ? 'active' : ''}`,
           onClick: () => { setActiveTab('templates'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'lni lni-files nav-icon' }),
+          React.createElement('i', { className: 'fas fa-file-alt nav-icon' }),
           React.createElement('span', null, 'Templates')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'containers' ? 'active' : ''}`,
           onClick: () => { setActiveTab('containers'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'lni lni-docker nav-icon' }),
+          React.createElement('i', { className: 'fab fa-docker nav-icon' }),
           React.createElement('span', null, 'Containers')
         ),
         React.createElement('div', {
           className: `nav-item ${activeTab === 'backups' ? 'active' : ''}`,
           onClick: () => { setActiveTab('backups'); setMobileMenuOpen(false); }
         },
-          React.createElement('i', { className: 'lni lni-cloud-upload nav-icon' }),
+          React.createElement('i', { className: 'fas fa-cloud-upload-alt nav-icon' }),
           React.createElement('span', null, 'Backups')
         )
       ),
