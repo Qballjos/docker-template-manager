@@ -104,12 +104,13 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, var(--unraid-orange), var(--unraid-blue));
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
             color: var(--unraid-text-primary);
             padding: 4rem 0;
             text-align: center;
             position: relative;
             overflow: hidden;
+            border-bottom: 2px solid var(--unraid-orange);
         }
         
         .header::before {
@@ -120,15 +121,17 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(45deg, 
-                rgba(255, 140, 0, 0.1) 0%, 
-                rgba(74, 158, 255, 0.1) 50%, 
-                rgba(255, 140, 0, 0.1) 100%);
-            animation: shimmer 3s ease-in-out infinite;
+                rgba(255, 140, 0, 0.15) 0%, 
+                rgba(255, 140, 0, 0.05) 25%,
+                rgba(255, 140, 0, 0.1) 50%, 
+                rgba(255, 140, 0, 0.05) 75%,
+                rgba(255, 140, 0, 0.15) 100%);
+            animation: shimmer 4s ease-in-out infinite;
         }
         
         @keyframes shimmer {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
         }
 
         .header-logo {
