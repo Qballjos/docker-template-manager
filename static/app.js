@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = window.location.origin;
+const API_URL = 'http://localhost:8889';
 
 function App() {
   const [activeTab, setActiveTab] = React.useState('dashboard');
