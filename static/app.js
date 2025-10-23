@@ -10,6 +10,8 @@ function App() {
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
   const [selectedContainers, setSelectedContainers] = React.useState([]);
   const [selectedContainerRow, setSelectedContainerRow] = React.useState(null);
+  const [selectedBackups, setSelectedBackups] = React.useState([]);
+  const [selectedBackupRow, setSelectedBackupRow] = React.useState(null);
   const [templateSortBy, setTemplateSortBy] = React.useState('name');
   const [templateSortOrder, setTemplateSortOrder] = React.useState('asc');
   const [containerSortBy, setContainerSortBy] = React.useState('name');
@@ -624,6 +626,47 @@ function App() {
       console.error('Error deleting backup:', error);
       alert('Error deleting backup');
     }
+  };
+
+  const toggleBackupSelection = (backupName) => {
+    setSelectedBackups(prev => 
+      prev.includes(backupName) 
+        ? prev.filter(name => name !== backupName)
+        : [...prev, backupName]
+    );
+  };
+
+  const handleBulkBackupAction = async (action) => {
+    if (selectedBackups.length === 0) {
+      alert('No backups selected');
+      return;
+    }
+
+    if (action === 'delete') {
+      if (!window.confirm(`Delete ${selectedBackups.length} selected backups?`)) {
+        return;
+      }
+    }
+    
+    setLoading(true);
+    try {
+      const promises = selectedBackups.map(backupName => {
+        if (action === 'delete') {
+          return fetchWithAuth(`${API_URL}/api/backups/${backupName}`, {
+            method: 'DELETE'
+          });
+        }
+        return Promise.resolve();
+      });
+      
+      await Promise.all(promises);
+      setSelectedBackups([]);
+      fetchBackups();
+    } catch (error) {
+      console.error(`Error ${action}ing backups:`, error);
+      alert(`Error ${action}ing backups`);
+    }
+    setLoading(false);
   };
 
   const handleRestoreBackup = async (backupName) => {
@@ -1286,7 +1329,18 @@ function App() {
             React.createElement('i', { className: 'lni lni-reload' }),
             React.createElement('span', { style: { marginLeft: '4px' } }, 'Refresh')
           ),
-          activeTab === 'backups' && React.createElement('button', {
+          activeTab === 'backups' && selectedBackups.length > 0 && React.createElement(React.Fragment, null,
+            React.createElement('span', { className: 'selection-count' }, `${selectedBackups.length} selected`),
+            React.createElement('button', {
+              className: 'top-bar-button danger',
+              onClick: () => handleBulkBackupAction('delete'),
+              disabled: loading
+            }, 
+              React.createElement('i', { className: 'lni lni-trash-can' }),
+              React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete Selected')
+            )
+          ),
+          activeTab === 'backups' && selectedBackups.length === 0 && React.createElement('button', {
             className: 'top-bar-button primary',
             onClick: handleCreateBackup,
             disabled: loading
@@ -1750,6 +1804,19 @@ function App() {
             React.createElement('table', null,
               React.createElement('thead', null,
                 React.createElement('tr', null,
+                  React.createElement('th', { style: { width: '40px' } }, 
+                    React.createElement('input', {
+                      type: 'checkbox',
+                      checked: selectedBackups.length === getFilteredAndSortedBackups().length && getFilteredAndSortedBackups().length > 0,
+                      onChange: (e) => {
+                        if (e.target.checked) {
+                          setSelectedBackups(getFilteredAndSortedBackups().map(b => b.name));
+                        } else {
+                          setSelectedBackups([]);
+                        }
+                      }
+                    })
+                  ),
                   React.createElement('th', { 
                     className: 'sortable',
                     onClick: () => handleBackupSort('name'),
@@ -1799,42 +1866,55 @@ function App() {
                     React.createElement('span', { className: 'sort-icon' }, 
                       getSortIcon(backupSortBy, 'templates', backupSortOrder)
                     )
-                  ),
-                  React.createElement('th', null, 'Actions')
+                  )
                 )
               ),
               React.createElement('tbody', null,
-                getFilteredAndSortedBackups().map(backup => React.createElement('tr', { key: backup.name },
-                  React.createElement('td', null,
-                    React.createElement('strong', null, backup.name)
+                getFilteredAndSortedBackups().map(backup => React.createElement(React.Fragment, { key: backup.name },
+                  React.createElement('tr', { 
+                    onClick: () => setSelectedBackupRow(selectedBackupRow === backup.name ? null : backup.name),
+                    style: { cursor: 'pointer' }
+                  },
+                    React.createElement('td', { onClick: (e) => e.stopPropagation() },
+                      React.createElement('input', {
+                        type: 'checkbox',
+                        checked: selectedBackups.includes(backup.name),
+                        onChange: () => toggleBackupSelection(backup.name)
+                      })
+                    ),
+                    React.createElement('td', null,
+                      React.createElement('strong', null, backup.name)
+                    ),
+                    React.createElement('td', null, formatDate(backup.created)),
+                    React.createElement('td', null, formatBytes(backup.size)),
+                    React.createElement('td', null, backup.container_count || 0),
+                    React.createElement('td', null, backup.template_count || 0)
                   ),
-                  React.createElement('td', null, formatDate(backup.created)),
-                  React.createElement('td', null, formatBytes(backup.size)),
-                  React.createElement('td', null, backup.container_count || 0),
-                  React.createElement('td', null, backup.template_count || 0),
-                  React.createElement('td', null,
-              React.createElement('div', { className: 'backup-actions' },
-                React.createElement('button', { 
-                        className: 'btn btn-primary',
-                  onClick: () => handleRestoreBackup(backup.name),
-                        disabled: loading,
-                        title: 'Restore backup'
-                }, 
-                  React.createElement('i', { className: 'lni lni-reload' }),
-                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
-                ),
-                React.createElement('button', { 
-                        className: 'btn btn-danger',
-                  onClick: () => handleDeleteBackup(backup.name),
-                        disabled: loading,
-                        title: 'Delete backup'
-                }, 
-                  React.createElement('i', { className: 'lni lni-trash-can' }),
-                  React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                  selectedBackupRow === backup.name && React.createElement('tr', { className: 'actions-row' },
+                    React.createElement('td', { colSpan: 6, className: 'actions-cell' },
+                      React.createElement('div', { className: 'backup-actions' },
+                        React.createElement('button', { 
+                          className: 'btn btn-primary',
+                          onClick: () => handleRestoreBackup(backup.name),
+                          disabled: loading,
+                          title: 'Restore backup'
+                        }, 
+                          React.createElement('i', { className: 'lni lni-reload' }),
+                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Restore')
+                        ),
+                        React.createElement('button', { 
+                          className: 'btn btn-danger',
+                          onClick: () => handleDeleteBackup(backup.name),
+                          disabled: loading,
+                          title: 'Delete backup'
+                        }, 
+                          React.createElement('i', { className: 'lni lni-trash-can' }),
+                          React.createElement('span', { style: { marginLeft: '4px' } }, 'Delete')
+                        )
                       )
-                )
-              )
-            ))
+                    )
+                  )
+                ))
           )
         )
           )
