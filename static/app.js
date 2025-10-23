@@ -10,6 +10,10 @@ function App() {
   const [selectedTemplates, setSelectedTemplates] = React.useState([]);
   const [selectedContainers, setSelectedContainers] = React.useState([]);
   const [selectedContainerRow, setSelectedContainerRow] = React.useState(null);
+  const [templateSortBy, setTemplateSortBy] = React.useState('name');
+  const [templateSortOrder, setTemplateSortOrder] = React.useState('asc');
+  const [containerSortBy, setContainerSortBy] = React.useState('name');
+  const [containerSortOrder, setContainerSortOrder] = React.useState('asc');
   const [apiKey, setApiKey] = React.useState(localStorage.getItem('apiKey') || '');
   const [showApiKeyPrompt, setShowApiKeyPrompt] = React.useState(!localStorage.getItem('apiKey'));
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -440,6 +444,30 @@ function App() {
     alert(`Performed ${action} on ${selectedContainers.length} containers`);
   };
 
+  // Sorting helper functions
+  const handleTemplateSort = (column) => {
+    if (templateSortBy === column) {
+      setTemplateSortOrder(templateSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setTemplateSortBy(column);
+      setTemplateSortOrder('asc');
+    }
+  };
+
+  const handleContainerSort = (column) => {
+    if (containerSortBy === column) {
+      setContainerSortOrder(containerSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setContainerSortBy(column);
+      setContainerSortOrder('asc');
+    }
+  };
+
+  const getSortIcon = (currentSortBy, sortBy, sortOrder) => {
+    if (currentSortBy !== sortBy) return '↕️';
+    return sortOrder === 'asc' ? '↑' : '↓';
+  };
+
   const handleRenameTemplate = (filename) => {
     const baseName = filename.replace('.xml', '');
     setRenamingTemplate(filename);
@@ -742,14 +770,35 @@ function App() {
 
     // Apply sorting
     filtered.sort((a, b) => {
-      if (sortBy === 'name') {
-        return a.filename.localeCompare(b.filename);
-      } else if (sortBy === 'size') {
-        return b.size - a.size;
-      } else if (sortBy === 'date') {
-        return new Date(b.modified) - new Date(a.modified);
+      let result = 0;
+      if (templateSortBy === 'name') {
+        result = a.filename.localeCompare(b.filename);
+      } else if (templateSortBy === 'size') {
+        result = b.size - a.size;
+      } else if (templateSortBy === 'date') {
+        result = new Date(b.modified) - new Date(a.modified);
       }
-      return 0;
+      return templateSortOrder === 'desc' ? -result : result;
+    });
+
+    return filtered;
+  };
+
+  // Filter and sort containers
+  const getFilteredAndSortedContainers = () => {
+    let filtered = containers;
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let result = 0;
+      if (containerSortBy === 'name') {
+        result = a.name.localeCompare(b.name);
+      } else if (containerSortBy === 'image') {
+        result = a.image.localeCompare(b.image);
+      } else if (containerSortBy === 'state') {
+        result = a.state.localeCompare(b.state);
+      }
+      return containerSortOrder === 'desc' ? -result : result;
     });
 
     return filtered;
@@ -1376,11 +1425,56 @@ function App() {
                     checked: selectedTemplates.length === templates.length && templates.length > 0
                   })
                 ),
-                React.createElement('th', null, 'Status'),
-                React.createElement('th', null, 'Template'),
-                React.createElement('th', null, 'Container'),
-                React.createElement('th', null, 'Size'),
-                React.createElement('th', null, 'Modified')
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleTemplateSort('status'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'Status ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(templateSortBy, 'status', templateSortOrder)
+                  )
+                ),
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleTemplateSort('name'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'Template ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(templateSortBy, 'name', templateSortOrder)
+                  )
+                ),
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleTemplateSort('container'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'Container ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(templateSortBy, 'container', templateSortOrder)
+                  )
+                ),
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleTemplateSort('size'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'Size ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(templateSortBy, 'size', templateSortOrder)
+                  )
+                ),
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleTemplateSort('date'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'Modified ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(templateSortBy, 'date', templateSortOrder)
+                  )
+                )
               )
             ),
             React.createElement('tbody', null,
@@ -1479,42 +1573,69 @@ function App() {
                     checked: selectedContainers.length === containers.length && containers.length > 0
                   })
                 ),
-                React.createElement('th', null, 'Name'),
-                React.createElement('th', null, 'Image'),
-                React.createElement('th', null, 'State'),
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleContainerSort('name'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'Name ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(containerSortBy, 'name', containerSortOrder)
+                  )
+                ),
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleContainerSort('image'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'Image ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(containerSortBy, 'image', containerSortOrder)
+                  )
+                ),
+                React.createElement('th', { 
+                  className: 'sortable',
+                  onClick: () => handleContainerSort('state'),
+                  style: { cursor: 'pointer' }
+                }, 
+                  'State ',
+                  React.createElement('span', { className: 'sort-icon' }, 
+                    getSortIcon(containerSortBy, 'state', containerSortOrder)
+                  )
+                ),
                 React.createElement('th', null, 'Template')
               )
             ),
             React.createElement('tbody', null,
-              containers.map(container => React.createElement(React.Fragment, { key: container.id },
+              getFilteredAndSortedContainers().map(container => React.createElement(React.Fragment, { key: container.id },
                 // Main container row
                 React.createElement('tr', { 
                   className: `${selectedContainerRow === container.id ? 'selected-row' : ''}`,
                   onClick: () => setSelectedContainerRow(selectedContainerRow === container.id ? null : container.id),
                   style: { cursor: 'pointer' }
               },
-                  React.createElement('td', { className: 'checkbox-cell' },
-                    React.createElement('input', {
-                      type: 'checkbox',
+                React.createElement('td', { className: 'checkbox-cell' },
+                  React.createElement('input', {
+                    type: 'checkbox',
                       checked: selectedContainers.includes(container.id),
                       onChange: (e) => { e.stopPropagation(); toggleContainerSelection(container.id); }
                     })
                   ),
-                  React.createElement('td', null,
-                    React.createElement('strong', null, container.name),
-                    React.createElement('div', { className: 'text-small text-muted' }, container.id)
-                  ),
-                  React.createElement('td', { className: 'text-small' }, container.image),
-                  React.createElement('td', null,
-                    React.createElement('span', { className: `badge badge-${container.state}` }, container.status)
-                  ),
-                  React.createElement('td', null,
-                    container.has_template ? 
-                      React.createElement('span', { className: 'status-badge status-matched' }, 
-                        `✓ ${container.template.filename}`) :
-                      React.createElement('span', { className: 'status-badge status-warning' }, 
-                        '⚠️ No template')
-                  )
+                React.createElement('td', null,
+                  React.createElement('strong', null, container.name),
+                  React.createElement('div', { className: 'text-small text-muted' }, container.id)
+                ),
+                React.createElement('td', { className: 'text-small' }, container.image),
+                React.createElement('td', null,
+                  React.createElement('span', { className: `badge badge-${container.state}` }, container.status)
+                ),
+                React.createElement('td', null,
+                  container.has_template ? 
+                    React.createElement('span', { className: 'status-badge status-matched' }, 
+                      `✓ ${container.template.filename}`) :
+                    React.createElement('span', { className: 'status-badge status-warning' }, 
+                      '⚠️ No template')
+                )
                 ),
                 // Actions row (only when selected)
                 selectedContainerRow === container.id && React.createElement('tr', { className: 'actions-row' },
@@ -1522,9 +1643,9 @@ function App() {
                   React.createElement('td', null, ''), // Empty name cell
                   React.createElement('td', null, ''), // Empty image cell
                   React.createElement('td', { className: 'actions-cell' },
-                    React.createElement('div', { className: 'container-actions' },
+                React.createElement('div', { className: 'container-actions' },
                       container.state === 'running' ? React.createElement(React.Fragment, null,
-                        React.createElement('button', {
+                    React.createElement('button', { 
                           className: 'btn btn-primary',
                           onClick: (e) => { e.stopPropagation(); handleContainerAction(container.name, 'stop'); },
                           disabled: loading,
@@ -1551,7 +1672,7 @@ function App() {
                         React.createElement('i', { className: 'lni lni-play' }),
                         React.createElement('span', { style: { marginLeft: '4px' } }, 'Start')
                       )
-                    )
+                  )
                   ),
                   React.createElement('td', null, '')  // Empty template cell
                 )

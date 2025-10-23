@@ -2079,3 +2079,19 @@ tr:hover {
   background-color: var(--unraid-bg-hover);
   border-color: var(--unraid-border-light);
 }
+
+/* Sortable table headers */
+.sortable {
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.sortable:hover {
+  background-color: var(--unraid-bg-hover);
+}
+
+.sort-icon {
+  margin-left: 4px;
+  font-size: 12px;
+  color: var(--unraid-text-secondary);
+}
