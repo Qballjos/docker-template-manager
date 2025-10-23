@@ -1860,35 +1860,23 @@ tr:hover {
   transition: all 0.2s ease;
 }
 
-.template-actions .btn-primary {
-  background-color: var(--unraid-orange);
-  border-color: var(--unraid-orange);
-  color: white;
-}
-
-.template-actions .btn-primary:hover {
-  background-color: var(--unraid-orange-hover);
-  border-color: var(--unraid-orange-hover);
-}
-
-.template-actions .btn-secondary {
+.template-actions .btn {
   background-color: var(--unraid-bg-secondary);
   border-color: var(--unraid-border);
   color: var(--unraid-text-primary);
+  font-size: 12px;
+  padding: 4px 8px;
+  min-width: 60px;
 }
 
-.template-actions .btn-secondary:hover {
+.template-actions .btn:hover {
   background-color: var(--unraid-bg-hover);
   border-color: var(--unraid-border-light);
-}
-
-.template-actions .btn-danger {
-  background-color: var(--unraid-danger);
-  border-color: var(--unraid-danger);
-  color: white;
+  color: var(--unraid-text-primary);
 }
 
 .template-actions .btn-danger:hover {
-  background-color: var(--unraid-danger-dark);
-  border-color: var(--unraid-danger-dark);
+  background-color: var(--unraid-danger);
+  border-color: var(--unraid-danger);
+  color: white;
 }
