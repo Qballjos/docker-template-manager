@@ -21,13 +21,15 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <!-- Your App Component (plain JavaScript, no JSX) -->
-    <script type="text/javascript" src="/static/app.jsx"></script>
+    <script type="text/javascript" src="/static/app.jsx" defer></script>
     
     <!-- Mount React App -->
-    <script>
-      const { createRoot } = ReactDOM;
-      const root = createRoot(document.getElementById('root'));
-      root.render(React.createElement(window.App));
+    <script defer>
+      document.addEventListener('DOMContentLoaded', () => {
+        const { createRoot } = ReactDOM;
+        const root = createRoot(document.getElementById('root'));
+        root.render(React.createElement(window.App));
+      });
     </script>
   </body>
 </html>
