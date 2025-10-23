@@ -47,14 +47,16 @@ jobs:
           # Copy favicon and logo if they exist
           if [ -f "static/png/favicon.png" ]; then
             cp static/png/favicon.png docs/assets/favicon.png
-            echo "✅ Favicon copied"
+            echo "✅ Favicon copied ($(stat -c%s static/png/favicon.png) bytes)"
           else
             echo "⚠️  Favicon not found, skipping"
           fi
           
           if [ -f "static/png/logo.png" ]; then
             cp static/png/logo.png docs/assets/logo.png
-            echo "✅ Logo copied"
+            echo "✅ Logo copied ($(stat -c%s static/png/logo.png) bytes)"
+            echo "📁 Logo file details:"
+            ls -la docs/assets/logo.png || echo "Logo copy failed"
           else
             echo "⚠️  Logo not found, skipping"
           fi
