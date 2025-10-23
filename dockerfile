@@ -14,8 +14,8 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-        curl \
-        ca-certificates && \
+        curl=7.88.1-10+deb12u7 \
+        ca-certificates=20230311 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
