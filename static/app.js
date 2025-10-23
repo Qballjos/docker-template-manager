@@ -936,8 +936,7 @@ function App() {
                 React.createElement('th', null, 'Template'),
                 React.createElement('th', null, 'Container'),
                 React.createElement('th', null, 'Size'),
-                React.createElement('th', null, 'Modified'),
-                React.createElement('th', null, 'Actions')
+                React.createElement('th', null, 'Modified')
               )
             ),
             React.createElement('tbody', null,
@@ -967,12 +966,11 @@ function App() {
                       React.createElement('span', { className: 'text-muted' }, '-')
                   ),
                   React.createElement('td', null, formatBytes(template.size)),
-                  React.createElement('td', null, formatDate(template.modified)),
-                  React.createElement('td', null, '') // Empty actions column
+                  React.createElement('td', null, formatDate(template.modified))
                 ),
                 // Actions row (only when selected)
                 selectedRow === template.filename && React.createElement('tr', { className: 'actions-row' },
-                  React.createElement('td', { colSpan: 6, className: 'actions-cell' },
+                  React.createElement('td', { colSpan: 5, className: 'actions-cell' },
                     React.createElement('div', { className: 'template-actions' },
                       React.createElement('button', { 
                         className: 'btn btn-primary',
