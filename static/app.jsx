@@ -913,7 +913,7 @@ function App() {
             React.createElement('span', null, 'Always create a backup before migrating! Use the backup feature above.')
           )
         )
-      ) : null,
+      ),
       activeTab === 'templates' && React.createElement('div', { className: 'templates' },
         // Bulk Actions Bar (only when templates are selected)
         selectedTemplates.length > 0 && React.createElement('div', { className: 'bulk-actions-bar' },
@@ -1095,7 +1095,7 @@ function App() {
             )
           )
         )
-      ) : null,
+      ),
       activeTab === 'containers' && React.createElement('div', { className: 'containers' },
         // Bulk Actions Bar (only when containers are selected)
         selectedContainers.length > 0 && React.createElement('div', { className: 'bulk-actions-bar' },
@@ -1320,7 +1320,7 @@ function App() {
               )
             ))
           )
-      ) : null
+        ),
     ),
     // Close content-wrapper
     React.createElement('footer', { className: 'footer' },
