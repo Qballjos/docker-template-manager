@@ -104,7 +104,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
           name: Docker Template Manager ${{ steps.version.outputs.VERSION }}
